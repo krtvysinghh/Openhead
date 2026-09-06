@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { ProductType } from '@openhead/core';
 import { glassStyles } from '@openhead/ui';
 import {
@@ -17,10 +17,11 @@ import {
 } from 'lucide-react';
 
 interface HeaderProps {
-  activeProduct: ProductType;
-  onSelectProduct: (product: ProductType) => void;
+  activeProduct: ProductType | 'home';
+  onSelectProduct: (product: ProductType | 'home') => void;
   title: string;
   onOpenCommandPalette: () => void;
+  onOpenSearch: () => void;
   onToggleAi: () => void;
   onOpenRecentFiles: () => void;
   onOpenSettings: () => void;
@@ -37,6 +38,7 @@ export const Header: React.FC<HeaderProps> = ({
   onSelectProduct,
   title: _title,
   onOpenCommandPalette,
+  onOpenSearch,
   onToggleAi,
   onOpenRecentFiles,
   onOpenSettings,
@@ -47,7 +49,6 @@ export const Header: React.FC<HeaderProps> = ({
   onRedo,
   isAutosaved,
 }) => {
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   return (
     <header className={`h-14 px-4 flex items-center justify-between border-b border-white/10 ${glassStyles.panel} relative z-30`}>
@@ -55,56 +56,34 @@ export const Header: React.FC<HeaderProps> = ({
       <div className="flex items-center gap-6">
         <div className="relative">
           <button
-            onClick={() => setIsMenuOpen((prev) => !prev)}
+            onClick={() => onSelectProduct('home')}
             className="flex items-center gap-2.5 p-1 rounded-xl hover:bg-white/5 transition-all"
+            title="Go to Openhead Home"
           >
             <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-indigo-600 via-indigo-500 to-purple-500 flex items-center justify-center shadow-lg shadow-indigo-500/30 border border-white/20">
               <ShieldCheck className="w-4 h-4 text-white" />
             </div>
-            <div className="text-left">
+            <div className="text-left hidden sm:block">
               <span className="font-bold text-sm tracking-tight text-white flex items-center gap-1">
-                OPENHEAD <Menu className="w-3 h-3 text-slate-400" />
+                OPENHEAD
               </span>
-              <span className="text-[10px] block -mt-1 font-medium text-indigo-400">STUDIO</span>
+              <span className="text-[10px] block -mt-1 font-medium text-indigo-400">OFFICE</span>
             </div>
           </button>
-
-          {/* Dropdown Menu */}
-          {isMenuOpen && (
-            <div className="absolute left-0 top-12 w-52 bg-slate-900/95 backdrop-blur-2xl border border-white/15 rounded-xl shadow-2xl p-1.5 space-y-1 text-xs text-slate-200 animate-in fade-in zoom-in-95 duration-150">
-              <button
-                onClick={() => {
-                  onManualSave();
-                  setIsMenuOpen(false);
-                }}
-                className="w-full flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-white/10 text-left"
-              >
-                <Save className="w-3.5 h-3.5 text-indigo-400" /> Save Document (⌘S)
-              </button>
-              <button
-                onClick={() => {
-                  onOpenRecentFiles();
-                  setIsMenuOpen(false);
-                }}
-                className="w-full flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-white/10 text-left"
-              >
-                <FolderOpen className="w-3.5 h-3.5 text-emerald-400" /> Recent Documents (⌘O)
-              </button>
-              <button
-                onClick={() => {
-                  onOpenSettings();
-                  setIsMenuOpen(false);
-                }}
-                className="w-full flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-white/10 text-left"
-              >
-                <Settings className="w-3.5 h-3.5 text-amber-400" /> Preferences
-              </button>
-            </div>
-          )}
         </div>
 
         {/* Product Switcher Pills */}
         <div className="flex items-center p-0.5 rounded-xl bg-slate-950/60 border border-white/10">
+          <button
+            onClick={() => onSelectProduct('home')}
+            className={`flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-medium transition-all ${
+              activeProduct === 'home'
+                ? 'bg-white/10 text-white shadow-sm border border-white/20'
+                : 'text-slate-400 hover:text-slate-200'
+            }`}
+          >
+            Home
+          </button>
           <button
             onClick={() => onSelectProduct('pen')}
             className={`flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-medium transition-all ${
@@ -113,7 +92,7 @@ export const Header: React.FC<HeaderProps> = ({
                 : 'text-slate-400 hover:text-slate-200'
             }`}
           >
-            <FileText className="w-3.5 h-3.5" /> Pen (Docs)
+            <FileText className="w-3.5 h-3.5" /> Pen
           </button>
           <button
             onClick={() => onSelectProduct('sum')}
@@ -123,7 +102,7 @@ export const Header: React.FC<HeaderProps> = ({
                 : 'text-slate-400 hover:text-slate-200'
             }`}
           >
-            <Table className="w-3.5 h-3.5" /> Sum (Sheets)
+            <Table className="w-3.5 h-3.5" /> Sum
           </button>
           <button
             onClick={() => onSelectProduct('glimpse')}
@@ -133,22 +112,33 @@ export const Header: React.FC<HeaderProps> = ({
                 : 'text-slate-400 hover:text-slate-200'
             }`}
           >
-            <Presentation className="w-3.5 h-3.5" /> Glimpse (Slides)
+            <Presentation className="w-3.5 h-3.5" /> Glimpse
           </button>
         </div>
       </div>
 
       {/* Center Search / Command Palette Shortcut */}
-      <button
-        onClick={onOpenCommandPalette}
-        className="hidden md:flex items-center gap-3 px-4 py-1.5 rounded-xl bg-slate-950/40 border border-white/10 hover:border-white/20 text-slate-400 hover:text-slate-200 text-xs transition-all w-72 justify-between"
-      >
-        <div className="flex items-center gap-2">
-          <Search className="w-3.5 h-3.5 text-indigo-400" />
-          <span>Search or command...</span>
-        </div>
-        <kbd className="px-1.5 py-0.5 rounded bg-white/5 border border-white/10 text-[10px] font-mono">⌘K</kbd>
-      </button>
+      <div className="flex items-center gap-2">
+        <button
+          onClick={onOpenCommandPalette}
+          className="hidden md:flex items-center gap-3 px-3 py-1.5 rounded-xl bg-slate-950/40 border border-white/10 hover:border-white/20 text-slate-400 hover:text-slate-200 text-xs transition-all w-52 justify-between"
+        >
+          <div className="flex items-center gap-2">
+            <Menu className="w-3.5 h-3.5 text-indigo-400" />
+            <span>Commands...</span>
+          </div>
+          <kbd className="px-1.5 py-0.5 rounded bg-white/5 border border-white/10 text-[10px] font-mono">⌘K</kbd>
+        </button>
+
+        <button
+          onClick={onOpenSearch}
+          className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-950/40 border border-white/10 hover:border-white/20 text-slate-400 hover:text-slate-200 text-xs transition-all"
+          title="Search in Document (Ctrl+F)"
+        >
+          <Search className="w-3.5 h-3.5 text-slate-400" />
+          <span className="hidden sm:inline">Search</span>
+        </button>
+      </div>
 
       {/* Right Controls */}
       <div className="flex items-center gap-3">
@@ -174,6 +164,30 @@ export const Header: React.FC<HeaderProps> = ({
             title="Redo (Cmd+Shift+Z)"
           >
             <Redo className="w-4 h-4" />
+          </button>
+        </div>
+
+        <div className="flex items-center gap-1">
+          <button
+            onClick={onManualSave}
+            className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-white/10 transition-all"
+            title="Save Document (Cmd+S)"
+          >
+            <Save className="w-4 h-4" />
+          </button>
+          <button
+            onClick={onOpenRecentFiles}
+            className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-white/10 transition-all"
+            title="Open Recent Documents"
+          >
+            <FolderOpen className="w-4 h-4" />
+          </button>
+          <button
+            onClick={onOpenSettings}
+            className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-white/10 transition-all"
+            title="Settings & Privacy"
+          >
+            <Settings className="w-4 h-4" />
           </button>
         </div>
 

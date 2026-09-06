@@ -5,6 +5,19 @@ export interface StorageEntry<T = any> {
   payload: T;
   lastModified: number;
   sizeBytes: number;
+  checksum?: string;
+  version?: number;
+}
+
+export interface CrashRecoveryLog {
+  id: string;
+  docId: string;
+  type: ProductType;
+  title: string;
+  timestamp: number;
+  payload: any;
+  checksum: string;
+  interrupted: boolean;
 }
 
 export interface StorageAdapter {
@@ -62,6 +75,8 @@ export class StorageManager {
   private adapter: StorageAdapter;
   private readonly DOC_PREFIX = 'oh_doc_';
   private readonly AUTOSAVE_PREFIX = 'oh_autosave_';
+  private readonly RECOVERY_PREFIX = 'oh_recovery_';
+  private readonly JOURNAL_PREFIX = 'oh_journal_';
   private readonly INDEX_KEY = 'oh_docs_index';
 
   constructor(adapter?: StorageAdapter) {
@@ -74,8 +89,35 @@ export class StorageManager {
     }
   }
 
+  public static computeChecksum(content: string): string {
+    let hash = 5381;
+    for (let i = 0; i < content.length; i++) {
+      hash = (hash * 33) ^ content.charCodeAt(i);
+    }
+    return (hash >>> 0).toString(16);
+  }
+
+  /**
+   * Atomic document save with checksum validation and rollback journal
+   */
   public saveDocument<T>(metadata: BaseDocumentMetadata, payload: T): StorageEntry<T> {
     const raw = JSON.stringify(payload);
+    const checksum = StorageManager.computeChecksum(raw);
+    const docKey = `${this.DOC_PREFIX}${metadata.id}`;
+    const journalKey = `${this.JOURNAL_PREFIX}${metadata.id}`;
+
+    // 1. Write Journal entry first (Atomic intent)
+    this.adapter.setItem(
+      journalKey,
+      JSON.stringify({
+        intent: 'write',
+        timestamp: Date.now(),
+        docId: metadata.id,
+        checksum,
+      })
+    );
+
+    // 2. Perform write
     const entry: StorageEntry<T> = {
       metadata: {
         ...metadata,
@@ -84,10 +126,16 @@ export class StorageManager {
       payload,
       lastModified: Date.now(),
       sizeBytes: new TextEncoder().encode(raw).length,
+      checksum,
+      version: (metadata.version || 1) + 1,
     };
 
-    const docKey = `${this.DOC_PREFIX}${metadata.id}`;
     this.adapter.setItem(docKey, JSON.stringify(entry));
+
+    // 3. Clear journal after successful write
+    this.adapter.removeItem(journalKey);
+
+    // 4. Update index
     this.updateIndex(entry.metadata);
     return entry;
   }
@@ -96,8 +144,19 @@ export class StorageManager {
     const docKey = `${this.DOC_PREFIX}${id}`;
     const raw = this.adapter.getItem(docKey);
     if (!raw) return null;
+
     try {
-      return JSON.parse(raw) as StorageEntry<T>;
+      const entry = JSON.parse(raw) as StorageEntry<T>;
+      // Corruption Check
+      if (entry.checksum) {
+        const payloadStr = JSON.stringify(entry.payload);
+        const calcChecksum = StorageManager.computeChecksum(payloadStr);
+        if (calcChecksum !== entry.checksum) {
+          console.error(`Storage Corruption detected for document ${id}. Checksum mismatch!`);
+          return null;
+        }
+      }
+      return entry;
     } catch {
       return null;
     }
@@ -150,6 +209,49 @@ export class StorageManager {
   public clearAutosaveSnapshot(type: ProductType): void {
     const key = `${this.AUTOSAVE_PREFIX}${type}`;
     this.adapter.removeItem(key);
+  }
+
+  // --- Crash Recovery Subsystem ---
+
+  public saveCrashRecoverySnapshot(docId: string, type: ProductType, title: string, payload: any): void {
+    const raw = JSON.stringify(payload);
+    const checksum = StorageManager.computeChecksum(raw);
+    const recoveryKey = `${this.RECOVERY_PREFIX}${docId}`;
+
+    const recoveryLog: CrashRecoveryLog = {
+      id: `rec_${Date.now()}`,
+      docId,
+      type,
+      title,
+      timestamp: Date.now(),
+      payload,
+      checksum,
+      interrupted: true,
+    };
+
+    this.adapter.setItem(recoveryKey, JSON.stringify(recoveryLog));
+  }
+
+  public listCrashRecoveries(): CrashRecoveryLog[] {
+    const keys = this.adapter.keys().filter((k) => k.startsWith(this.RECOVERY_PREFIX));
+    const recoveries: CrashRecoveryLog[] = [];
+
+    for (const k of keys) {
+      const raw = this.adapter.getItem(k);
+      if (raw) {
+        try {
+          recoveries.push(JSON.parse(raw));
+        } catch {
+          // ignore corrupted recovery logs
+        }
+      }
+    }
+    return recoveries.sort((a, b) => b.timestamp - a.timestamp);
+  }
+
+  public clearCrashRecovery(docId: string): void {
+    const recoveryKey = `${this.RECOVERY_PREFIX}${docId}`;
+    this.adapter.removeItem(recoveryKey);
   }
 
   private updateIndex(meta: BaseDocumentMetadata): void {
