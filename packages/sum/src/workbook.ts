@@ -1,5 +1,5 @@
 import { generateId, HistoryStack, HistoryCommand } from '@openhead/core';
-import { FormulaEngine, parseCellAddress } from '@openhead/formula';
+import { FormulaEngine, parseCellAddress, colIndexToName } from '@openhead/formula';
 import { WorkbookModel, WorksheetModel, CellStyle, CellFormat } from './types';
 
 export class SumWorkbook {
@@ -110,6 +110,74 @@ export class SumWorkbook {
       timestamp: Date.now(),
     };
     this.model = this.history.execute(this.model, cmd);
+  }
+
+  public insertRow(atRowIndex: number): void {
+    const sheet = this.getActiveSheet();
+    const prevModel = JSON.parse(JSON.stringify(this.model));
+    const nextModel = JSON.parse(JSON.stringify(this.model));
+    const targetSheet = nextModel.sheets.find((s: WorksheetModel) => s.id === sheet.id)!;
+
+    const newCells: Record<string, any> = {};
+    for (const [key, cell] of Object.entries(targetSheet.cells)) {
+      const addr = parseCellAddress(key);
+      if (addr) {
+        if (addr.row >= atRowIndex) {
+          const newKey = `${colIndexToName(addr.col)}${addr.row + 2}`;
+          newCells[newKey] = cell;
+        } else {
+          newCells[key] = cell;
+        }
+      }
+    }
+    targetSheet.cells = newCells;
+    targetSheet.rowCount += 1;
+    nextModel.metadata.updatedAt = Date.now();
+
+    const cmd: HistoryCommand<WorkbookModel> = {
+      id: generateId('cmd'),
+      name: `Insert row ${atRowIndex + 1}`,
+      execute: () => nextModel,
+      undo: () => prevModel,
+      timestamp: Date.now(),
+    };
+    this.model = this.history.execute(this.model, cmd);
+    this.rebuildFormulaEngine();
+  }
+
+  public deleteRow(atRowIndex: number): void {
+    const sheet = this.getActiveSheet();
+    const prevModel = JSON.parse(JSON.stringify(this.model));
+    const nextModel = JSON.parse(JSON.stringify(this.model));
+    const targetSheet = nextModel.sheets.find((s: WorksheetModel) => s.id === sheet.id)!;
+
+    const newCells: Record<string, any> = {};
+    for (const [key, cell] of Object.entries(targetSheet.cells)) {
+      const addr = parseCellAddress(key);
+      if (addr) {
+        if (addr.row === atRowIndex) {
+          continue; // dropped
+        } else if (addr.row > atRowIndex) {
+          const newKey = `${colIndexToName(addr.col)}${addr.row}`;
+          newCells[newKey] = cell;
+        } else {
+          newCells[key] = cell;
+        }
+      }
+    }
+    targetSheet.cells = newCells;
+    targetSheet.rowCount = Math.max(10, targetSheet.rowCount - 1);
+    nextModel.metadata.updatedAt = Date.now();
+
+    const cmd: HistoryCommand<WorkbookModel> = {
+      id: generateId('cmd'),
+      name: `Delete row ${atRowIndex + 1}`,
+      execute: () => nextModel,
+      undo: () => prevModel,
+      timestamp: Date.now(),
+    };
+    this.model = this.history.execute(this.model, cmd);
+    this.rebuildFormulaEngine();
   }
 
   public setCellStyle(cellKey: string, style: Partial<CellStyle>): void {
