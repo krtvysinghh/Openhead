@@ -8,7 +8,7 @@
 
 [![CI](https://github.com/krtvysinghh/Openhead/actions/workflows/ci.yml/badge.svg)](https://github.com/krtvysinghh/Openhead/actions)
 [![Release](https://github.com/krtvysinghh/Openhead/actions/workflows/release.yml/badge.svg)](https://github.com/krtvysinghh/Openhead/actions)
-[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![License: Apache-2.0](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](LICENSE)
 [![Tests](https://img.shields.io/badge/Tests-324%20passing-brightgreen.svg)](https://github.com/krtvysinghh/Openhead)
 
 </div>
@@ -163,4 +163,4 @@ The Openhead repository maintains a rigorous automated testing corpus:
 
 ## 📄 License
 
-Openhead is open-source software licensed under the [MIT License](LICENSE).
+Openhead is open-source software licensed under the [Apache-2.0 License](LICENSE).

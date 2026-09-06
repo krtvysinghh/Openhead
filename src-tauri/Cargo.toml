@@ -3,7 +3,7 @@ name = "openhead-desktop"
 version = "1.0.0"
 description = "Openhead Office Suite - Sovereign, Local-First Office Suite"
 authors = ["Openhead Core Team"]
-license = "MIT"
+license = "Apache-2.0"
 repository = "https://github.com/krtvysinghh/Openhead"
 edition = "2021"
 

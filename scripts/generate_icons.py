@@ -62,6 +62,21 @@ def create_ico(png_32_path, png_128_path, output_path):
     with open(output_path, 'wb') as f:
         f.write(ico_header + entry1 + entry2 + png32_data + png128_data)
 
+def create_icns(png_512_path, output_path):
+    with open(png_512_path, 'rb') as f:
+        png_data = f.read()
+    
+    # ic10 = 512x512 32-bit or PNG format
+    chunk_type = b'ic10'
+    chunk_length = 8 + len(png_data)
+    chunk = chunk_type + struct.pack('>I', chunk_length) + png_data
+    
+    total_length = 8 + len(chunk)
+    header = b'icns' + struct.pack('>I', total_length)
+    
+    with open(output_path, 'wb') as f:
+        f.write(header + chunk)
+
 def main():
     icons_dir = os.path.join(os.path.dirname(__file__), '..', 'src-tauri', 'icons')
     os.makedirs(icons_dir, exist_ok=True)
@@ -73,13 +88,13 @@ def main():
     p_ico = os.path.join(icons_dir, 'icon.ico')
     p_icns = os.path.join(icons_dir, 'icon.icns')
     
-    print('Generating Openhead icons...')
+    print('Generating valid Openhead cross-platform icons...')
     create_png(32, 32, p32)
     create_png(128, 128, p128)
     create_png(256, 256, p256)
     create_png(512, 512, p512)
     create_ico(p32, p128, p_ico)
-    create_png(512, 512, p_icns)
+    create_icns(p512, p_icns)
     print(f'Successfully generated all icons in {icons_dir}')
 
 if __name__ == '__main__':

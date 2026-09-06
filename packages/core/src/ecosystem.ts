@@ -372,4 +372,103 @@ export class OfficeEcosystemBridge {
       ],
     };
   }
+
+  /**
+   * Converts a Glimpse slide table node into a Sum worksheet.
+   */
+  public static glimpseTableToSumSheet(table: TableNode, sheetName: string = 'SlideTable'): WorksheetModel {
+    const cells: Record<string, any> = {};
+    const tableCells = table.cells || [];
+
+    tableCells.forEach((row, r) => {
+      row.forEach((cell, c) => {
+        const colLetter = String.fromCharCode(65 + c);
+        const cellCoord = `${colLetter}${r + 1}`;
+        const text = (cell.text || '').trim();
+        const num = Number(text);
+        const val = !isNaN(num) && text !== '' ? num : text;
+        cells[cellCoord] = { raw: val, value: val, formula: null };
+      });
+    });
+
+    return {
+      id: generateId('sheet'),
+      name: sheetName,
+      cells,
+      rowCount: Math.max(tableCells.length + 10, 50),
+      colCount: Math.max((tableCells[0]?.length || 1) + 5, 26),
+    };
+  }
+
+  /**
+   * Converts a Glimpse slide table node into a Pen document table block.
+   */
+  public static glimpseTableToPenTable(table: TableNode): TableBlock {
+    const tableCells = (table.cells || []).map((row, rIdx) =>
+      row.map((cell) => ({
+        id: generateId('cell'),
+        inlines: [{ id: generateId('inl'), text: cell.text || '' }],
+        background: rIdx === 0 && table.headerRow ? '#F1F5F9' : undefined,
+      }))
+    );
+
+    return {
+      id: generateId('blk'),
+      type: 'table',
+      rows: tableCells,
+      hasHeaderRow: !!table.headerRow,
+    };
+  }
+
+  /**
+   * Converts a Pen document table block into a Glimpse presentation slide table.
+   */
+  public static penTableToGlimpseTable(
+    table: TableBlock,
+    x: number = 100,
+    y: number = 200,
+    width: number = 1200,
+    height: number = 600
+  ): TableNode {
+    const allRows: any[][] = [];
+
+    if (table.headers && table.headers.length > 0) {
+      allRows.push(
+        table.headers.map((h) => ({
+          id: generateId('cell'),
+          text: h,
+          fill: '#1E293B',
+          align: 'left' as const,
+        }))
+      );
+    }
+
+    (table.rows || []).forEach((row) => {
+      allRows.push(
+        row.map((cell) => ({
+          id: generateId('cell'),
+          text: cell.inlines.map((i) => i.text).join('').trim(),
+          fill: 'rgba(255,255,255,0.03)',
+          align: 'left' as const,
+        }))
+      );
+    });
+
+    const rows = allRows.length;
+    const cols = allRows[0]?.length || 1;
+
+    return {
+      id: generateId('node'),
+      type: 'table',
+      x,
+      y,
+      width,
+      height,
+      rows,
+      columns: cols,
+      cells: allRows,
+      headerRow: !!table.hasHeaderRow || (table.headers && table.headers.length > 0),
+      zIndex: 1,
+    };
+  }
 }

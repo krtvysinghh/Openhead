@@ -112,6 +112,49 @@ describe('Office Ecosystem Bridge, Templates & PDF Export (Chunk 2)', () => {
     expect(pitchModel.slides.length).toBe(3);
   });
 
+  it('should convert Glimpse table into Sum worksheet, Pen table, and Pen table into Glimpse table', () => {
+    const glimpseTable = {
+      id: 'tbl_node_1',
+      type: 'table' as const,
+      x: 50,
+      y: 50,
+      width: 800,
+      height: 400,
+      rows: 2,
+      columns: 2,
+      cells: [
+        [
+          { id: 'c1', text: 'Metric', fill: '#000', align: 'left' as const },
+          { id: 'c2', text: 'Value', fill: '#000', align: 'left' as const },
+        ],
+        [
+          { id: 'c3', text: 'Revenue', fill: '#fff', align: 'left' as const },
+          { id: 'c4', text: '50000', fill: '#fff', align: 'left' as const },
+        ],
+      ],
+      headerRow: true,
+      zIndex: 1,
+    };
+
+    // Glimpse -> Sum
+    const sumSheet = OfficeEcosystemBridge.glimpseTableToSumSheet(glimpseTable, 'FromSlide');
+    expect(sumSheet.name).toBe('FromSlide');
+    expect(sumSheet.cells['A1'].value).toBe('Metric');
+    expect(sumSheet.cells['B2'].value).toBe(50000);
+
+    // Glimpse -> Pen
+    const penTable = OfficeEcosystemBridge.glimpseTableToPenTable(glimpseTable);
+    expect(penTable.type).toBe('table');
+    expect(penTable.hasHeaderRow).toBe(true);
+    expect(penTable.rows[1][1].inlines[0].text).toBe('50000');
+
+    // Pen -> Glimpse
+    const returnedGlimpseTable = OfficeEcosystemBridge.penTableToGlimpseTable(penTable);
+    expect(returnedGlimpseTable.type).toBe('table');
+    expect(returnedGlimpseTable.rows).toBe(2);
+    expect(returnedGlimpseTable.cells[1][0].text).toBe('Revenue');
+  });
+
   it('should generate printable HTML with custom page layouts and pagination', () => {
     const printable = PdfExportEngine.generatePrintableHtml(
       'Quarterly Report',

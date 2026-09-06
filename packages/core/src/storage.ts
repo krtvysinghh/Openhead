@@ -147,6 +147,9 @@ export class StorageManager {
 
     try {
       const entry = JSON.parse(raw) as StorageEntry<T>;
+      if (!entry || typeof entry !== 'object' || !entry.metadata) {
+        return null;
+      }
       // Corruption Check
       if (entry.checksum) {
         const payloadStr = JSON.stringify(entry.payload);
