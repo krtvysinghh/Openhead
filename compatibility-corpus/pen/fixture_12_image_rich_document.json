@@ -1,0 +1,59 @@
+{
+  "metadata": {
+    "id": "pen_fix_12",
+    "title": "Visual Document with Quotes and Code",
+    "type": "pen",
+    "createdAt": 0,
+    "updatedAt": 0,
+    "version": 1
+  },
+  "sections": [
+    {
+      "id": "sec_1",
+      "pageSettings": {
+        "orientation": "portrait",
+        "pageSize": "A4",
+        "margins": {
+          "top": 25,
+          "bottom": 25,
+          "left": 25,
+          "right": 25
+        },
+        "columns": 1
+      },
+      "blocks": [
+        {
+          "id": "b1",
+          "type": "heading",
+          "level": 1,
+          "inlines": [
+            {
+              "id": "i1",
+              "text": "Developer Architecture Guide"
+            }
+          ]
+        },
+        {
+          "id": "b2",
+          "type": "callout",
+          "variant": "info",
+          "inlines": [
+            {
+              "id": "i2",
+              "text": "\"Simplicity is prerequisite for reliability.\" — Edsger W. Dijkstra",
+              "styles": {
+                "italic": true
+              }
+            }
+          ]
+        },
+        {
+          "id": "b3",
+          "type": "code-block",
+          "language": "typescript",
+          "code": "export function parseDocx(buffer: Uint8Array): PenDocumentModel {\n  return DocxAdapter.fromBuffer(buffer);\n}"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,136 @@
+{
+  "metadata": {
+    "id": "pen_fix_06",
+    "title": "Quarterly Financial Statements",
+    "type": "pen",
+    "createdAt": 0,
+    "updatedAt": 0,
+    "version": 1
+  },
+  "sections": [
+    {
+      "id": "sec_1",
+      "pageSettings": {
+        "orientation": "portrait",
+        "pageSize": "A4",
+        "margins": {
+          "top": 20,
+          "bottom": 20,
+          "left": 20,
+          "right": 20
+        },
+        "columns": 1
+      },
+      "blocks": [
+        {
+          "id": "b1",
+          "type": "heading",
+          "level": 1,
+          "inlines": [
+            {
+              "id": "i1",
+              "text": "Consolidated Statement of Operations"
+            }
+          ]
+        },
+        {
+          "id": "b2",
+          "type": "table",
+          "headers": [
+            "Statement Line",
+            "Q1 2026",
+            "Q2 2026",
+            "Q3 2026 (Est.)"
+          ],
+          "rows": [
+            [
+              {
+                "id": "c1",
+                "inlines": [
+                  {
+                    "id": "ci1",
+                    "text": "Software Subscriptions"
+                  }
+                ]
+              },
+              {
+                "id": "c2",
+                "inlines": [
+                  {
+                    "id": "ci2",
+                    "text": "$42,500,000"
+                  }
+                ]
+              },
+              {
+                "id": "c3",
+                "inlines": [
+                  {
+                    "id": "ci3",
+                    "text": "$49,800,000"
+                  }
+                ]
+              },
+              {
+                "id": "c4",
+                "inlines": [
+                  {
+                    "id": "ci4",
+                    "text": "$56,200,000"
+                  }
+                ]
+              }
+            ],
+            [
+              {
+                "id": "c5",
+                "inlines": [
+                  {
+                    "id": "ci5",
+                    "text": "Gross Profit"
+                  }
+                ]
+              },
+              {
+                "id": "c6",
+                "inlines": [
+                  {
+                    "id": "ci6",
+                    "text": "$38,250,000",
+                    "styles": {
+                      "bold": true
+                    }
+                  }
+                ]
+              },
+              {
+                "id": "c7",
+                "inlines": [
+                  {
+                    "id": "ci7",
+                    "text": "$44,820,000",
+                    "styles": {
+                      "bold": true
+                    }
+                  }
+                ]
+              },
+              {
+                "id": "c8",
+                "inlines": [
+                  {
+                    "id": "ci8",
+                    "text": "$50,580,000",
+                    "styles": {
+                      "bold": true
+                    }
+                  }
+                ]
+              }
+            ]
+          ]
+        }
+      ]
+    }
+  ]
+}

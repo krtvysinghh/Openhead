@@ -1,4 +1,4 @@
-import { PenDocumentModel, Block, HeadingBlock, ParagraphBlock, ListItemBlock, CodeBlock } from '../types';
+import { PenDocumentModel, Block, HeadingBlock, ParagraphBlock, ListItemBlock, CalloutBlock, CodeBlock } from '../types';
 import { generateId } from '@openhead/core';
 
 export function exportToMarkdown(doc: PenDocumentModel): string {
@@ -20,16 +20,22 @@ export function exportToMarkdown(doc: PenDocumentModel): string {
           lines.push(`${text}\n`);
           break;
         }
+        case 'callout': {
+          const c = block as CalloutBlock;
+          const text = c.inlines.map((i) => formatInline(i.text, i.styles)).join('');
+          lines.push(`> ${text}\n`);
+          break;
+        }
         case 'bullet-list-item': {
           const l = block as ListItemBlock;
-          const indent = '  '.repeat(l.level);
+          const indent = '  '.repeat(l.level || 0);
           const text = l.inlines.map((i) => formatInline(i.text, i.styles)).join('');
           lines.push(`${indent}- ${text}`);
           break;
         }
         case 'numbered-list-item': {
           const l = block as ListItemBlock;
-          const indent = '  '.repeat(l.level);
+          const indent = '  '.repeat(l.level || 0);
           const text = l.inlines.map((i) => formatInline(i.text, i.styles)).join('');
           lines.push(`${indent}1. ${text}`);
           break;
@@ -85,29 +91,46 @@ export function importFromMarkdown(markdown: string, title: string = 'Imported D
       }
     }
 
+    if (trimmed.startsWith('>')) {
+      blocks.push({
+        id: generateId('blk'),
+        type: 'callout',
+        variant: 'info',
+        inlines: [{ id: generateId('inl'), text: trimmed.replace(/^>\s*/, '') }],
+      });
+      continue;
+    }
+
     if (trimmed.startsWith('- ') || trimmed.startsWith('* ')) {
+      const leadingSpaces = line.match(/^(\s*)/)?.[1].length || 0;
+      const level = Math.min(8, Math.floor(leadingSpaces / 2));
       blocks.push({
         id: generateId('blk'),
         type: 'bullet-list-item',
-        level: 0,
+        level,
         inlines: [{ id: generateId('inl'), text: trimmed.slice(2) }],
       });
       continue;
     }
 
     if (/^\d+\.\s/.test(trimmed)) {
+      const leadingSpaces = line.match(/^(\s*)/)?.[1].length || 0;
+      const level = Math.min(8, Math.floor(leadingSpaces / 2));
       const text = trimmed.replace(/^\d+\.\s*/, '');
       blocks.push({
         id: generateId('blk'),
         type: 'numbered-list-item',
-        level: 0,
+        level,
         inlines: [{ id: generateId('inl'), text }],
       });
       continue;
     }
 
-    if (trimmed === '---') {
-      blocks.push({ id: generateId('blk'), type: 'divider' });
+    if (trimmed.startsWith('---')) {
+      blocks.push({
+        id: generateId('blk'),
+        type: 'divider',
+      });
       continue;
     }
 
@@ -116,6 +139,14 @@ export function importFromMarkdown(markdown: string, title: string = 'Imported D
       id: generateId('blk'),
       type: 'paragraph',
       inlines: [{ id: generateId('inl'), text: trimmed }],
+    });
+  }
+
+  if (blocks.length === 0) {
+    blocks.push({
+      id: generateId('blk'),
+      type: 'paragraph',
+      inlines: [{ id: generateId('inl'), text: '' }],
     });
   }
 

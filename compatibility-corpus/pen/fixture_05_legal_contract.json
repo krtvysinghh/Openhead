@@ -1,0 +1,76 @@
+{
+  "metadata": {
+    "id": "pen_fix_05",
+    "title": "Master Services Agreement",
+    "type": "pen",
+    "createdAt": 0,
+    "updatedAt": 0,
+    "version": 1
+  },
+  "sections": [
+    {
+      "id": "sec_1",
+      "pageSettings": {
+        "orientation": "portrait",
+        "pageSize": "A4",
+        "margins": {
+          "top": 25,
+          "bottom": 25,
+          "left": 25,
+          "right": 25
+        },
+        "columns": 1,
+        "headerText": "MASTER SERVICES AGREEMENT",
+        "footerText": "Contract Ref: MSA-2026-99"
+      },
+      "blocks": [
+        {
+          "id": "b1",
+          "type": "heading",
+          "level": 1,
+          "inlines": [
+            {
+              "id": "i1",
+              "text": "MASTER SERVICES AGREEMENT"
+            }
+          ]
+        },
+        {
+          "id": "b2",
+          "type": "paragraph",
+          "inlines": [
+            {
+              "id": "i2",
+              "text": "SECTION 1: DEFINITIONS AND INTERPRETATION",
+              "styles": {
+                "bold": true
+              }
+            }
+          ]
+        },
+        {
+          "id": "b3",
+          "type": "numbered-list-item",
+          "level": 0,
+          "inlines": [
+            {
+              "id": "i3",
+              "text": "1.1 \"Deliverables\" means all software modules, specifications, and documentation created under Statement of Work."
+            }
+          ]
+        },
+        {
+          "id": "b4",
+          "type": "numbered-list-item",
+          "level": 1,
+          "inlines": [
+            {
+              "id": "i4",
+              "text": "1.1.1 Proprietary components retain all existing pre-contractual IP rights."
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

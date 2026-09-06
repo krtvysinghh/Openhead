@@ -1,5 +1,15 @@
 import React, { useState } from 'react';
-import { PenDocument, exportToMarkdown, importFromMarkdown, Block, ParagraphBlock, HeadingBlock, TableBlock } from '@openhead/pen';
+import {
+  PenDocument,
+  DocxAdapter,
+  exportToMarkdown,
+  importFromMarkdown,
+  HeadingBlock,
+  ListItemBlock,
+  TableBlock,
+  InlineText,
+  InlineStyle,
+} from '@openhead/pen';
 import { glassStyles } from '@openhead/ui';
 import {
   Heading1,
@@ -14,6 +24,22 @@ import {
   Search,
   Check,
   X,
+  Bold,
+  Italic,
+  Underline,
+  Strikethrough,
+  AlignLeft,
+  AlignCenter,
+  AlignRight,
+  AlignJustify,
+  List,
+  ListOrdered,
+  Indent,
+  Outdent,
+  Undo2,
+  Redo2,
+  BookmarkPlus,
+  Settings2,
 } from 'lucide-react';
 
 interface PenViewProps {
@@ -24,67 +50,148 @@ interface PenViewProps {
 
 export const PenView: React.FC<PenViewProps> = ({ document: doc, onUpdate, onAiPrompt }) => {
   const model = doc.getModel();
+  const section = model.sections[0];
   const stats = doc.getStats();
   const outline = doc.getOutline();
 
+  const [activeBlockIndex, setActiveBlockIndex] = useState<number>(0);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [isPageSetupOpen, setIsPageSetupOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [replaceQuery, setReplaceQuery] = useState('');
   const [searchResultCount, setSearchResultCount] = useState<number | null>(null);
 
-  const handleTextChange = (sectionIdx: number, blockIdx: number, text: string) => {
-    const block = model.sections[sectionIdx].blocks[blockIdx];
-    if ('inlines' in block) {
-      const updated = {
-        ...block,
-        inlines: [{ id: 'inl-1', text }],
-      } as Block;
-      doc.updateBlock(sectionIdx, blockIdx, updated);
+  // Selection formatting state
+  const [fontFamily, setFontFamily] = useState('Calibri');
+  const [fontSize, setFontSize] = useState(11);
+
+  const handleKeyDownEditor = (e: React.KeyboardEvent) => {
+    if ((e.ctrlKey || e.metaKey) && e.key === 'z') {
+      e.preventDefault();
+      if (e.shiftKey) {
+        if (doc.canRedo) {
+          doc.redo();
+          onUpdate();
+        }
+      } else {
+        if (doc.canUndo) {
+          doc.undo();
+          onUpdate();
+        }
+      }
+      return;
+    }
+
+    if ((e.ctrlKey || e.metaKey) && e.key === 'y') {
+      e.preventDefault();
+      if (doc.canRedo) {
+        doc.redo();
+        onUpdate();
+      }
+      return;
+    }
+
+    if ((e.ctrlKey || e.metaKey) && e.key === 'b') {
+      e.preventDefault();
+      toggleInlineFormat({ bold: true });
+      return;
+    }
+
+    if ((e.ctrlKey || e.metaKey) && e.key === 'i') {
+      e.preventDefault();
+      toggleInlineFormat({ italic: true });
+      return;
+    }
+
+    if ((e.ctrlKey || e.metaKey) && e.key === 'u') {
+      e.preventDefault();
+      toggleInlineFormat({ underline: true });
+      return;
+    }
+
+    if ((e.ctrlKey || e.metaKey) && e.key === 'f') {
+      e.preventDefault();
+      setIsSearchOpen(true);
+      return;
+    }
+  };
+
+  const toggleInlineFormat = (patch: Partial<InlineStyle>) => {
+    const block = section.blocks[activeBlockIndex];
+    if (block && 'inlines' in block && Array.isArray((block as any).inlines)) {
+      const textLen = (block as any).inlines.map((i: InlineText) => i.text).join('').length;
+      doc.formatInlineSelection(0, activeBlockIndex, 0, textLen, patch);
       onUpdate();
     }
   };
 
+  const handleParagraphAlign = (align: 'left' | 'center' | 'right' | 'justify') => {
+    doc.setParagraphProperties(0, activeBlockIndex, { align });
+    onUpdate();
+  };
+
+  const handleLineSpacing = (lineSpacing: number) => {
+    doc.setParagraphProperties(0, activeBlockIndex, { lineSpacing });
+    onUpdate();
+  };
+
+  const handleSetStyle = (styleId: string) => {
+    doc.setBlockStyle(0, activeBlockIndex, styleId);
+    onUpdate();
+  };
+
   const handleAddParagraph = () => {
-    const newBlock: ParagraphBlock = {
+    doc.insertBlock(0, section.blocks.length, {
       id: `blk_${Date.now()}`,
       type: 'paragraph',
       inlines: [{ id: `inl_${Date.now()}`, text: 'Start typing here...' }],
-    };
-    doc.insertBlock(0, model.sections[0].blocks.length, newBlock);
+      props: { styleId: 'Normal', lineSpacing: 1.15, spacingAfter: 6 },
+    });
+    setActiveBlockIndex(section.blocks.length - 1);
     onUpdate();
   };
 
   const handleAddHeading = (level: 1 | 2 | 3) => {
-    const newBlock: HeadingBlock = {
+    doc.insertBlock(0, section.blocks.length, {
       id: `blk_${Date.now()}`,
       type: 'heading',
       level,
       inlines: [{ id: `inl_${Date.now()}`, text: `Heading ${level}` }],
-    };
-    doc.insertBlock(0, model.sections[0].blocks.length, newBlock);
+      props: { styleId: `Heading${level}` },
+    });
+    setActiveBlockIndex(section.blocks.length - 1);
+    onUpdate();
+  };
+
+  const handleAddList = (type: 'bullet-list-item' | 'numbered-list-item') => {
+    doc.insertBlock(0, section.blocks.length, {
+      id: `blk_${Date.now()}`,
+      type,
+      level: 0,
+      inlines: [{ id: `inl_${Date.now()}`, text: 'List item' }],
+    });
+    setActiveBlockIndex(section.blocks.length - 1);
     onUpdate();
   };
 
   const handleAddTable = () => {
-    const tableBlock: TableBlock = {
-      id: `tbl_${Date.now()}`,
-      type: 'table',
-      headers: ['Column 1', 'Column 2', 'Column 3'],
-      rows: [
-        [
-          { id: `c_${Date.now()}_1`, inlines: [{ id: `i_${Date.now()}_1`, text: 'Data 1' }] },
-          { id: `c_${Date.now()}_2`, inlines: [{ id: `i_${Date.now()}_2`, text: 'Data 2' }] },
-          { id: `c_${Date.now()}_3`, inlines: [{ id: `i_${Date.now()}_3`, text: 'Data 3' }] },
-        ],
-      ],
-    };
-    doc.insertBlock(0, model.sections[0].blocks.length, tableBlock);
+    doc.insertTable(0, section.blocks.length, 3, 3);
+    setActiveBlockIndex(section.blocks.length - 1);
     onUpdate();
   };
 
+  const handleAddFootnote = () => {
+    const fnText = window.prompt('Enter Footnote Citation:');
+    if (fnText) {
+      doc.insertFootnote(0, activeBlockIndex, 0, fnText);
+      onUpdate();
+    }
+  };
+
   const handleDeleteBlock = (blockIdx: number) => {
-    if (model.sections[0].blocks.length > 1) {
+    if (section.blocks.length > 1) {
       doc.deleteBlock(0, blockIdx);
+      setActiveBlockIndex(Math.max(0, blockIdx - 1));
       onUpdate();
     }
   };
@@ -93,6 +200,29 @@ export const PenView: React.FC<PenViewProps> = ({ document: doc, onUpdate, onAiP
     if (!searchQuery) return;
     const count = doc.searchAndReplace(searchQuery, replaceQuery);
     setSearchResultCount(count);
+    onUpdate();
+  };
+
+  const handleExportDocx = async () => {
+    const buffer = await DocxAdapter.toBuffer(model);
+    const blob = new Blob([buffer as any], {
+      type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+    });
+    const url = URL.createObjectURL(blob);
+    const a = window.document.createElement('a');
+    a.href = url;
+    a.download = `${model.metadata.title.toLowerCase().replace(/\s+/g, '_')}.docx`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const handleImportDocx = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const arrayBuffer = await file.arrayBuffer();
+    const importedModel = await DocxAdapter.fromBuffer(arrayBuffer);
+    model.metadata.title = importedModel.metadata.title;
+    model.sections = importedModel.sections;
     onUpdate();
   };
 
@@ -124,44 +254,268 @@ export const PenView: React.FC<PenViewProps> = ({ document: doc, onUpdate, onAiP
   };
 
   return (
-    <div className="flex-1 flex flex-col h-full overflow-hidden bg-slate-950/40">
+    <div
+      className="flex-1 flex flex-col h-full overflow-hidden bg-slate-950/40"
+      onKeyDown={handleKeyDownEditor}
+      tabIndex={0}
+    >
       {/* Ribbon Toolbar */}
-      <div className={`flex items-center justify-between px-6 py-2 border-b border-white/10 ${glassStyles.panelSubtle}`}>
+      <div className={`flex items-center justify-between px-6 py-2 border-b border-white/10 ${glassStyles.panelSubtle} flex-wrap gap-2`}>
         <div className="flex items-center gap-1.5 flex-wrap">
+          {/* Undo / Redo */}
+          <button
+            onClick={() => {
+              if (doc.canUndo) {
+                doc.undo();
+                onUpdate();
+              }
+            }}
+            disabled={!doc.canUndo}
+            className={`p-1.5 rounded-lg text-xs font-medium transition-all ${
+              doc.canUndo ? 'text-slate-300 hover:bg-white/10 hover:text-white' : 'text-slate-600 cursor-not-allowed opacity-50'
+            }`}
+            title="Undo (Ctrl+Z)"
+          >
+            <Undo2 className="w-4 h-4" />
+          </button>
+          <button
+            onClick={() => {
+              if (doc.canRedo) {
+                doc.redo();
+                onUpdate();
+              }
+            }}
+            disabled={!doc.canRedo}
+            className={`p-1.5 rounded-lg text-xs font-medium transition-all ${
+              doc.canRedo ? 'text-slate-300 hover:bg-white/10 hover:text-white' : 'text-slate-600 cursor-not-allowed opacity-50'
+            }`}
+            title="Redo (Ctrl+Y)"
+          >
+            <Redo2 className="w-4 h-4" />
+          </button>
+
+          <div className="w-[1px] h-4 bg-white/10 mx-1" />
+
+          {/* Styles Selector */}
+          <select
+            onChange={(e) => handleSetStyle(e.target.value)}
+            className="bg-slate-900 border border-white/10 rounded-lg px-2.5 py-1 text-xs text-slate-200 outline-none hover:border-white/20"
+            title="Apply Style"
+          >
+            <option value="Normal">Normal</option>
+            <option value="Title">Title</option>
+            <option value="Subtitle">Subtitle</option>
+            <option value="Heading1">Heading 1</option>
+            <option value="Heading2">Heading 2</option>
+            <option value="Heading3">Heading 3</option>
+            <option value="Quote">Quote</option>
+          </select>
+
+          {/* Font Family */}
+          <select
+            value={fontFamily}
+            onChange={(e) => {
+              setFontFamily(e.target.value);
+              toggleInlineFormat({ fontFamily: e.target.value });
+            }}
+            className="bg-slate-900 border border-white/10 rounded-lg px-2.5 py-1 text-xs text-slate-200 outline-none hover:border-white/20"
+            title="Font Family"
+          >
+            <option value="Calibri">Calibri</option>
+            <option value="Arial">Arial</option>
+            <option value="Georgia">Georgia</option>
+            <option value="Times New Roman">Times New Roman</option>
+            <option value="Consolas">Consolas</option>
+          </select>
+
+          {/* Font Size */}
+          <select
+            value={fontSize}
+            onChange={(e) => {
+              const sz = parseInt(e.target.value, 10);
+              setFontSize(sz);
+              toggleInlineFormat({ fontSize: sz });
+            }}
+            className="bg-slate-900 border border-white/10 rounded-lg px-2 py-1 text-xs text-slate-200 outline-none hover:border-white/20"
+            title="Font Size"
+          >
+            <option value="9">9 pt</option>
+            <option value="10">10 pt</option>
+            <option value="11">11 pt</option>
+            <option value="12">12 pt</option>
+            <option value="14">14 pt</option>
+            <option value="16">16 pt</option>
+            <option value="18">18 pt</option>
+            <option value="20">20 pt</option>
+            <option value="24">24 pt</option>
+          </select>
+
+          <div className="w-[1px] h-4 bg-white/10 mx-1" />
+
+          {/* Inline Formats */}
+          <button
+            onClick={() => toggleInlineFormat({ bold: true })}
+            className="p-1.5 rounded-lg text-xs font-medium text-slate-300 hover:bg-white/10 hover:text-white"
+            title="Bold (Ctrl+B)"
+          >
+            <Bold className="w-4 h-4" />
+          </button>
+          <button
+            onClick={() => toggleInlineFormat({ italic: true })}
+            className="p-1.5 rounded-lg text-xs font-medium text-slate-300 hover:bg-white/10 hover:text-white"
+            title="Italic (Ctrl+I)"
+          >
+            <Italic className="w-4 h-4" />
+          </button>
+          <button
+            onClick={() => toggleInlineFormat({ underline: true })}
+            className="p-1.5 rounded-lg text-xs font-medium text-slate-300 hover:bg-white/10 hover:text-white"
+            title="Underline (Ctrl+U)"
+          >
+            <Underline className="w-4 h-4" />
+          </button>
+          <button
+            onClick={() => toggleInlineFormat({ strikethrough: true })}
+            className="p-1.5 rounded-lg text-xs font-medium text-slate-300 hover:bg-white/10 hover:text-white"
+            title="Strikethrough"
+          >
+            <Strikethrough className="w-4 h-4" />
+          </button>
+
+          <div className="w-[1px] h-4 bg-white/10 mx-1" />
+
+          {/* Alignment */}
+          <button
+            onClick={() => handleParagraphAlign('left')}
+            className="p-1.5 rounded-lg text-xs font-medium text-slate-300 hover:bg-white/10 hover:text-white"
+            title="Align Left"
+          >
+            <AlignLeft className="w-4 h-4" />
+          </button>
+          <button
+            onClick={() => handleParagraphAlign('center')}
+            className="p-1.5 rounded-lg text-xs font-medium text-slate-300 hover:bg-white/10 hover:text-white"
+            title="Align Center"
+          >
+            <AlignCenter className="w-4 h-4" />
+          </button>
+          <button
+            onClick={() => handleParagraphAlign('right')}
+            className="p-1.5 rounded-lg text-xs font-medium text-slate-300 hover:bg-white/10 hover:text-white"
+            title="Align Right"
+          >
+            <AlignRight className="w-4 h-4" />
+          </button>
+          <button
+            onClick={() => handleParagraphAlign('justify')}
+            className="p-1.5 rounded-lg text-xs font-medium text-slate-300 hover:bg-white/10 hover:text-white"
+            title="Justify"
+          >
+            <AlignJustify className="w-4 h-4" />
+          </button>
+
+          {/* Line spacing */}
+          <select
+            onChange={(e) => handleLineSpacing(parseFloat(e.target.value))}
+            defaultValue="1.15"
+            className="bg-slate-900 border border-white/10 rounded-lg px-2 py-1 text-xs text-slate-200 outline-none hover:border-white/20"
+            title="Line Spacing"
+          >
+            <option value="1.0">1.0</option>
+            <option value="1.15">1.15</option>
+            <option value="1.5">1.5</option>
+            <option value="2.0">2.0</option>
+          </select>
+
+          <div className="w-[1px] h-4 bg-white/10 mx-1" />
+
+          {/* Lists */}
+          <button
+            onClick={() => handleAddList('bullet-list-item')}
+            className="p-1.5 rounded-lg text-xs font-medium text-slate-300 hover:bg-white/10 hover:text-white"
+            title="Bullet List"
+          >
+            <List className="w-4 h-4" />
+          </button>
+          <button
+            onClick={() => handleAddList('numbered-list-item')}
+            className="p-1.5 rounded-lg text-xs font-medium text-slate-300 hover:bg-white/10 hover:text-white"
+            title="Numbered List"
+          >
+            <ListOrdered className="w-4 h-4" />
+          </button>
+          <button
+            onClick={() => {
+              doc.indentListItem(0, activeBlockIndex);
+              onUpdate();
+            }}
+            className="p-1.5 rounded-lg text-xs font-medium text-slate-300 hover:bg-white/10 hover:text-white"
+            title="Indent"
+          >
+            <Indent className="w-4 h-4" />
+          </button>
+          <button
+            onClick={() => {
+              doc.outdentListItem(0, activeBlockIndex);
+              onUpdate();
+            }}
+            className="p-1.5 rounded-lg text-xs font-medium text-slate-300 hover:bg-white/10 hover:text-white"
+            title="Outdent"
+          >
+            <Outdent className="w-4 h-4" />
+          </button>
+
+          <div className="w-[1px] h-4 bg-white/10 mx-1" />
+
+          {/* Block Inserts */}
+          <button
+            onClick={handleAddParagraph}
+            className="flex items-center gap-1 px-2 py-1 rounded-lg text-xs font-medium text-slate-300 hover:bg-white/10 hover:text-white"
+            title="Add Paragraph"
+          >
+            <Plus className="w-3.5 h-3.5" /> P
+          </button>
           <button
             onClick={() => handleAddHeading(1)}
-            className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-medium text-slate-300 hover:bg-white/10 hover:text-white"
+            className="p-1.5 rounded-lg text-xs font-medium text-slate-300 hover:bg-white/10 hover:text-white"
             title="Heading 1"
           >
-            <Heading1 className="w-4 h-4" /> H1
+            <Heading1 className="w-4 h-4" />
           </button>
           <button
             onClick={() => handleAddHeading(2)}
-            className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-medium text-slate-300 hover:bg-white/10 hover:text-white"
+            className="p-1.5 rounded-lg text-xs font-medium text-slate-300 hover:bg-white/10 hover:text-white"
             title="Heading 2"
           >
-            <Heading2 className="w-4 h-4" /> H2
+            <Heading2 className="w-4 h-4" />
           </button>
           <button
             onClick={() => handleAddHeading(3)}
-            className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-medium text-slate-300 hover:bg-white/10 hover:text-white"
+            className="p-1.5 rounded-lg text-xs font-medium text-slate-300 hover:bg-white/10 hover:text-white"
             title="Heading 3"
           >
-            <Heading3 className="w-4 h-4" /> H3
-          </button>
-          <button
-            onClick={handleAddParagraph}
-            className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-medium text-slate-300 hover:bg-white/10 hover:text-white"
-            title="Add Paragraph"
-          >
-            <Plus className="w-4 h-4" /> Paragraph
+            <Heading3 className="w-4 h-4" />
           </button>
           <button
             onClick={handleAddTable}
             className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-medium text-slate-300 hover:bg-white/10 hover:text-white"
             title="Insert Table"
           >
-            <TableIcon className="w-4 h-4" /> Table
+            <TableIcon className="w-4 h-4 text-emerald-400" /> Table
+          </button>
+          <button
+            onClick={handleAddFootnote}
+            className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-medium text-slate-300 hover:bg-white/10 hover:text-white"
+            title="Insert Footnote"
+          >
+            <BookmarkPlus className="w-4 h-4 text-amber-400" /> Footnote
+          </button>
+          <button
+            onClick={() => setIsPageSetupOpen(true)}
+            className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-medium text-slate-300 hover:bg-white/10 hover:text-white"
+            title="Page Setup"
+          >
+            <Settings2 className="w-4 h-4 text-cyan-400" /> Page Setup
           </button>
 
           <div className="w-[1px] h-4 bg-white/10 mx-1" />
@@ -169,38 +523,51 @@ export const PenView: React.FC<PenViewProps> = ({ document: doc, onUpdate, onAiP
           <button
             onClick={() => setIsSearchOpen((prev) => !prev)}
             className={`flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all ${
-              isSearchOpen ? 'bg-indigo-600/30 text-indigo-200 border border-indigo-400/40' : 'text-slate-300 hover:bg-white/10'
+              isSearchOpen
+                ? 'bg-indigo-600/30 text-indigo-200 border border-indigo-400/40'
+                : 'text-slate-300 hover:bg-white/10'
             }`}
             title="Find & Replace"
           >
-            <Search className="w-3.5 h-3.5" /> Find & Replace
+            <Search className="w-3.5 h-3.5" /> Find
           </button>
 
-          <div className="w-[1px] h-4 bg-white/10 mx-1" />
-
           <button
-            onClick={() => onAiPrompt?.('Summarize this document and extract top 3 action items', exportToMarkdown(model))}
+            onClick={() =>
+              onAiPrompt?.('Summarize this document and suggest improvements', exportToMarkdown(model))
+            }
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-indigo-300 bg-indigo-500/10 border border-indigo-400/20 hover:bg-indigo-500/20 transition-all"
           >
-            <Sparkles className="w-3.5 h-3.5 text-indigo-400" /> Ask AI
+            <Sparkles className="w-3.5 h-3.5 text-indigo-400" /> AI
           </button>
         </div>
 
+        {/* DOCX and Markdown Exporters */}
         <div className="flex items-center gap-2">
           <label className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-slate-300 bg-white/5 border border-white/10 hover:bg-white/10 cursor-pointer transition-all">
-            <FileUp className="w-3.5 h-3.5" /> Import .md
+            <FileUp className="w-3.5 h-3.5 text-blue-400" /> Import DOCX
+            <input type="file" accept=".docx" onChange={handleImportDocx} className="hidden" />
+          </label>
+          <button
+            onClick={handleExportDocx}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-slate-200 bg-blue-600/20 border border-blue-400/30 hover:bg-blue-600/30 transition-all"
+          >
+            <FileDown className="w-3.5 h-3.5 text-blue-400" /> Export DOCX
+          </button>
+          <label className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-slate-300 bg-white/5 border border-white/10 hover:bg-white/10 cursor-pointer transition-all">
+            <FileUp className="w-3.5 h-3.5" /> .md
             <input type="file" accept=".md,.markdown,.txt" onChange={handleImportMarkdown} className="hidden" />
           </label>
           <button
             onClick={handleExportMarkdown}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-slate-200 bg-white/5 border border-white/10 hover:bg-white/10 transition-all"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-slate-300 bg-white/5 border border-white/10 hover:bg-white/10 transition-all"
           >
-            <FileDown className="w-3.5 h-3.5" /> Export .md
+            <FileDown className="w-3.5 h-3.5" /> .md
           </button>
         </div>
       </div>
 
-      {/* Search and Replace Floating Bar */}
+      {/* Find & Replace Floating Drawer */}
       {isSearchOpen && (
         <div className="px-6 py-2.5 bg-slate-900/90 border-b border-white/10 flex items-center gap-3 text-xs animate-in slide-in-from-top duration-150">
           <Search className="w-4 h-4 text-indigo-400" />
@@ -238,6 +605,89 @@ export const PenView: React.FC<PenViewProps> = ({ document: doc, onUpdate, onAiP
         </div>
       )}
 
+      {/* Page Setup Modal */}
+      {isPageSetupOpen && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className={`w-full max-w-md p-6 rounded-2xl ${glassStyles.panel} shadow-2xl flex flex-col gap-4 border border-white/10`}>
+            <div className="flex items-center justify-between border-b border-white/10 pb-3">
+              <h3 className="text-base font-bold text-white flex items-center gap-2">
+                <Settings2 className="w-5 h-5 text-cyan-400" /> Page Setup & Margins
+              </h3>
+              <button onClick={() => setIsPageSetupOpen(false)} className="text-slate-400 hover:text-white">
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+            <div className="space-y-3 text-xs text-slate-300">
+              <div>
+                <label className="block mb-1 font-medium">Page Orientation</label>
+                <div className="flex gap-4">
+                  <label className="flex items-center gap-1.5 cursor-pointer">
+                    <input
+                      type="radio"
+                      name="orientation"
+                      value="portrait"
+                      checked={section.pageSettings.orientation === 'portrait'}
+                      onChange={() => {
+                        doc.setPageSettings(0, { orientation: 'portrait' });
+                        onUpdate();
+                      }}
+                    />
+                    Portrait (Vertical)
+                  </label>
+                  <label className="flex items-center gap-1.5 cursor-pointer">
+                    <input
+                      type="radio"
+                      name="orientation"
+                      value="landscape"
+                      checked={section.pageSettings.orientation === 'landscape'}
+                      onChange={() => {
+                        doc.setPageSettings(0, { orientation: 'landscape' });
+                        onUpdate();
+                      }}
+                    />
+                    Landscape (Horizontal)
+                  </label>
+                </div>
+              </div>
+
+              <div>
+                <label className="block mb-1 font-medium">Header Text</label>
+                <input
+                  type="text"
+                  value={section.pageSettings.headerText || ''}
+                  onChange={(e) => {
+                    doc.setPageSettings(0, { headerText: e.target.value });
+                    onUpdate();
+                  }}
+                  className="w-full bg-slate-950/60 border border-white/10 rounded-lg px-2.5 py-1.5 text-white outline-none"
+                  placeholder="Document Header"
+                />
+              </div>
+
+              <div>
+                <label className="block mb-1 font-medium">Footer Text</label>
+                <input
+                  type="text"
+                  value={section.pageSettings.footerText || ''}
+                  onChange={(e) => {
+                    doc.setPageSettings(0, { footerText: e.target.value });
+                    onUpdate();
+                  }}
+                  className="w-full bg-slate-950/60 border border-white/10 rounded-lg px-2.5 py-1.5 text-white outline-none"
+                  placeholder="Document Footer"
+                />
+              </div>
+            </div>
+            <button
+              onClick={() => setIsPageSetupOpen(false)}
+              className="mt-2 px-4 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white font-medium text-xs self-end"
+            >
+              Done
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Main Studio Area */}
       <div className="flex-1 flex overflow-hidden">
         {/* Left Outline Drawer */}
@@ -250,7 +700,12 @@ export const PenView: React.FC<PenViewProps> = ({ document: doc, onUpdate, onAiP
               outline.map((item, idx) => (
                 <div
                   key={idx}
-                  className="text-xs text-slate-300 hover:text-white py-1 px-2 rounded hover:bg-white/5 cursor-pointer truncate"
+                  onClick={() => setActiveBlockIndex(item.blockIndex)}
+                  className={`text-xs py-1 px-2 rounded cursor-pointer truncate transition-all ${
+                    activeBlockIndex === item.blockIndex
+                      ? 'bg-indigo-500/20 text-indigo-300 font-semibold'
+                      : 'text-slate-300 hover:text-white hover:bg-white/5'
+                  }`}
                   style={{ paddingLeft: `${(item.level - 1) * 12 + 8}px` }}
                 >
                   {item.title || 'Untitled'}
@@ -260,9 +715,21 @@ export const PenView: React.FC<PenViewProps> = ({ document: doc, onUpdate, onAiP
           </div>
         </div>
 
-        {/* Center Document Page */}
+        {/* Center Document Page Canvas */}
         <div className="flex-1 overflow-y-auto p-8 flex justify-center">
-          <div className={`w-full max-w-3xl min-h-[850px] p-12 rounded-2xl ${glassStyles.panel} shadow-2xl relative flex flex-col gap-6`}>
+          <div
+            className={`w-full ${
+              section.pageSettings.orientation === 'landscape' ? 'max-w-5xl' : 'max-w-3xl'
+            } min-h-[900px] p-12 rounded-2xl ${glassStyles.panel} shadow-2xl relative flex flex-col gap-6`}
+          >
+            {/* Header Display */}
+            {section.pageSettings.headerText && (
+              <div className="text-xs text-slate-400 border-b border-white/10 pb-2 flex justify-between font-mono">
+                <span>{section.pageSettings.headerText}</span>
+                <span>Openhead Document</span>
+              </div>
+            )}
+
             {/* Title Input */}
             <input
               type="text"
@@ -275,41 +742,62 @@ export const PenView: React.FC<PenViewProps> = ({ document: doc, onUpdate, onAiP
               placeholder="Document Title"
             />
 
-            {/* Blocks */}
+            {/* Blocks Stream */}
             <div className="space-y-4">
-              {model.sections[0].blocks.map((block, idx) => {
+              {section.blocks.map((block, idx) => {
+                const isActive = activeBlockIndex === idx;
+
                 if (block.type === 'table') {
                   const tbl = block as TableBlock;
                   return (
-                    <div key={block.id} className="group relative my-4 rounded-xl overflow-hidden border border-white/10">
+                    <div
+                      key={block.id}
+                      onClick={() => setActiveBlockIndex(idx)}
+                      className={`group relative my-4 rounded-xl overflow-hidden border transition-all ${
+                        isActive ? 'border-indigo-400/50 ring-1 ring-indigo-400/30' : 'border-white/10'
+                      }`}
+                    >
                       <table className="w-full text-xs text-left border-collapse">
-                        <thead>
-                          <tr className="bg-white/5 text-slate-300 font-medium">
-                            {tbl.headers.map((h, hIdx) => (
-                              <th key={hIdx} className="p-2.5 border-r border-b border-white/10">
-                                <input
-                                  type="text"
-                                  value={h}
-                                  onChange={(e) => {
-                                    tbl.headers[hIdx] = e.target.value;
-                                    onUpdate();
-                                  }}
-                                  className="w-full bg-transparent outline-none font-semibold text-slate-200"
-                                />
-                              </th>
-                            ))}
-                          </tr>
-                        </thead>
+                        {tbl.headers && tbl.headers.length > 0 && (
+                          <thead>
+                            <tr className="bg-white/5 text-slate-300 font-medium">
+                              {tbl.headers.map((h, hIdx) => (
+                                <th key={hIdx} className="p-2.5 border-r border-b border-white/10">
+                                  <input
+                                    type="text"
+                                    value={h}
+                                    onChange={(e) => {
+                                      if (tbl.headers) tbl.headers[hIdx] = e.target.value;
+                                      onUpdate();
+                                    }}
+                                    className="w-full bg-transparent outline-none font-semibold text-slate-200"
+                                  />
+                                </th>
+                              ))}
+                            </tr>
+                          </thead>
+                        )}
                         <tbody>
                           {tbl.rows.map((row, rIdx) => (
                             <tr key={rIdx} className="hover:bg-white/[0.02]">
                               {row.map((cell, cIdx) => (
-                                <td key={cIdx} className="p-2.5 border-r border-b border-white/5">
+                                <td
+                                  key={cIdx}
+                                  colSpan={cell.gridSpan || 1}
+                                  style={{
+                                    backgroundColor: cell.background ? cell.background : undefined,
+                                  }}
+                                  className="p-2.5 border-r border-b border-white/5"
+                                >
                                   <input
                                     type="text"
                                     value={cell.inlines[0]?.text ?? ''}
                                     onChange={(e) => {
-                                      cell.inlines[0] = { id: `i_${Date.now()}`, text: e.target.value };
+                                      cell.inlines[0] = {
+                                        id: `i_${Date.now()}`,
+                                        text: e.target.value,
+                                        styles: cell.inlines[0]?.styles,
+                                      };
                                       onUpdate();
                                     }}
                                     className="w-full bg-transparent outline-none text-slate-300"
@@ -321,15 +809,26 @@ export const PenView: React.FC<PenViewProps> = ({ document: doc, onUpdate, onAiP
                         </tbody>
                       </table>
                       <div className="flex items-center justify-between p-2 bg-slate-950/60 border-t border-white/5 text-[11px] text-slate-400">
-                        <button
-                          onClick={() => {
-                            doc.insertTableRow(0, idx, tbl.rows.length);
-                            onUpdate();
-                          }}
-                          className="hover:text-indigo-400 flex items-center gap-1"
-                        >
-                          <Plus className="w-3 h-3" /> Add Row
-                        </button>
+                        <div className="flex gap-3">
+                          <button
+                            onClick={() => {
+                              doc.insertTableRow(0, idx, tbl.rows.length);
+                              onUpdate();
+                            }}
+                            className="hover:text-indigo-400 flex items-center gap-1"
+                          >
+                            <Plus className="w-3 h-3" /> Add Row
+                          </button>
+                          <button
+                            onClick={() => {
+                              doc.insertTableCol(0, idx);
+                              onUpdate();
+                            }}
+                            className="hover:text-indigo-400 flex items-center gap-1"
+                          >
+                            <Plus className="w-3 h-3" /> Add Column
+                          </button>
+                        </div>
                         <button
                           onClick={() => handleDeleteBlock(idx)}
                           className="text-red-400 hover:text-red-300 flex items-center gap-1"
@@ -341,15 +840,66 @@ export const PenView: React.FC<PenViewProps> = ({ document: doc, onUpdate, onAiP
                   );
                 }
 
-                const text = 'inlines' in block ? block.inlines.map((i) => i.text).join('') : '';
+                if (block.type === 'bullet-list-item' || block.type === 'numbered-list-item') {
+                  const listBlock = block as ListItemBlock;
+                  const text = listBlock.inlines.map((i) => i.text).join('');
+                  return (
+                    <div
+                      key={block.id}
+                      onClick={() => setActiveBlockIndex(idx)}
+                      className={`group relative flex items-center gap-2 ${
+                        isActive ? 'ring-1 ring-indigo-400/20 rounded p-1' : ''
+                      }`}
+                      style={{ paddingLeft: `${(listBlock.level || 0) * 20}px` }}
+                    >
+                      <span className="text-indigo-400 font-bold select-none text-xs">
+                        {listBlock.type === 'bullet-list-item' ? '•' : `${idx + 1}.`}
+                      </span>
+                      <input
+                        type="text"
+                        value={text}
+                        onChange={(e) => {
+                          listBlock.inlines[0] = {
+                            id: `inl_${Date.now()}`,
+                            text: e.target.value,
+                            styles: listBlock.inlines[0]?.styles,
+                          };
+                          onUpdate();
+                        }}
+                        className="w-full bg-transparent border-none outline-none text-slate-200 text-sm"
+                      />
+                      <button
+                        onClick={() => handleDeleteBlock(idx)}
+                        className="opacity-0 group-hover:opacity-100 p-1.5 rounded text-slate-500 hover:text-red-400 hover:bg-white/5 transition-all"
+                      >
+                        <Trash2 className="w-3 h-3" />
+                      </button>
+                    </div>
+                  );
+                }
+
+                const text = 'inlines' in block ? (block as any).inlines.map((i: InlineText) => i.text).join('') : '';
 
                 return (
-                  <div key={block.id} className="group relative flex items-start gap-2">
+                  <div
+                    key={block.id}
+                    onClick={() => setActiveBlockIndex(idx)}
+                    className={`group relative flex items-start gap-2 ${
+                      isActive ? 'ring-1 ring-indigo-400/20 rounded p-1.5' : ''
+                    }`}
+                  >
                     {block.type === 'heading' ? (
                       <input
                         type="text"
                         value={text}
-                        onChange={(e) => handleTextChange(0, idx, e.target.value)}
+                        onChange={(e) => {
+                          (block as any).inlines[0] = {
+                            id: `inl_${Date.now()}`,
+                            text: e.target.value,
+                            styles: (block as any).inlines[0]?.styles,
+                          };
+                          onUpdate();
+                        }}
                         className={`w-full bg-transparent border-none outline-none font-bold text-white tracking-tight ${
                           (block as HeadingBlock).level === 1
                             ? 'text-2xl mt-4 mb-2 text-indigo-200'
@@ -362,7 +912,14 @@ export const PenView: React.FC<PenViewProps> = ({ document: doc, onUpdate, onAiP
                     ) : (
                       <textarea
                         value={text}
-                        onChange={(e) => handleTextChange(0, idx, e.target.value)}
+                        onChange={(e) => {
+                          (block as any).inlines[0] = {
+                            id: `inl_${Date.now()}`,
+                            text: e.target.value,
+                            styles: (block as any).inlines[0]?.styles,
+                          };
+                          onUpdate();
+                        }}
                         rows={Math.max(1, Math.ceil(text.length / 70))}
                         className="w-full bg-transparent border-none outline-none text-slate-200 text-base leading-relaxed resize-none placeholder-slate-500"
                         placeholder="Write content..."
@@ -380,21 +937,43 @@ export const PenView: React.FC<PenViewProps> = ({ document: doc, onUpdate, onAiP
                 );
               })}
             </div>
+
+            {/* Footnotes Display at document bottom */}
+            {section.footnotes && section.footnotes.length > 0 && (
+              <div className="mt-12 pt-4 border-t border-white/10 space-y-2 text-xs text-slate-400 font-mono">
+                <div className="text-[11px] uppercase font-bold text-slate-500 tracking-wider">Footnotes</div>
+                {section.footnotes.map((fn) => (
+                  <div key={fn.id} className="flex items-start gap-2">
+                    <span className="text-indigo-400 font-bold">[{fn.index}]</span>
+                    <span>{fn.text}</span>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* Footer Display */}
+            {section.pageSettings.footerText && (
+              <div className="mt-8 text-xs text-slate-500 border-t border-white/5 pt-3 flex justify-between font-mono">
+                <span>{section.pageSettings.footerText}</span>
+                <span>Page 1 of {stats.estimatedPages}</span>
+              </div>
+            )}
           </div>
         </div>
       </div>
 
-      {/* Status Bar */}
+      {/* Bottom Status Bar */}
       <div className="px-6 py-2 border-t border-white/5 bg-slate-950/80 flex items-center justify-between text-xs text-slate-400">
         <div className="flex items-center gap-4">
           <span>{stats.words} words</span>
           <span>{stats.characters} characters</span>
           <span>{stats.paragraphs} paragraphs</span>
           <span>~{stats.readingTimeMinutes} min read</span>
+          <span>{section.pageSettings.pageSize} ({section.pageSettings.orientation})</span>
         </div>
         <div className="flex items-center gap-2">
           <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-          <span>Local Autotrack Active</span>
+          <span>Local Engine Ready</span>
         </div>
       </div>
     </div>

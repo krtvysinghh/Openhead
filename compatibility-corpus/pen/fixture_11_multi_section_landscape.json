@@ -1,0 +1,51 @@
+{
+  "metadata": {
+    "id": "pen_fix_11",
+    "title": "Landscape Multi-Section Report",
+    "type": "pen",
+    "createdAt": 0,
+    "updatedAt": 0,
+    "version": 1
+  },
+  "sections": [
+    {
+      "id": "sec_1",
+      "pageSettings": {
+        "orientation": "landscape",
+        "pageSize": "A4",
+        "margins": {
+          "top": 15,
+          "bottom": 15,
+          "left": 15,
+          "right": 15
+        },
+        "columns": 1,
+        "headerText": "Appendix A: Network Topologies",
+        "footerText": "Confidential Landscape Report"
+      },
+      "blocks": [
+        {
+          "id": "b1",
+          "type": "heading",
+          "level": 1,
+          "inlines": [
+            {
+              "id": "i1",
+              "text": "Appendix A: High-Throughput Topology"
+            }
+          ]
+        },
+        {
+          "id": "b2",
+          "type": "paragraph",
+          "inlines": [
+            {
+              "id": "i2",
+              "text": "This landscape section contains wide data sheets and topology mappings spanning horizontal dimensions."
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

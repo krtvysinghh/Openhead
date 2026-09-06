@@ -1,0 +1,88 @@
+{
+  "metadata": {
+    "id": "pen_fix_03",
+    "title": "Academic Essay - Consensus Protocols",
+    "type": "pen",
+    "createdAt": 0,
+    "updatedAt": 0,
+    "version": 1
+  },
+  "sections": [
+    {
+      "id": "sec_1",
+      "pageSettings": {
+        "orientation": "portrait",
+        "pageSize": "A4",
+        "margins": {
+          "top": 25,
+          "bottom": 25,
+          "left": 25,
+          "right": 25
+        },
+        "columns": 1,
+        "headerText": "Consensus in Asynchronous Systems",
+        "footerText": "ACM Journal"
+      },
+      "blocks": [
+        {
+          "id": "b1",
+          "type": "heading",
+          "level": 1,
+          "inlines": [
+            {
+              "id": "i1",
+              "text": "Byzantine Fault Tolerance in Asynchronous Networks"
+            }
+          ]
+        },
+        {
+          "id": "b2",
+          "type": "paragraph",
+          "inlines": [
+            {
+              "id": "i2",
+              "text": "Distributed state-machine replication under arbitrary adversarial conditions requires quorum intersections of size 2f + 1.",
+              "styles": {
+                "italic": true
+              }
+            }
+          ]
+        },
+        {
+          "id": "b3",
+          "type": "heading",
+          "level": 2,
+          "inlines": [
+            {
+              "id": "i3",
+              "text": "1. Mathematical Foundations"
+            }
+          ]
+        },
+        {
+          "id": "b4",
+          "type": "paragraph",
+          "inlines": [
+            {
+              "id": "i4",
+              "text": "Let N denote total validator nodes and f denote Byzantine adversaries."
+            }
+          ]
+        }
+      ],
+      "footnotes": [
+        {
+          "id": "fn_1",
+          "index": 1,
+          "text": "Lamport, L. (1982). The Byzantine Generals Problem. ACM TOPLAS.",
+          "inlines": [
+            {
+              "id": "fni_1",
+              "text": "Lamport, L. (1982). The Byzantine Generals Problem. ACM TOPLAS."
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

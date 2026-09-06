@@ -1,0 +1,118 @@
+{
+  "metadata": {
+    "id": "pen_fix_07",
+    "title": "Rich Typography Showcase",
+    "type": "pen",
+    "createdAt": 0,
+    "updatedAt": 0,
+    "version": 1
+  },
+  "sections": [
+    {
+      "id": "sec_1",
+      "pageSettings": {
+        "orientation": "portrait",
+        "pageSize": "A4",
+        "margins": {
+          "top": 25,
+          "bottom": 25,
+          "left": 25,
+          "right": 25
+        },
+        "columns": 1
+      },
+      "blocks": [
+        {
+          "id": "b1",
+          "type": "heading",
+          "level": 1,
+          "inlines": [
+            {
+              "id": "i1",
+              "text": "Typography & Inlines Showcase"
+            }
+          ]
+        },
+        {
+          "id": "b2",
+          "type": "paragraph",
+          "inlines": [
+            {
+              "id": "i2",
+              "text": "Bold Text, ",
+              "styles": {
+                "bold": true
+              }
+            },
+            {
+              "id": "i3",
+              "text": "Italic Text, ",
+              "styles": {
+                "italic": true
+              }
+            },
+            {
+              "id": "i4",
+              "text": "Underlined, ",
+              "styles": {
+                "underline": true
+              }
+            },
+            {
+              "id": "i5",
+              "text": "Strikethrough, ",
+              "styles": {
+                "strikethrough": true
+              }
+            },
+            {
+              "id": "i6",
+              "text": "Custom Red Color, ",
+              "styles": {
+                "color": "#EF4444"
+              }
+            },
+            {
+              "id": "i7",
+              "text": "Yellow Highlight, ",
+              "styles": {
+                "highlight": "yellow"
+              }
+            },
+            {
+              "id": "i8",
+              "text": "E=mc",
+              "styles": {
+                "bold": true
+              }
+            },
+            {
+              "id": "i9",
+              "text": "2",
+              "styles": {
+                "superscript": true
+              }
+            },
+            {
+              "id": "i10",
+              "text": ", and H",
+              "styles": {}
+            },
+            {
+              "id": "i11",
+              "text": "2",
+              "styles": {
+                "subscript": true
+              }
+            },
+            {
+              "id": "i12",
+              "text": "O chemical notation.",
+              "styles": {}
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

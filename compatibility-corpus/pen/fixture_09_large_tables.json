@@ -1,0 +1,104 @@
+{
+  "metadata": {
+    "id": "pen_fix_09",
+    "title": "Large Merged Tables",
+    "type": "pen",
+    "createdAt": 0,
+    "updatedAt": 0,
+    "version": 1
+  },
+  "sections": [
+    {
+      "id": "sec_1",
+      "pageSettings": {
+        "orientation": "portrait",
+        "pageSize": "A4",
+        "margins": {
+          "top": 20,
+          "bottom": 20,
+          "left": 20,
+          "right": 20
+        },
+        "columns": 1
+      },
+      "blocks": [
+        {
+          "id": "b1",
+          "type": "heading",
+          "level": 1,
+          "inlines": [
+            {
+              "id": "i1",
+              "text": "System Resource Allocation Matrix"
+            }
+          ]
+        },
+        {
+          "id": "b2",
+          "type": "table",
+          "rows": [
+            [
+              {
+                "id": "c1",
+                "gridSpan": 2,
+                "background": "#1E293B",
+                "inlines": [
+                  {
+                    "id": "ci1",
+                    "text": "Cluster Overview",
+                    "styles": {
+                      "bold": true,
+                      "color": "#FFFFFF"
+                    }
+                  }
+                ]
+              },
+              {
+                "id": "c3",
+                "inlines": [
+                  {
+                    "id": "ci3",
+                    "text": "Status"
+                  }
+                ]
+              }
+            ],
+            [
+              {
+                "id": "c4",
+                "inlines": [
+                  {
+                    "id": "ci4",
+                    "text": "Node Alpha"
+                  }
+                ]
+              },
+              {
+                "id": "c5",
+                "inlines": [
+                  {
+                    "id": "ci5",
+                    "text": "64 Cores / 256GB RAM"
+                  }
+                ]
+              },
+              {
+                "id": "c6",
+                "inlines": [
+                  {
+                    "id": "ci6",
+                    "text": "ONLINE",
+                    "styles": {
+                      "color": "#16A34A",
+                      "bold": true
+                    }
+                  }
+                ]
+              }
+            ]
+          ]
+        }
+      ]
+    }
+  ]
+}

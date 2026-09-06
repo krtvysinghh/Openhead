@@ -1,0 +1,81 @@
+{
+  "metadata": {
+    "id": "pen_fix_01",
+    "title": "Business Letter - Acme Corp",
+    "type": "pen",
+    "createdAt": 0,
+    "updatedAt": 0,
+    "version": 1
+  },
+  "sections": [
+    {
+      "id": "sec_1",
+      "pageSettings": {
+        "orientation": "portrait",
+        "pageSize": "Letter",
+        "margins": {
+          "top": 25,
+          "bottom": 25,
+          "left": 25,
+          "right": 25
+        },
+        "columns": 1,
+        "headerText": "Acme Corporation",
+        "footerText": "Confidential"
+      },
+      "blocks": [
+        {
+          "id": "b1",
+          "type": "heading",
+          "level": 1,
+          "inlines": [
+            {
+              "id": "i1",
+              "text": "ACME GLOBAL PARTNERS"
+            }
+          ]
+        },
+        {
+          "id": "b2",
+          "type": "paragraph",
+          "inlines": [
+            {
+              "id": "i2",
+              "text": "September 6, 2026\n\nDr. Jane Doe\nDirector of Research, Nexus Labs\n450 Innovation Way, Suite 800\nSan Francisco, CA 94105"
+            }
+          ]
+        },
+        {
+          "id": "b3",
+          "type": "paragraph",
+          "inlines": [
+            {
+              "id": "i3",
+              "text": "Dear Dr. Doe,"
+            }
+          ]
+        },
+        {
+          "id": "b4",
+          "type": "paragraph",
+          "inlines": [
+            {
+              "id": "i4",
+              "text": "We are pleased to submit our strategic enterprise proposal regarding high-fidelity document collaboration infrastructure. Openhead provides native OOXML document processing with strict privacy-first local operation."
+            }
+          ]
+        },
+        {
+          "id": "b5",
+          "type": "paragraph",
+          "inlines": [
+            {
+              "id": "i5",
+              "text": "Sincerely,\n\nAlexander Vance\nManaging Partner, Acme Global Partners"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

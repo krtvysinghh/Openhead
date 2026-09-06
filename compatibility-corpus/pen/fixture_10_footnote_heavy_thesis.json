@@ -1,0 +1,77 @@
+{
+  "metadata": {
+    "id": "pen_fix_10",
+    "title": "Academic Thesis with Multiple Footnotes",
+    "type": "pen",
+    "createdAt": 0,
+    "updatedAt": 0,
+    "version": 1
+  },
+  "sections": [
+    {
+      "id": "sec_1",
+      "pageSettings": {
+        "orientation": "portrait",
+        "pageSize": "A4",
+        "margins": {
+          "top": 25,
+          "bottom": 25,
+          "left": 25,
+          "right": 25
+        },
+        "columns": 1
+      },
+      "blocks": [
+        {
+          "id": "b1",
+          "type": "heading",
+          "level": 1,
+          "inlines": [
+            {
+              "id": "i1",
+              "text": "A Study of Computational Redundancy"
+            }
+          ]
+        },
+        {
+          "id": "b2",
+          "type": "paragraph",
+          "inlines": [
+            {
+              "id": "i2",
+              "text": "Early mechanical computation pioneered by Babbage laid the theoretical foundation for stored-program computers [1]."
+            },
+            {
+              "id": "i3",
+              "text": " Modern quantum algorithms challenge traditional NP-completeness bounds [2]."
+            }
+          ]
+        }
+      ],
+      "footnotes": [
+        {
+          "id": "fn_1",
+          "index": 1,
+          "text": "Babbage, C. (1837). On the Mathematical Powers of the Calculating Engine.",
+          "inlines": [
+            {
+              "id": "fni1",
+              "text": "Babbage, C. (1837). On the Mathematical Powers of the Calculating Engine."
+            }
+          ]
+        },
+        {
+          "id": "fn_2",
+          "index": 2,
+          "text": "Shor, P. W. (1994). Polynomial-Time Algorithms for Prime Factorization.",
+          "inlines": [
+            {
+              "id": "fni2",
+              "text": "Shor, P. W. (1994). Polynomial-Time Algorithms for Prime Factorization."
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

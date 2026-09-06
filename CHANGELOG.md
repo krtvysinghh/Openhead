@@ -2,6 +2,35 @@
 
 All notable changes to Openhead are documented in this file.
 
+## [0.8.0] - 2026-09-06 (Phase 8: Production Pen + DOCX Compatibility)
+
+### Added
+- **Full OOXML WordprocessingML (.docx) ZIP Package Exporter & Importer**:
+  - Native `DocxAdapter.toBuffer` and `DocxAdapter.fromBuffer` generating and ingesting standards-compliant `.docx` ZIP archives containing `[Content_Types].xml`, `_rels/.rels`, `word/document.xml`, `word/styles.xml`, `word/numbering.xml`, `word/footnotes.xml`, `word/header1.xml`, `word/footer1.xml`, and `word/_rels/document.xml.rels`.
+- **Rich Inline Run Model & Selection Formatting**:
+  - Character-level inline range splitting and merging engine (`PenEditorOperations.formatInlineRange`, `insertTextAt`, `deleteRange`).
+  - Full inline style attributes: `bold`, `italic`, `underline` (single, double, dotted, dashed), `strikethrough`, `color`, `highlight`, `fontFamily`, `fontSize`, `superscript`, `subscript`, `characterSpacing`, `link`, and dynamic fields (`PAGE`, `NUMPAGES`, `DATE`, `TITLE`).
+- **Paragraph Properties & Named Styles System**:
+  - Paragraph alignment (`left`, `center`, `right`, `justify`), line spacing, paragraph before/after spacing, left/right/firstLine indents, keep-with-next, and widow controls.
+  - Named styles catalog with inheritance (`Normal`, `Title`, `Subtitle`, `Heading 1-6`, `Quote`, `FootnoteText`, `Header`, `Footer`).
+- **Multi-Level Numbered and Bullet Lists**:
+  - Hierarchical lists (levels 0 to 8) with proper OOXML `word/numbering.xml` definitions and indentation controls (`indentListItem`, `outdentListItem`).
+- **Advanced Document Tables**:
+  - Full table operations: row insertion/deletion, column insertion/deletion, cell text editing, background shading, cell spanning (`gridSpan`), and custom borders.
+- **Footnotes & Endnotes**:
+  - Complete footnote engine with auto-numbering, inline superscript references, footnote deletion and re-indexing, and `word/footnotes.xml` interchange.
+- **Page Layout & Sections**:
+  - Multi-section page settings: orientation (portrait / landscape), standard paper sizes (A4, Letter, Legal), margins, running headers & footers, and page number fields.
+- **Transactional Undo / Redo & Production Search/Replace**:
+  - `HistoryStack` transactional history tracking across all block additions, formatting, table edits, footnote updates, and search & replace operations.
+  - Search & replace with whole word matching, case sensitivity, and match counts.
+- **Security Hardening**:
+  - Strict XXE injection detection, zip bomb compression ratio and payload limits (250MB), path traversal rejection on entry paths, and URL protocol whitelisting (`http:`, `https:`, `mailto:`).
+- **12 Real-World Pen Compatibility Corpus Fixtures**:
+  - Business letter, corporate report, academic essay, resume/CV, legal contract, financial statements, rich typography showcase, nested lists, merged tables, footnote thesis, landscape appendix, and developer guide.
+- **176 Passing Automated Tests across 50 Test Files**:
+  - 100% test pass rate with strict TypeScript compilation across the entire monorepo.
+
 ## [0.7.0] - 2026-09-06 (Phase 7: XLSX Fidelity + Production Sum)
 
 ### Added

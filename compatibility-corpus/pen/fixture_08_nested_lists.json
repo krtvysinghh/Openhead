@@ -1,0 +1,94 @@
+{
+  "metadata": {
+    "id": "pen_fix_08",
+    "title": "Hierarchical Multi-Level Lists",
+    "type": "pen",
+    "createdAt": 0,
+    "updatedAt": 0,
+    "version": 1
+  },
+  "sections": [
+    {
+      "id": "sec_1",
+      "pageSettings": {
+        "orientation": "portrait",
+        "pageSize": "A4",
+        "margins": {
+          "top": 25,
+          "bottom": 25,
+          "left": 25,
+          "right": 25
+        },
+        "columns": 1
+      },
+      "blocks": [
+        {
+          "id": "b1",
+          "type": "heading",
+          "level": 1,
+          "inlines": [
+            {
+              "id": "i1",
+              "text": "Nested Feature Breakdown"
+            }
+          ]
+        },
+        {
+          "id": "b2",
+          "type": "bullet-list-item",
+          "level": 0,
+          "inlines": [
+            {
+              "id": "i2",
+              "text": "Core Architecture"
+            }
+          ]
+        },
+        {
+          "id": "b3",
+          "type": "bullet-list-item",
+          "level": 1,
+          "inlines": [
+            {
+              "id": "i3",
+              "text": "AST Block Engine"
+            }
+          ]
+        },
+        {
+          "id": "b4",
+          "type": "bullet-list-item",
+          "level": 2,
+          "inlines": [
+            {
+              "id": "i4",
+              "text": "Inline Run Splitter & Merger"
+            }
+          ]
+        },
+        {
+          "id": "b5",
+          "type": "numbered-list-item",
+          "level": 0,
+          "inlines": [
+            {
+              "id": "i5",
+              "text": "Compile TypeScript Packages"
+            }
+          ]
+        },
+        {
+          "id": "b6",
+          "type": "numbered-list-item",
+          "level": 1,
+          "inlines": [
+            {
+              "id": "i6",
+              "text": "Execute Test Runner with Coverage"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

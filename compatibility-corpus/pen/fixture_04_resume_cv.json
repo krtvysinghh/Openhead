@@ -1,0 +1,84 @@
+{
+  "metadata": {
+    "id": "pen_fix_04",
+    "title": "Curriculum Vitae - Senior Architect",
+    "type": "pen",
+    "createdAt": 0,
+    "updatedAt": 0,
+    "version": 1
+  },
+  "sections": [
+    {
+      "id": "sec_1",
+      "pageSettings": {
+        "orientation": "portrait",
+        "pageSize": "Letter",
+        "margins": {
+          "top": 20,
+          "bottom": 20,
+          "left": 20,
+          "right": 20
+        },
+        "columns": 1
+      },
+      "blocks": [
+        {
+          "id": "b1",
+          "type": "heading",
+          "level": 1,
+          "inlines": [
+            {
+              "id": "i1",
+              "text": "Elena Rostova, Ph.D."
+            }
+          ]
+        },
+        {
+          "id": "b2",
+          "type": "paragraph",
+          "inlines": [
+            {
+              "id": "i2",
+              "text": "Staff Software Engineer & Compiler Architect | elena@openhead.dev | San Francisco, CA"
+            }
+          ]
+        },
+        {
+          "id": "b3",
+          "type": "heading",
+          "level": 2,
+          "inlines": [
+            {
+              "id": "i3",
+              "text": "Experience"
+            }
+          ]
+        },
+        {
+          "id": "b4",
+          "type": "paragraph",
+          "inlines": [
+            {
+              "id": "i4",
+              "text": "Principal Engineer, Cloud Systems (2022 - Present)",
+              "styles": {
+                "bold": true
+              }
+            }
+          ]
+        },
+        {
+          "id": "b5",
+          "type": "bullet-list-item",
+          "level": 0,
+          "inlines": [
+            {
+              "id": "i5",
+              "text": "Designed high-performance Pratt parser executing 100,000 formula expressions per second."
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

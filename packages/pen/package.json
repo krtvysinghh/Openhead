@@ -8,7 +8,8 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@openhead/core": "workspace:*"
+    "@openhead/core": "workspace:*",
+    "jszip": "^3.10.1"
   },
   "devDependencies": {
     "typescript": "^5.7.2",

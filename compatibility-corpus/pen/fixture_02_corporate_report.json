@@ -1,0 +1,146 @@
+{
+  "metadata": {
+    "id": "pen_fix_02",
+    "title": "Corporate Annual Report",
+    "type": "pen",
+    "createdAt": 0,
+    "updatedAt": 0,
+    "version": 1
+  },
+  "sections": [
+    {
+      "id": "sec_1",
+      "pageSettings": {
+        "orientation": "portrait",
+        "pageSize": "A4",
+        "margins": {
+          "top": 20,
+          "bottom": 20,
+          "left": 20,
+          "right": 20
+        },
+        "columns": 1,
+        "headerText": "Executive Report 2026",
+        "footerText": "Page 1"
+      },
+      "blocks": [
+        {
+          "id": "b1",
+          "type": "heading",
+          "level": 1,
+          "inlines": [
+            {
+              "id": "i1",
+              "text": "Executive Summary: FY2026 Performance"
+            }
+          ]
+        },
+        {
+          "id": "b2",
+          "type": "paragraph",
+          "inlines": [
+            {
+              "id": "i2",
+              "text": "During the current fiscal year, consolidated group revenues reached "
+            },
+            {
+              "id": "i3",
+              "text": "$142.8M",
+              "styles": {
+                "bold": true,
+                "color": "#16A34A"
+              }
+            },
+            {
+              "id": "i4",
+              "text": ", representing a 34% year-over-year increase across all divisions."
+            }
+          ]
+        },
+        {
+          "id": "b3",
+          "type": "heading",
+          "level": 2,
+          "inlines": [
+            {
+              "id": "i5",
+              "text": "1. Operational Highlights"
+            }
+          ]
+        },
+        {
+          "id": "b4",
+          "type": "bullet-list-item",
+          "level": 0,
+          "inlines": [
+            {
+              "id": "i6",
+              "text": "Shipped native cross-platform office engine with zero cloud telemetry."
+            }
+          ]
+        },
+        {
+          "id": "b5",
+          "type": "bullet-list-item",
+          "level": 0,
+          "inlines": [
+            {
+              "id": "i7",
+              "text": "Achieved 100% test coverage across OOXML SpreadsheetML and WordprocessingML pipelines."
+            }
+          ]
+        },
+        {
+          "id": "b6",
+          "type": "table",
+          "headers": [
+            "Metric",
+            "FY2025",
+            "FY2026",
+            "Growth"
+          ],
+          "rows": [
+            [
+              {
+                "id": "c1",
+                "inlines": [
+                  {
+                    "id": "ci1",
+                    "text": "Enterprise Seats"
+                  }
+                ]
+              },
+              {
+                "id": "c2",
+                "inlines": [
+                  {
+                    "id": "ci2",
+                    "text": "45,000"
+                  }
+                ]
+              },
+              {
+                "id": "c3",
+                "inlines": [
+                  {
+                    "id": "ci3",
+                    "text": "92,000"
+                  }
+                ]
+              },
+              {
+                "id": "c4",
+                "inlines": [
+                  {
+                    "id": "ci4",
+                    "text": "+104%"
+                  }
+                ]
+              }
+            ]
+          ]
+        }
+      ]
+    }
+  ]
+}
