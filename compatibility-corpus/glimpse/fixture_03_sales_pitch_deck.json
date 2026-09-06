@@ -1,0 +1,73 @@
+{
+  "metadata": {
+    "id": "glimpse_corp_03",
+    "title": "Enterprise Sales Pitch",
+    "type": "glimpse",
+    "createdAt": 1772000000,
+    "updatedAt": 1772000000,
+    "version": 1
+  },
+  "dimensions": {
+    "width": 1920,
+    "height": 1080,
+    "aspectRatio": "16:9"
+  },
+  "slides": [
+    {
+      "id": "s1",
+      "title": "Why Openhead?",
+      "background": "radial-gradient(ellipse at top, #1e1b4b, #0f172a)",
+      "notes": "Focus on TCO reduction, zero telemetry, and seamless DOCX/XLSX/PPTX roundtrips.",
+      "nodes": [
+        {
+          "id": "n1",
+          "type": "text",
+          "x": 120,
+          "y": 80,
+          "width": 1680,
+          "height": 80,
+          "text": "Enterprise Office Migration Strategy",
+          "fontSize": 44,
+          "fontWeight": "bold",
+          "color": "#ffffff",
+          "zIndex": 1
+        },
+        {
+          "id": "n2",
+          "type": "shape",
+          "kind": "card",
+          "x": 120,
+          "y": 200,
+          "width": 800,
+          "height": 740,
+          "fill": "rgba(255,255,255,0.05)",
+          "stroke": "rgba(255,255,255,0.15)",
+          "strokeWidth": 1,
+          "cornerRadius": 16,
+          "text": "Legacy Proprietary Suite\n• High recurring per-seat licensing\n• Cloud lock-in & privacy leaks\n• Forced telemetry & AI training on data",
+          "textColor": "#cbd5e1",
+          "fontSize": 24,
+          "zIndex": 2
+        },
+        {
+          "id": "n3",
+          "type": "shape",
+          "kind": "card",
+          "x": 1000,
+          "y": 200,
+          "width": 800,
+          "height": 740,
+          "fill": "rgba(59,130,246,0.1)",
+          "stroke": "rgba(59,130,246,0.3)",
+          "strokeWidth": 1,
+          "cornerRadius": 16,
+          "text": "Openhead Enterprise\n• Zero recurring per-seat fees\n• 100% local-first air-gapped security\n• Strict OOXML schema fidelity",
+          "textColor": "#38bdf8",
+          "fontSize": 24,
+          "zIndex": 3
+        }
+      ]
+    }
+  ],
+  "activeSlideId": "s1"
+}

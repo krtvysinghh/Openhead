@@ -1,0 +1,104 @@
+{
+  "metadata": {
+    "id": "glimpse_corp_09",
+    "title": "Research Presentation",
+    "type": "glimpse",
+    "createdAt": 1772000000,
+    "updatedAt": 1772000000,
+    "version": 1
+  },
+  "dimensions": {
+    "width": 1920,
+    "height": 1080,
+    "aspectRatio": "16:9"
+  },
+  "slides": [
+    {
+      "id": "s1",
+      "title": "Methodology & Results",
+      "background": "radial-gradient(ellipse at top, #0f172a, #020617)",
+      "notes": "Present the statistical significance across 10,000 benchmark runs.",
+      "nodes": [
+        {
+          "id": "n1",
+          "type": "text",
+          "x": 120,
+          "y": 90,
+          "width": 1680,
+          "height": 80,
+          "text": "Benchmark Evaluation & Algorithmic Complexity",
+          "fontSize": 44,
+          "fontWeight": "bold",
+          "color": "#ffffff",
+          "zIndex": 1
+        },
+        {
+          "id": "n2",
+          "type": "text",
+          "x": 120,
+          "y": 220,
+          "width": 1680,
+          "height": 600,
+          "paragraphs": [
+            {
+              "id": "p1",
+              "runs": [
+                {
+                  "id": "r1",
+                  "text": "1. Topological Sort Evaluation: ",
+                  "bold": true,
+                  "fontSize": 24,
+                  "color": "#60a5fa"
+                },
+                {
+                  "id": "r2",
+                  "text": "O(V + E) deterministic DAG resolution across 100,000 cells in under 4ms.",
+                  "fontSize": 24,
+                  "color": "#e2e8f0"
+                }
+              ]
+            },
+            {
+              "id": "p2",
+              "runs": [
+                {
+                  "id": "r3",
+                  "text": "2. Pratt Precedence Parsing: ",
+                  "bold": true,
+                  "fontSize": 24,
+                  "color": "#34d399"
+                },
+                {
+                  "id": "r4",
+                  "text": "Linear-time token stream evaluation with complete unary, binary, and range operator support.",
+                  "fontSize": 24,
+                  "color": "#e2e8f0"
+                }
+              ]
+            },
+            {
+              "id": "p3",
+              "runs": [
+                {
+                  "id": "r5",
+                  "text": "3. Zero-Allocation AST Evaluation: ",
+                  "bold": true,
+                  "fontSize": 24,
+                  "color": "#f472b6"
+                },
+                {
+                  "id": "r6",
+                  "text": "In-memory typed array buffers minimizing garbage collection overhead.",
+                  "fontSize": 24,
+                  "color": "#e2e8f0"
+                }
+              ]
+            }
+          ],
+          "zIndex": 2
+        }
+      ]
+    }
+  ],
+  "activeSlideId": "s1"
+}

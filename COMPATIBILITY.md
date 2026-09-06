@@ -25,9 +25,14 @@ Openhead aims for standards-compliant interchange with Microsoft Office (DOCX, X
 | **Sum** | Merged Cells & Freeze Panes | Native Grid AST | `<mergeCells>`, `<pane ySplit xSplit>` | `<table:table-cell>` | Supported |
 | **Sum** | Financial / Database / Arrays | Native functions | Excel 2021+ Dynamic Arrays | Calc Functions | Supported |
 | **Sum** | CSV / TSV Import & Export | Streaming / Matrix | CSV / TSV | CSV / TSV | Supported |
-| **Glimpse**| Vector Scene Graph | Native Node Tree | PPTX Shapes | ODP Shapes | Supported |
-| **Glimpse**| Slide Layouts & Masters | Template Engine | PPTX SlideLayouts | ODP Master Pages | Supported |
-| **Glimpse**| Presenter Mode & Notes | Dual View | PPTX NotesSlide | ODP Presentation | Supported |
+| **Glimpse**| Full PPTX Package (.pptx) | Native JSZip | OOXML PresentationML & DrawingML | ODP | Supported |
+| **Glimpse**| DrawingML Preset Geometries | Native Vector | `<a:prstGeom>` (rect, roundRect, ellipse, triangle, star, etc.) | ODF Draw | Supported |
+| **Glimpse**| Rich Text & Multi-level Paragraphs | Full Scene Graph | `<p:txBody>`, `<a:p>`, `<a:r>`, `<a:buChar>`, `<a:buAutoNum>` | ODF Text | Supported |
+| **Glimpse**| Presentation Tables & Grid Styles | Native Table | `<p:graphicFrame>` & `<a:tbl>` | ODF Table | Supported |
+| **Glimpse**| Analytics Charts & Series | Native Chart | DrawingML GraphicFrame / Chart | ODF Chart | Supported |
+| **Glimpse**| Slide Layouts & Templates | Template Engine | PPTX SlideLayouts & Master IDs | ODP Master Pages | Supported |
+| **Glimpse**| Presenter Mode & Speaker Notes | Dual View Engine | `<p:notes>` & `<p:notesMaster>` | ODP Presentation | Supported |
+| **Glimpse**| Slide Transitions & Timings | Motion Engine | `<p:transition>` (fade, push, wipe, zoom) | ODF Transitions | Supported |
 
 ## Openhead Compatibility Corpus
 
@@ -58,12 +63,22 @@ The `compatibility-corpus/` test fixture library contains complex real-world doc
 - `compatibility-corpus/sum/executive/fixture_08_executive_freeze_panes.json`: Executive dashboard with frozen headers, custom col widths, and formatted KPIs.
 - `compatibility-corpus/sum/errors/fixture_09_error_diagnostics_matrix.json`: Error diagnostic corpus covering `#DIV/0!`, `#N/A`, `#VALUE!`, `#REF!`, `#NAME?`.
 - `compatibility-corpus/sum/complex/fixture_10_project_tracker.json`: Gantt milestone scheduling and workday calculations.
-- `compatibility-corpus/sum/academic/fixture_11_gradebook_scores.json`: Academic curve weighting and letter grading.
-- `compatibility-corpus/sum/complex/fixture_12_inventory_stock.json`: Inventory reorder threshold matrix and stock valuation formulas.
-- `compatibility-corpus/sum/formatting/fixture_13_heavy_typography_borders.json`: Rich styling showcase with custom fonts, colors, and borders.
-- `compatibility-corpus/sum/formulas/fixture_14_defined_names_ranges.json`: Workbook-level named ranges and reference resolution.
-- `compatibility-corpus/sum/complex/fixture_15_data_validation_and_autofilter.json`: Input validation constraints and filtering metadata.
+- `compatibility-corpus/sum/academic/fixture_11_gradebook_scores.json`: Academic gradebook with percentile rank calculations.
+- `compatibility-corpus/sum/complex/fixture_12_inventory_stock.json`: Warehouse inventory reorder threshold monitoring.
+- `compatibility-corpus/sum/formatting/fixture_13_heavy_typography_borders.json`: Rich typography, pattern fills, and multi-edge border styling.
+- `compatibility-corpus/sum/formulas/fixture_14_defined_names_ranges.json`: Named ranges and defined formula coordinates.
+- `compatibility-corpus/sum/complex/fixture_15_data_validation_and_autofilter.json`: Dropdown list validation and AutoFilter sorting rules.
 
 ### Glimpse (PresentationML PPTX) Fixtures
-- `compatibility-corpus/glimpse/layouts/fixture_04_executive_slide_deck.json`: 16:9 executive presentation slide with positioned shape nodes.
-
+- `compatibility-corpus/glimpse/fixture_01_corporate_all_hands_title.json`: Corporate all-hands title slide with 16:9 widescreen layout and subtitle.
+- `compatibility-corpus/glimpse/fixture_02_executive_kpi_dashboard.json`: 4-column executive KPI card dashboard with metric titles, values, and delta badges.
+- `compatibility-corpus/glimpse/fixture_03_sales_pitch_deck.json`: Enterprise pitch comparison deck with legacy vs Openhead glassmorphic cards.
+- `compatibility-corpus/glimpse/fixture_04_quarterly_business_review.json`: Operational QBR review slide with multi-level bulleted takeaway items.
+- `compatibility-corpus/glimpse/fixture_05_product_roadmap_timeline.json`: Multi-phase product roadmap timeline cards with border highlights.
+- `compatibility-corpus/glimpse/fixture_06_technical_architecture_cards.json`: Architecture deep-dive cards illustrating package boundaries and AST parsing.
+- `compatibility-corpus/glimpse/fixture_07_financial_performance_tables.json`: 5x5 departmental expense budget table with header row and status indicators.
+- `compatibility-corpus/glimpse/fixture_08_marketing_campaign_analytics.json`: Analytics chart slide tracking lead velocity across organic and direct inbound channels.
+- `compatibility-corpus/glimpse/fixture_09_academic_research_findings.json`: Academic algorithmic complexity evaluation slide with bold inline definitions.
+- `compatibility-corpus/glimpse/fixture_10_startup_investor_deck.json`: Series A seed investor closing deck with star geometry vector callouts and zoom transition.
+- `compatibility-corpus/glimpse/fixture_11_multilevel_typography_quotes.json`: Architectural manifesto slide featuring centered speech callouts and quote typography.
+- `compatibility-corpus/glimpse/fixture_12_speaker_notes_and_transitions.json`: Multi-slide keynote deck demonstrating speaker notes preservation and push slide transitions.

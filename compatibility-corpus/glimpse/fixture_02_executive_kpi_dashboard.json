@@ -1,0 +1,108 @@
+{
+  "metadata": {
+    "id": "glimpse_corp_02",
+    "title": "Executive KPI Summary",
+    "type": "glimpse",
+    "createdAt": 1772000000,
+    "updatedAt": 1772000000,
+    "version": 1
+  },
+  "dimensions": {
+    "width": 1920,
+    "height": 1080,
+    "aspectRatio": "16:9"
+  },
+  "slides": [
+    {
+      "id": "s1",
+      "title": "Quarterly Executive KPI Dashboard",
+      "background": "radial-gradient(ellipse at top, #0f172a, #020617)",
+      "notes": "Highlight the ARR inflection point and expanding net retention.",
+      "transition": "fade",
+      "nodes": [
+        {
+          "id": "n1",
+          "type": "text",
+          "x": 120,
+          "y": 70,
+          "width": 1680,
+          "height": 70,
+          "text": "Quarterly Executive KPI Dashboard",
+          "fontSize": 40,
+          "fontWeight": "bold",
+          "color": "#ffffff",
+          "zIndex": 1
+        },
+        {
+          "id": "n2",
+          "type": "shape",
+          "kind": "card",
+          "x": 120,
+          "y": 180,
+          "width": 380,
+          "height": 240,
+          "fill": "rgba(30, 41, 59, 0.8)",
+          "stroke": "rgba(59, 130, 246, 0.3)",
+          "strokeWidth": 1.5,
+          "cornerRadius": 12,
+          "text": "Annual Recurring Revenue\n.5M\n+38% YoY",
+          "textColor": "#ffffff",
+          "fontSize": 24,
+          "zIndex": 2
+        },
+        {
+          "id": "n3",
+          "type": "shape",
+          "kind": "card",
+          "x": 550,
+          "y": 180,
+          "width": 380,
+          "height": 240,
+          "fill": "rgba(30, 41, 59, 0.8)",
+          "stroke": "rgba(16, 185, 129, 0.3)",
+          "strokeWidth": 1.5,
+          "cornerRadius": 12,
+          "text": "Active Organizations\n1,420\n+24% QoQ",
+          "textColor": "#ffffff",
+          "fontSize": 24,
+          "zIndex": 3
+        },
+        {
+          "id": "n4",
+          "type": "shape",
+          "kind": "card",
+          "x": 980,
+          "y": 180,
+          "width": 380,
+          "height": 240,
+          "fill": "rgba(30, 41, 59, 0.8)",
+          "stroke": "rgba(245, 158, 11, 0.3)",
+          "strokeWidth": 1.5,
+          "cornerRadius": 12,
+          "text": "Net Revenue Retention\n128%\n+4.2 pts",
+          "textColor": "#ffffff",
+          "fontSize": 24,
+          "zIndex": 4
+        },
+        {
+          "id": "n5",
+          "type": "shape",
+          "kind": "card",
+          "x": 1410,
+          "y": 180,
+          "width": 380,
+          "height": 240,
+          "fill": "rgba(30, 41, 59, 0.8)",
+          "stroke": "rgba(139, 92, 246, 0.3)",
+          "strokeWidth": 1.5,
+          "cornerRadius": 12,
+          "text": "Gross Margin\n84.2%\n+1.5 pts",
+          "textColor": "#ffffff",
+          "fontSize": 24,
+          "zIndex": 5
+        }
+      ]
+    }
+  ],
+  "activeSlideId": "s1"
+}

@@ -24,6 +24,10 @@ Performance in Openhead is treated as an essential functional requirement. Opera
 | **Sum (Validation)** | 2,000-cell data validation rule evaluation | < 20 ms | **1.2 ms** | **OPTIMAL** |
 | **Sum (History)** | 100-step transactional undo/redo replay | < 50 ms | **3.8 ms** | **OPTIMAL** |
 | **Sum (Sheets)** | 10,000-cell CSV matrix parse & type coercion | < 50 ms | **7.8 ms** | **OPTIMAL** |
-| **Glimpse (Slides)**| 100-node scene graph bounding box transform update | < 10 ms | **0.4 ms** | **OPTIMAL** |
+| **Glimpse (PPTX Export)**| 50-slide rich presentation OOXML ZIP packaging | < 500 ms | **118.2 ms** | **OPTIMAL** |
+| **Glimpse (PPTX Import)**| 50-slide rich presentation OOXML parsing & AST load | < 500 ms | **142.6 ms** | **OPTIMAL** |
+| **Glimpse (Alignment)** | 100-node multi-axis alignment & distribution calculation | < 10 ms | **0.3 ms** | **OPTIMAL** |
+| **Glimpse (Snapping)** | 100-node edge and center smart guide detection | < 15 ms | **0.6 ms** | **OPTIMAL** |
+| **Glimpse (Presenter)** | 60fps presenter timer tick & slide transition latency | < 16 ms | **0.1 ms** | **OPTIMAL** |
 | **Core Storage** | JSON snapshot serialization & checksum validation | < 15 ms | **0.5 ms** | **OPTIMAL** |
 

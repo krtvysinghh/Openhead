@@ -1,0 +1,86 @@
+{
+  "metadata": {
+    "id": "glimpse_corp_04",
+    "title": "QBR Presentation",
+    "type": "glimpse",
+    "createdAt": 1772000000,
+    "updatedAt": 1772000000,
+    "version": 1
+  },
+  "dimensions": {
+    "width": 1920,
+    "height": 1080,
+    "aspectRatio": "16:9"
+  },
+  "slides": [
+    {
+      "id": "s1",
+      "title": "Operational Review",
+      "background": "radial-gradient(ellipse at top, #1e293b, #0f172a)",
+      "notes": "Review headcount allocation across core engineering products.",
+      "nodes": [
+        {
+          "id": "n1",
+          "type": "text",
+          "x": 120,
+          "y": 90,
+          "width": 1680,
+          "height": 80,
+          "text": "Q3 Engineering Execution & Milestones",
+          "fontSize": 44,
+          "fontWeight": "bold",
+          "color": "#ffffff",
+          "zIndex": 1
+        },
+        {
+          "id": "n2",
+          "type": "text",
+          "x": 120,
+          "y": 220,
+          "width": 1680,
+          "height": 700,
+          "paragraphs": [
+            {
+              "id": "p1",
+              "bullet": true,
+              "runs": [
+                {
+                  "id": "r1",
+                  "text": "Sum spreadsheet engine shipped with 90+ formula functions and dynamic array support.",
+                  "fontSize": 24,
+                  "color": "#e2e8f0"
+                }
+              ]
+            },
+            {
+              "id": "p2",
+              "bullet": true,
+              "runs": [
+                {
+                  "id": "r2",
+                  "text": "Pen document editor achieved strict WordprocessingML table and style parity.",
+                  "fontSize": 24,
+                  "color": "#e2e8f0"
+                }
+              ]
+            },
+            {
+              "id": "p3",
+              "bullet": true,
+              "runs": [
+                {
+                  "id": "r3",
+                  "text": "Glimpse presentation editor launched with DrawingML shape hierarchy and presenter mode.",
+                  "fontSize": 24,
+                  "color": "#e2e8f0"
+                }
+              ]
+            }
+          ],
+          "zIndex": 2
+        }
+      ]
+    }
+  ],
+  "activeSlideId": "s1"
+}

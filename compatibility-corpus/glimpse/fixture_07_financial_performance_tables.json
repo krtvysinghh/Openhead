@@ -1,0 +1,168 @@
+{
+  "metadata": {
+    "id": "glimpse_corp_07",
+    "title": "Financial Review Deck",
+    "type": "glimpse",
+    "createdAt": 1772000000,
+    "updatedAt": 1772000000,
+    "version": 1
+  },
+  "dimensions": {
+    "width": 1920,
+    "height": 1080,
+    "aspectRatio": "16:9"
+  },
+  "slides": [
+    {
+      "id": "s1",
+      "title": "Budget & Spend",
+      "background": "radial-gradient(ellipse at top, #1e293b, #0f172a)",
+      "notes": "All departmental budgets are within the 5% planned variance envelope.",
+      "nodes": [
+        {
+          "id": "n1",
+          "type": "text",
+          "x": 120,
+          "y": 80,
+          "width": 1680,
+          "height": 70,
+          "text": "Departmental Budget & Expense Breakdown",
+          "fontSize": 42,
+          "fontWeight": "bold",
+          "color": "#ffffff",
+          "zIndex": 1
+        },
+        {
+          "id": "n2",
+          "type": "table",
+          "x": 120,
+          "y": 200,
+          "width": 1680,
+          "height": 600,
+          "rows": 5,
+          "columns": 5,
+          "headerRow": true,
+          "cells": [
+            [
+              {
+                "id": "c00",
+                "text": "Department",
+                "fill": "#1e293b"
+              },
+              {
+                "id": "c01",
+                "text": "Budget Allocated",
+                "fill": "#1e293b"
+              },
+              {
+                "id": "c02",
+                "text": "Actual Spend",
+                "fill": "#1e293b"
+              },
+              {
+                "id": "c03",
+                "text": "Variance",
+                "fill": "#1e293b"
+              },
+              {
+                "id": "c04",
+                "text": "Status",
+                "fill": "#1e293b"
+              }
+            ],
+            [
+              {
+                "id": "c10",
+                "text": "Core Engineering"
+              },
+              {
+                "id": "c11",
+                "text": ",200,000"
+              },
+              {
+                "id": "c12",
+                "text": ",950,000"
+              },
+              {
+                "id": "c13",
+                "text": "-,000"
+              },
+              {
+                "id": "c14",
+                "text": "Under Budget"
+              }
+            ],
+            [
+              {
+                "id": "c20",
+                "text": "Product Marketing"
+              },
+              {
+                "id": "c21",
+                "text": ",800,000"
+              },
+              {
+                "id": "c22",
+                "text": ",820,000"
+              },
+              {
+                "id": "c23",
+                "text": "+,000"
+              },
+              {
+                "id": "c24",
+                "text": "On Track"
+              }
+            ],
+            [
+              {
+                "id": "c30",
+                "text": "Infrastructure & Sec"
+              },
+              {
+                "id": "c31",
+                "text": ",000"
+              },
+              {
+                "id": "c32",
+                "text": ",000"
+              },
+              {
+                "id": "c33",
+                "text": "-,000"
+              },
+              {
+                "id": "c34",
+                "text": "Under Budget"
+              }
+            ],
+            [
+              {
+                "id": "c40",
+                "text": "Design Systems"
+              },
+              {
+                "id": "c41",
+                "text": ",400,000"
+              },
+              {
+                "id": "c42",
+                "text": ",380,000"
+              },
+              {
+                "id": "c43",
+                "text": "-,000"
+              },
+              {
+                "id": "c44",
+                "text": "Under Budget"
+              }
+            ]
+          ],
+          "zIndex": 2
+        }
+      ]
+    }
+  ],
+  "activeSlideId": "s1"
+}

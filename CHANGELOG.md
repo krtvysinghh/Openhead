@@ -2,6 +2,37 @@
 
 All notable changes to Openhead are documented in this file.
 
+## [0.9.0] - 2026-09-06 (Phase 9: Production Glimpse + PPTX Compatibility)
+
+### Added
+- **Full OOXML PresentationML & DrawingML (.pptx) ZIP Package Exporter & Importer**:
+  - Native `PptxAdapter.toBuffer` and `PptxAdapter.fromBuffer` generating and ingesting standards-compliant `.pptx` ZIP archives containing `[Content_Types].xml`, `_rels/.rels`, `ppt/presentation.xml`, `ppt/theme/theme1.xml`, `ppt/_rels/presentation.xml.rels`, `ppt/slides/slide*.xml`, `ppt/slides/_rels/slide*.xml.rels`, `ppt/notesSlides/notesSlide*.xml`, `docProps/core.xml`, and `docProps/app.xml`.
+  - Full DrawingML shape and preset geometry preservation (`<a:prstGeom>`: rectangle, rounded-rectangle, circle/ellipse, triangle, line, arrow, diamond, pentagon, hexagon, star, callout, badge, card).
+  - Widescreen 16:9 standard dimensions mapping (1920x1080 CSS px <-> 12,192,000 x 6,858,000 EMUs).
+- **Rich Vector Scene Graph & Slide Element Model**:
+  - Typed node hierarchy supporting `TextNode`, `ShapeNode`, `TableNode`, `ChartNode`, `ImageNode`, and `GroupNode`.
+  - Rich inline text formatting (`bold`, `italic`, `underline`, `strikethrough`, `fontSize`, `fontFamily`, `color`, `link`) and paragraph controls (`bullet`, `numbered`, `align`).
+  - Structured multi-cell presentation tables (`TableNode`) with header rows, column widths, row heights, and custom fills.
+  - Multi-series analytics charts (`ChartNode`) supporting `bar`, `column`, `line`, `pie`, and `area` chart types with toggleable legends and data labels.
+- **Smart Layouts & Template Generators**:
+  - `SlideLayouts` factory providing out-of-the-box layout templates: `Title Slide`, `Title and Content`, `Section Header`, `Two Column Comparison`, `Three Column Cards`, `Executive KPI Dashboard`, `Data Table Slide`, `Analytics Chart Slide`, and `Blank Slide`.
+- **Canvas Alignment, Smart Snapping & Guides Engine**:
+  - `AlignmentEngine` supporting alignment to slide boundaries or selection bounding boxes (`left`, `center`, `right`, `top`, `middle`, `bottom`).
+  - Equal horizontal and vertical node distribution (`distributeNodes`).
+  - Edge and center smart snapping guide calculations (`calculateSnapGuides`).
+- **Interactive Presenter Mode & Speaker Notes**:
+  - Fullscreen Presenter Mode controller (`GlimpseEditor`) with live elapsed timer, current slide view, next slide preview, and speaker notes drawer.
+  - Dynamic slide transitions (`fade`, `push`, `wipe`, `zoom`, `slide-left`, `slide-up`) serialized into PresentationML (`<p:transition>`).
+- **Transactional Undo / Redo & Selection Management**:
+  - `HistoryStack` transactional history tracking across slide creation, reordering, deletion, node additions, formatting, grouping, ungrouping, and z-order mutations.
+  - Multi-node selection and copy/paste with positional offset (`pasteNodes`).
+- **12 Real-World Glimpse Compatibility Corpus Fixtures**:
+  - Corporate all-hands title, executive KPI dashboard, enterprise sales pitch, quarterly business review, product roadmap timeline, technical architecture cards, financial performance tables, marketing analytics, academic research findings, startup investor deck, multilevel typography quotes, and speaker notes with slide transitions.
+- **Security Hardening**:
+  - Strict XXE injection detection, zip bomb compression ratio and payload limits (250MB), path traversal rejection on entry paths, and URL protocol whitelisting (`http:`, `https:`, `mailto:`).
+- **251 Passing Automated Tests across 68 Test Files**:
+  - 100% test pass rate with strict TypeScript compilation across the entire monorepo.
+
 ## [0.8.0] - 2026-09-06 (Phase 8: Production Pen + DOCX Compatibility)
 
 ### Added

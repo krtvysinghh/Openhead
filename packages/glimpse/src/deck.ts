@@ -1,9 +1,24 @@
 import { generateId, HistoryStack, HistoryCommand } from '@openhead/core';
-import { GlimpseDeckModel, SlideModel, SlideNode, TextNode } from './types';
+import {
+  GlimpseDeckModel,
+  SlideModel,
+  SlideNode,
+  TextNode,
+  ShapeNode,
+  ShapeKind,
+  TableNode,
+  ChartNode,
+  ChartType,
+  ImageNode,
+  ThemeDefinition,
+  SlideTransition,
+} from './types';
+import { defaultDark } from './themes';
 
 export class GlimpseDeck {
   private model: GlimpseDeckModel;
   private history = new HistoryStack<GlimpseDeckModel>();
+  private clipboardNodes: SlideNode[] = [];
 
   constructor(initialModel?: GlimpseDeckModel) {
     if (initialModel) {
@@ -57,6 +72,7 @@ export class GlimpseDeck {
         height: 1080,
         aspectRatio: '16:9',
       },
+      theme: defaultDark,
       slides: [
         {
           id: slideId,
@@ -64,7 +80,7 @@ export class GlimpseDeck {
           background: 'radial-gradient(ellipse at top, #1e293b, #0f172a)',
           notes: 'Welcome everyone to the Openhead presentation.',
           nodes: [titleNode, subtitleNode],
-          transition: 'fade',
+          transition: { type: 'fade', duration: 400 },
         },
       ],
       activeSlideId: slideId,
@@ -109,7 +125,7 @@ export class GlimpseDeck {
           zIndex: 1,
         } as TextNode,
       ],
-      transition: 'fade',
+      transition: { type: 'fade', duration: 400 },
     };
 
     next.slides.push(newSlide);
@@ -125,6 +141,32 @@ export class GlimpseDeck {
     };
     this.model = this.history.execute(this.model, cmd);
     return newSlide;
+  }
+
+  public addSlideFromLayout(layout: SlideModel): SlideModel {
+    const prev = JSON.parse(JSON.stringify(this.model));
+    const next = JSON.parse(JSON.stringify(this.model));
+
+    const clonedSlide: SlideModel = JSON.parse(JSON.stringify(layout));
+    clonedSlide.id = generateId('slide');
+    clonedSlide.nodes = clonedSlide.nodes.map((node) => ({
+      ...node,
+      id: generateId('node'),
+    }));
+
+    next.slides.push(clonedSlide);
+    next.activeSlideId = clonedSlide.id;
+    next.metadata.updatedAt = Date.now();
+
+    const cmd: HistoryCommand<GlimpseDeckModel> = {
+      id: generateId('cmd'),
+      name: `Add Slide (${layout.title})`,
+      execute: () => next,
+      undo: () => prev,
+      timestamp: Date.now(),
+    };
+    this.model = this.history.execute(this.model, cmd);
+    return clonedSlide;
   }
 
   public duplicateSlide(slideId: string): SlideModel | null {
@@ -157,6 +199,31 @@ export class GlimpseDeck {
     return cloned;
   }
 
+  public deleteSlide(slideId: string): void {
+    if (this.model.slides.length <= 1) return; // Keep at least one slide
+
+    const prev = JSON.parse(JSON.stringify(this.model));
+    const next = JSON.parse(JSON.stringify(this.model));
+
+    const idx = next.slides.findIndex((s: SlideModel) => s.id === slideId);
+    if (idx === -1) return;
+
+    next.slides.splice(idx, 1);
+    if (next.activeSlideId === slideId) {
+      next.activeSlideId = next.slides[Math.max(0, idx - 1)].id;
+    }
+    next.metadata.updatedAt = Date.now();
+
+    const cmd: HistoryCommand<GlimpseDeckModel> = {
+      id: generateId('cmd'),
+      name: 'Delete Slide',
+      execute: () => next,
+      undo: () => prev,
+      timestamp: Date.now(),
+    };
+    this.model = this.history.execute(this.model, cmd);
+  }
+
   public reorderSlides(fromIndex: number, toIndex: number): void {
     if (fromIndex < 0 || fromIndex >= this.model.slides.length || toIndex < 0 || toIndex >= this.model.slides.length) {
       return;
@@ -172,6 +239,79 @@ export class GlimpseDeck {
     const cmd: HistoryCommand<GlimpseDeckModel> = {
       id: generateId('cmd'),
       name: 'Reorder Slides',
+      execute: () => next,
+      undo: () => prev,
+      timestamp: Date.now(),
+    };
+    this.model = this.history.execute(this.model, cmd);
+  }
+
+  public updateSlideNotes(slideId: string, notes: string): void {
+    const prev = JSON.parse(JSON.stringify(this.model));
+    const next = JSON.parse(JSON.stringify(this.model));
+    const slide = next.slides.find((s: SlideModel) => s.id === slideId);
+    if (slide) {
+      slide.notes = notes;
+      next.metadata.updatedAt = Date.now();
+
+      const cmd: HistoryCommand<GlimpseDeckModel> = {
+        id: generateId('cmd'),
+        name: 'Update Slide Notes',
+        execute: () => next,
+        undo: () => prev,
+        timestamp: Date.now(),
+      };
+      this.model = this.history.execute(this.model, cmd);
+    }
+  }
+
+  public updateSlideBackground(slideId: string, background: string): void {
+    const prev = JSON.parse(JSON.stringify(this.model));
+    const next = JSON.parse(JSON.stringify(this.model));
+    const slide = next.slides.find((s: SlideModel) => s.id === slideId);
+    if (slide) {
+      slide.background = background;
+      next.metadata.updatedAt = Date.now();
+
+      const cmd: HistoryCommand<GlimpseDeckModel> = {
+        id: generateId('cmd'),
+        name: 'Update Slide Background',
+        execute: () => next,
+        undo: () => prev,
+        timestamp: Date.now(),
+      };
+      this.model = this.history.execute(this.model, cmd);
+    }
+  }
+
+  public updateSlideTransition(slideId: string, transition: SlideTransition | string): void {
+    const prev = JSON.parse(JSON.stringify(this.model));
+    const next = JSON.parse(JSON.stringify(this.model));
+    const slide = next.slides.find((s: SlideModel) => s.id === slideId);
+    if (slide) {
+      slide.transition = transition;
+      next.metadata.updatedAt = Date.now();
+
+      const cmd: HistoryCommand<GlimpseDeckModel> = {
+        id: generateId('cmd'),
+        name: 'Update Slide Transition',
+        execute: () => next,
+        undo: () => prev,
+        timestamp: Date.now(),
+      };
+      this.model = this.history.execute(this.model, cmd);
+    }
+  }
+
+  public applyTheme(theme: ThemeDefinition): void {
+    const prev = JSON.parse(JSON.stringify(this.model));
+    const next = JSON.parse(JSON.stringify(this.model));
+    next.theme = theme;
+    next.metadata.updatedAt = Date.now();
+
+    const cmd: HistoryCommand<GlimpseDeckModel> = {
+      id: generateId('cmd'),
+      name: `Apply Theme (${theme.name})`,
       execute: () => next,
       undo: () => prev,
       timestamp: Date.now(),
@@ -196,6 +336,154 @@ export class GlimpseDeck {
       timestamp: Date.now(),
     };
     this.model = this.history.execute(this.model, cmd);
+  }
+
+  public addTextNode(options: Partial<TextNode>): TextNode {
+    const defaultNode: TextNode = {
+      id: generateId('node'),
+      type: 'text',
+      x: 200,
+      y: 200,
+      width: 600,
+      height: 100,
+      text: 'Double click to edit text',
+      fontSize: 24,
+      color: '#ffffff',
+      zIndex: this.getNextZIndex(),
+      ...options,
+    };
+    this.addNode(defaultNode);
+    return defaultNode;
+  }
+
+  public addShapeNode(kind: ShapeKind, options: Partial<ShapeNode> = {}): ShapeNode {
+    const defaultNode: ShapeNode = {
+      id: generateId('node'),
+      type: 'shape',
+      kind,
+      x: 300,
+      y: 300,
+      width: 240,
+      height: 160,
+      fill: '#3b82f6',
+      stroke: 'rgba(255,255,255,0.2)',
+      strokeWidth: 1,
+      cornerRadius: kind === 'rounded-rectangle' ? 12 : 0,
+      zIndex: this.getNextZIndex(),
+      ...options,
+    };
+    this.addNode(defaultNode);
+    return defaultNode;
+  }
+
+  public addTableNode(rows: number = 3, cols: number = 3, options: Partial<TableNode> = {}): TableNode {
+    const cells = Array.from({ length: rows }, (_, r) =>
+      Array.from({ length: cols }, (_, c) => ({
+        id: generateId('cell'),
+        text: `R${r + 1}C${c + 1}`,
+        fill: r === 0 ? '#1e293b' : 'rgba(255,255,255,0.03)',
+        align: 'left' as const,
+      }))
+    );
+
+    const defaultNode: TableNode = {
+      id: generateId('node'),
+      type: 'table',
+      x: 200,
+      y: 200,
+      width: 1000,
+      height: 400,
+      rows,
+      columns: cols,
+      cells,
+      headerRow: true,
+      zIndex: this.getNextZIndex(),
+      ...options,
+    };
+    this.addNode(defaultNode);
+    return defaultNode;
+  }
+
+  public addChartNode(
+    chartType: ChartType = 'bar',
+    categories: string[] = ['Q1', 'Q2', 'Q3', 'Q4'],
+    series: Array<{ name: string; data: number[]; color?: string }> = [
+      { name: 'Series 1', data: [10, 25, 45, 60], color: '#38bdf8' },
+    ],
+    options: Partial<ChartNode> = {}
+  ): ChartNode {
+    const defaultNode: ChartNode = {
+      id: generateId('node'),
+      type: 'chart',
+      x: 200,
+      y: 200,
+      width: 900,
+      height: 500,
+      chartType,
+      title: 'Chart Title',
+      categories,
+      series,
+      showLegend: true,
+      showDataLabels: true,
+      zIndex: this.getNextZIndex(),
+      ...options,
+    };
+    this.addNode(defaultNode);
+    return defaultNode;
+  }
+
+  public addImageNode(src: string, options: Partial<ImageNode> = {}): ImageNode {
+    const defaultNode: ImageNode = {
+      id: generateId('node'),
+      type: 'image',
+      src,
+      x: 200,
+      y: 200,
+      width: 640,
+      height: 360,
+      zIndex: this.getNextZIndex(),
+      ...options,
+    };
+    this.addNode(defaultNode);
+    return defaultNode;
+  }
+
+  public copyNodes(nodeIds: string[]): void {
+    const slide = this.getActiveSlide();
+    this.clipboardNodes = slide.nodes.filter((n) => nodeIds.includes(n.id)).map((n) => JSON.parse(JSON.stringify(n)));
+  }
+
+  public pasteNodes(offsetX: number = 40, offsetY: number = 40): SlideNode[] {
+    if (this.clipboardNodes.length === 0) return [];
+    const pasted: SlideNode[] = [];
+
+    const prev = JSON.parse(JSON.stringify(this.model));
+    const next = JSON.parse(JSON.stringify(this.model));
+    const slide = next.slides.find((s: SlideModel) => s.id === this.model.activeSlideId)!;
+    const baseZ = this.getNextZIndex();
+
+    this.clipboardNodes.forEach((node, idx) => {
+      const cloned: SlideNode = {
+        ...JSON.parse(JSON.stringify(node)),
+        id: generateId('node'),
+        x: node.x + offsetX,
+        y: node.y + offsetY,
+        zIndex: baseZ + idx,
+      };
+      slide.nodes.push(cloned);
+      pasted.push(cloned);
+    });
+
+    next.metadata.updatedAt = Date.now();
+    const cmd: HistoryCommand<GlimpseDeckModel> = {
+      id: generateId('cmd'),
+      name: `Paste ${pasted.length} nodes`,
+      execute: () => next,
+      undo: () => prev,
+      timestamp: Date.now(),
+    };
+    this.model = this.history.execute(this.model, cmd);
+    return pasted;
   }
 
   public updateNode(nodeId: string, updates: Partial<SlideNode>): void {
@@ -366,6 +654,12 @@ export class GlimpseDeck {
     };
     this.model = this.history.execute(this.model, cmd);
     return group.children;
+  }
+
+  private getNextZIndex(): number {
+    const slide = this.getActiveSlide();
+    if (!slide || slide.nodes.length === 0) return 1;
+    return Math.max(...slide.nodes.map((n) => n.zIndex || 0)) + 1;
   }
 
   public undo(): boolean {

@@ -1,0 +1,66 @@
+{
+  "metadata": {
+    "id": "glimpse_corp_11",
+    "title": "Philosophy and Quotes",
+    "type": "glimpse",
+    "createdAt": 1772000000,
+    "updatedAt": 1772000000,
+    "version": 1
+  },
+  "dimensions": {
+    "width": 1920,
+    "height": 1080,
+    "aspectRatio": "16:9"
+  },
+  "slides": [
+    {
+      "id": "s1",
+      "title": "Guiding Principles",
+      "background": "radial-gradient(ellipse at top, #0f172a, #020617)",
+      "notes": "Read the quote with pauses for dramatic effect.",
+      "nodes": [
+        {
+          "id": "n1",
+          "type": "shape",
+          "kind": "callout",
+          "x": 260,
+          "y": 240,
+          "width": 1400,
+          "height": 480,
+          "fill": "rgba(30,41,59,0.9)",
+          "stroke": "rgba(56,189,248,0.4)",
+          "strokeWidth": 2,
+          "zIndex": 1
+        },
+        {
+          "id": "n2",
+          "type": "text",
+          "x": 320,
+          "y": 320,
+          "width": 1280,
+          "height": 200,
+          "text": "“Software should serve its users, not harvest them. True productivity requires uncompromising privacy and mathematical correctness.”",
+          "fontSize": 36,
+          "fontWeight": "bold",
+          "color": "#ffffff",
+          "align": "center",
+          "zIndex": 2
+        },
+        {
+          "id": "n3",
+          "type": "text",
+          "x": 320,
+          "y": 560,
+          "width": 1280,
+          "height": 60,
+          "text": "— Openhead Architectural Manifesto",
+          "fontSize": 24,
+          "color": "#94a3b8",
+          "align": "center",
+          "zIndex": 3
+        }
+      ]
+    }
+  ],
+  "activeSlideId": "s1"
+}
