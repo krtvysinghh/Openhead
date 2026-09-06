@@ -2,14 +2,20 @@
 
 All notable changes to Openhead are documented in this file.
 
-## [0.1.0] - 2026-09-06
+## [0.2.0] - 2026-09-06 (Phase 2)
 
 ### Added
-- Initial release of Openhead office suite monorepo.
-- `@openhead/core`: Base document ASTs, command history stack, theme tokens, and local AI provider abstraction.
-- `@openhead/formula`: Formula Lexer, Pratt Parser, Dependency Graph (DAG) with cycle detection, and registry with 50+ Excel-compatible functions.
-- `@openhead/pen`: Word-class document editor core with rich block hierarchy, inline formatting, stats calculation, and markdown export/import.
-- `@openhead/sum`: Spreadsheet engine with matrix coordinate resolution, dynamic ranges, cell formatting, and cascading calculation engine.
-- `@openhead/glimpse`: Presentation engine with vector scene graph, master layouts, geometric transforms, and presenter mode.
-- `@openhead/ui`: Glassmorphic component library, theme provider, keyboard shortcut manager, and `Cmd+K` Command Palette.
-- `apps/studio`: Integrated desktop/web studio hosting Pen, Sum, and Glimpse with seamless document switching.
+- Comprehensive Phase 2 reality audit in `docs/PHASE2_AUDIT.md`.
+- `StorageManager` in `@openhead/core`: Local storage persistence, snapshot autosave, crash recovery, and recent files listing.
+- `SecuritySanitizer` in `@openhead/core`: CSV/formula injection sanitization, path traversal blocking, and payload size bounds.
+- Table editing controls and search & replace engine with regex support in `@openhead/pen`.
+- Interactive spreadsheet grid in `@openhead/sum` with keyboard navigation, row/column insertion/deletion, coordinate shifting, and currency/percent formatting.
+- Interactive slide studio in `@openhead/glimpse` with property inspector, slide duplication, slide reordering, and Presenter Mode timer.
+- 15+ extended Excel functions in `@openhead/formula` (`MEDIAN`, `SUMPRODUCT`, `TRUNC`, `INT`, `EVEN`, `ODD`, `ISNUMBER`, `ISTEXT`, `ISBLANK`), cross-sheet reference parsing (`Sheet2!A1`), and mixed references (`$A1`, `A$1`).
+- `ShortcutsRegistry`, `SettingsModal`, and `RecentFilesModal` in `@openhead/ui`.
+- Performance benchmark documentation in `docs/PERFORMANCE.md` and benchmark test suite.
+- Expanded automated test suite to 37 passing unit & performance tests across 12 test files.
+
+## [0.1.0] - 2026-09-06 (Phase 1)
+- Initial release of Openhead office suite monorepo foundation.
+- Core packages: `@openhead/core`, `@openhead/formula`, `@openhead/pen`, `@openhead/sum`, `@openhead/glimpse`, `@openhead/ui`, and `apps/studio`.

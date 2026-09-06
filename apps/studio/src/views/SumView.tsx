@@ -1,8 +1,19 @@
 import React, { useState } from 'react';
-import { SumWorkbook, exportWorksheetToCsv } from '@openhead/sum';
-import { colIndexToName } from '@openhead/formula';
+import { SumWorkbook, exportWorksheetToCsv, importCsvToWorksheet } from '@openhead/sum';
+import { colIndexToName, parseCellAddress } from '@openhead/formula';
 import { glassStyles } from '@openhead/ui';
-import { FileDown, Plus, FunctionSquare, Sparkles, Hash, DollarSign, Percent } from 'lucide-react';
+import {
+  FileDown,
+  FileUp,
+  Plus,
+  FunctionSquare,
+  Sparkles,
+  Hash,
+  DollarSign,
+  Percent,
+  PlusSquare,
+  MinusSquare,
+} from 'lucide-react';
 
 interface SumViewProps {
   workbook: SumWorkbook;
@@ -28,6 +39,48 @@ export const SumView: React.FC<SumViewProps> = ({ workbook: wb, onUpdate, onAiPr
     onUpdate();
   };
 
+  const handleKeyDownGrid = (e: React.KeyboardEvent) => {
+    if (isEditing) return;
+    const addr = parseCellAddress(selectedCell);
+    if (!addr) return;
+
+    if (e.key === 'ArrowUp' && addr.row > 0) {
+      e.preventDefault();
+      handleCellSelect(`${colIndexToName(addr.col)}${addr.row}`);
+    } else if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      handleCellSelect(`${colIndexToName(addr.col)}${addr.row + 2}`);
+    } else if (e.key === 'ArrowLeft' && addr.col > 0) {
+      e.preventDefault();
+      handleCellSelect(`${colIndexToName(addr.col - 1)}${addr.row + 1}`);
+    } else if (e.key === 'ArrowRight') {
+      e.preventDefault();
+      handleCellSelect(`${colIndexToName(addr.col + 1)}${addr.row + 1}`);
+    } else if (e.key === 'F2') {
+      e.preventDefault();
+      setIsEditing(true);
+    } else if (e.key === 'Enter') {
+      e.preventDefault();
+      setIsEditing(true);
+    }
+  };
+
+  const handleInsertRow = () => {
+    const addr = parseCellAddress(selectedCell);
+    if (addr) {
+      wb.insertRow(addr.row);
+      onUpdate();
+    }
+  };
+
+  const handleDeleteRow = () => {
+    const addr = parseCellAddress(selectedCell);
+    if (addr) {
+      wb.deleteRow(addr.row);
+      onUpdate();
+    }
+  };
+
   const handleExportCsv = () => {
     const csv = exportWorksheetToCsv(activeSheet);
     const blob = new Blob([csv], { type: 'text/csv' });
@@ -39,43 +92,76 @@ export const SumView: React.FC<SumViewProps> = ({ workbook: wb, onUpdate, onAiPr
     URL.revokeObjectURL(url);
   };
 
-  const rowsCount = 20;
-  const colsCount = 10;
+  const handleImportCsv = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const content = event.target?.result as string;
+      if (content) {
+        const importedSheet = importCsvToWorksheet(content, file.name.replace(/\.csv$/, ''));
+        wb.getModel().sheets.push(importedSheet);
+        wb.setActiveSheet(importedSheet.id);
+        onUpdate();
+      }
+    };
+    reader.readAsText(file);
+  };
+
+  const rowsCount = 25;
+  const colsCount = 12;
 
   return (
-    <div className="flex-1 flex flex-col h-full overflow-hidden bg-slate-950/40">
+    <div className="flex-1 flex flex-col h-full overflow-hidden bg-slate-950/40" onKeyDown={handleKeyDownGrid} tabIndex={0}>
       {/* Ribbon Toolbar */}
-      <div className={`flex items-center justify-between px-6 py-2.5 border-b border-white/10 ${glassStyles.panelSubtle}`}>
+      <div className={`flex items-center justify-between px-6 py-2 border-b border-white/10 ${glassStyles.panelSubtle}`}>
         <div className="flex items-center gap-2">
           <button
             onClick={() => {
               wb.setCellFormat(selectedCell, { type: 'currency', currencySymbol: '$', decimals: 2 });
               onUpdate();
             }}
-            className="p-1.5 rounded-lg text-slate-300 hover:bg-white/10 hover:text-white"
-            title="Format as Currency"
+            className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-medium text-slate-300 hover:bg-white/10 hover:text-white"
+            title="Format as Currency ($)"
           >
-            <DollarSign className="w-4 h-4" />
+            <DollarSign className="w-4 h-4" /> Currency
           </button>
           <button
             onClick={() => {
               wb.setCellFormat(selectedCell, { type: 'percent', decimals: 1 });
               onUpdate();
             }}
-            className="p-1.5 rounded-lg text-slate-300 hover:bg-white/10 hover:text-white"
-            title="Format as Percent"
+            className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-medium text-slate-300 hover:bg-white/10 hover:text-white"
+            title="Format as Percent (%)"
           >
-            <Percent className="w-4 h-4" />
+            <Percent className="w-4 h-4" /> Percent
           </button>
           <button
             onClick={() => {
               wb.setCellFormat(selectedCell, { type: 'number', decimals: 2 });
               onUpdate();
             }}
-            className="p-1.5 rounded-lg text-slate-300 hover:bg-white/10 hover:text-white"
+            className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-medium text-slate-300 hover:bg-white/10 hover:text-white"
             title="Format as Number"
           >
-            <Hash className="w-4 h-4" />
+            <Hash className="w-4 h-4" /> Number
+          </button>
+
+          <div className="w-[1px] h-4 bg-white/10 mx-1" />
+
+          <button
+            onClick={handleInsertRow}
+            className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-medium text-slate-300 hover:bg-white/10 hover:text-white"
+            title="Insert Row Above Selection"
+          >
+            <PlusSquare className="w-4 h-4 text-emerald-400" /> Insert Row
+          </button>
+          <button
+            onClick={handleDeleteRow}
+            className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-medium text-slate-300 hover:bg-white/10 hover:text-white"
+            title="Delete Current Row"
+          >
+            <MinusSquare className="w-4 h-4 text-red-400" /> Delete Row
           </button>
 
           <div className="w-[1px] h-4 bg-white/10 mx-1" />
@@ -90,12 +176,18 @@ export const SumView: React.FC<SumViewProps> = ({ workbook: wb, onUpdate, onAiPr
           </button>
         </div>
 
-        <button
-          onClick={handleExportCsv}
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-slate-200 bg-white/5 border border-white/10 hover:bg-white/10 transition-all"
-        >
-          <FileDown className="w-3.5 h-3.5" /> Export CSV
-        </button>
+        <div className="flex items-center gap-2">
+          <label className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-slate-300 bg-white/5 border border-white/10 hover:bg-white/10 cursor-pointer transition-all">
+            <FileUp className="w-3.5 h-3.5" /> Import CSV
+            <input type="file" accept=".csv,.tsv,.txt" onChange={handleImportCsv} className="hidden" />
+          </label>
+          <button
+            onClick={handleExportCsv}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-slate-200 bg-white/5 border border-white/10 hover:bg-white/10 transition-all"
+          >
+            <FileDown className="w-3.5 h-3.5" /> Export CSV
+          </button>
+        </div>
       </div>
 
       {/* Formula Bar */}
@@ -111,12 +203,12 @@ export const SumView: React.FC<SumViewProps> = ({ workbook: wb, onUpdate, onAiPr
           onKeyDown={(e) => {
             if (e.key === 'Enter') handleCellCommit();
           }}
-          placeholder="Enter a value or formula (e.g. =SUM(A1:A5), =AVERAGE(B1:B10))..."
+          placeholder="Enter a value or formula (e.g. =SUM(A1:A5), =AVERAGE(B1:B10), =VLOOKUP(...))..."
           className="flex-1 bg-transparent border-none outline-none text-slate-100 text-sm font-mono placeholder-slate-500"
         />
       </div>
 
-      {/* Grid Canvas */}
+      {/* Spreadsheet Matrix Grid */}
       <div className="flex-1 overflow-auto bg-slate-950/60 p-4">
         <div className={`inline-block min-w-full rounded-xl overflow-hidden border border-white/10 ${glassStyles.panelSubtle}`}>
           <table className="border-collapse text-xs w-full">
@@ -133,11 +225,9 @@ export const SumView: React.FC<SumViewProps> = ({ workbook: wb, onUpdate, onAiPr
             <tbody>
               {Array.from({ length: rowsCount }).map((_, r) => (
                 <tr key={r} className="hover:bg-white/[0.02]">
-                  {/* Row Index */}
                   <td className="bg-white/5 text-slate-400 font-mono text-center border-r border-b border-white/10 py-1.5 select-none font-medium">
                     {r + 1}
                   </td>
-                  {/* Cells */}
                   {Array.from({ length: colsCount }).map((_, c) => {
                     const cellKey = `${colIndexToName(c)}${r + 1}`;
                     const cell = activeSheet.cells[cellKey];

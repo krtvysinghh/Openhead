@@ -1,7 +1,20 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { ProductType } from '@openhead/core';
 import { glassStyles } from '@openhead/ui';
-import { FileText, Table, Presentation, Search, Sparkles, Undo, Redo, ShieldCheck } from 'lucide-react';
+import {
+  FileText,
+  Table,
+  Presentation,
+  Search,
+  Sparkles,
+  Undo,
+  Redo,
+  ShieldCheck,
+  FolderOpen,
+  Settings,
+  Save,
+  Menu,
+} from 'lucide-react';
 
 interface HeaderProps {
   activeProduct: ProductType;
@@ -9,10 +22,14 @@ interface HeaderProps {
   title: string;
   onOpenCommandPalette: () => void;
   onToggleAi: () => void;
+  onOpenRecentFiles: () => void;
+  onOpenSettings: () => void;
+  onManualSave: () => void;
   canUndo: boolean;
   canRedo: boolean;
   onUndo: () => void;
   onRedo: () => void;
+  isAutosaved: boolean;
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -21,24 +38,72 @@ export const Header: React.FC<HeaderProps> = ({
   title: _title,
   onOpenCommandPalette,
   onToggleAi,
+  onOpenRecentFiles,
+  onOpenSettings,
+  onManualSave,
   canUndo,
   canRedo,
   onUndo,
   onRedo,
+  isAutosaved,
 }) => {
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+
   return (
     <header className={`h-14 px-4 flex items-center justify-between border-b border-white/10 ${glassStyles.panel} relative z-30`}>
+      {/* Brand & Product Selector */}
       <div className="flex items-center gap-6">
-        <div className="flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-indigo-600 via-indigo-500 to-purple-500 flex items-center justify-center shadow-lg shadow-indigo-500/30 border border-white/20">
-            <ShieldCheck className="w-4 h-4 text-white" />
-          </div>
-          <div>
-            <span className="font-bold text-sm tracking-tight text-white">OPENHEAD</span>
-            <span className="text-[10px] block -mt-1 font-medium text-indigo-400">STUDIO</span>
-          </div>
+        <div className="relative">
+          <button
+            onClick={() => setIsMenuOpen((prev) => !prev)}
+            className="flex items-center gap-2.5 p-1 rounded-xl hover:bg-white/5 transition-all"
+          >
+            <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-indigo-600 via-indigo-500 to-purple-500 flex items-center justify-center shadow-lg shadow-indigo-500/30 border border-white/20">
+              <ShieldCheck className="w-4 h-4 text-white" />
+            </div>
+            <div className="text-left">
+              <span className="font-bold text-sm tracking-tight text-white flex items-center gap-1">
+                OPENHEAD <Menu className="w-3 h-3 text-slate-400" />
+              </span>
+              <span className="text-[10px] block -mt-1 font-medium text-indigo-400">STUDIO</span>
+            </div>
+          </button>
+
+          {/* Dropdown Menu */}
+          {isMenuOpen && (
+            <div className="absolute left-0 top-12 w-52 bg-slate-900/95 backdrop-blur-2xl border border-white/15 rounded-xl shadow-2xl p-1.5 space-y-1 text-xs text-slate-200 animate-in fade-in zoom-in-95 duration-150">
+              <button
+                onClick={() => {
+                  onManualSave();
+                  setIsMenuOpen(false);
+                }}
+                className="w-full flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-white/10 text-left"
+              >
+                <Save className="w-3.5 h-3.5 text-indigo-400" /> Save Document (⌘S)
+              </button>
+              <button
+                onClick={() => {
+                  onOpenRecentFiles();
+                  setIsMenuOpen(false);
+                }}
+                className="w-full flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-white/10 text-left"
+              >
+                <FolderOpen className="w-3.5 h-3.5 text-emerald-400" /> Recent Documents (⌘O)
+              </button>
+              <button
+                onClick={() => {
+                  onOpenSettings();
+                  setIsMenuOpen(false);
+                }}
+                className="w-full flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-white/10 text-left"
+              >
+                <Settings className="w-3.5 h-3.5 text-amber-400" /> Preferences
+              </button>
+            </div>
+          )}
         </div>
 
+        {/* Product Switcher Pills */}
         <div className="flex items-center p-0.5 rounded-xl bg-slate-950/60 border border-white/10">
           <button
             onClick={() => onSelectProduct('pen')}
@@ -73,6 +138,7 @@ export const Header: React.FC<HeaderProps> = ({
         </div>
       </div>
 
+      {/* Center Search / Command Palette Shortcut */}
       <button
         onClick={onOpenCommandPalette}
         className="hidden md:flex items-center gap-3 px-4 py-1.5 rounded-xl bg-slate-950/40 border border-white/10 hover:border-white/20 text-slate-400 hover:text-slate-200 text-xs transition-all w-72 justify-between"
@@ -84,7 +150,14 @@ export const Header: React.FC<HeaderProps> = ({
         <kbd className="px-1.5 py-0.5 rounded bg-white/5 border border-white/10 text-[10px] font-mono">⌘K</kbd>
       </button>
 
-      <div className="flex items-center gap-2">
+      {/* Right Controls */}
+      <div className="flex items-center gap-3">
+        {/* Autosave Pill */}
+        <div className="hidden sm:flex items-center gap-1.5 text-[11px] px-2.5 py-1 rounded-full bg-white/5 border border-white/10 text-slate-400">
+          <span className={`w-1.5 h-1.5 rounded-full ${isAutosaved ? 'bg-emerald-400' : 'bg-amber-400 animate-pulse'}`} />
+          <span>{isAutosaved ? 'Autosaved' : 'Saving...'}</span>
+        </div>
+
         <div className="flex items-center gap-1">
           <button
             onClick={onUndo}

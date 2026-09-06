@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { GlimpseDeck, TextNode, ShapeNode } from '@openhead/glimpse';
 import { glassStyles } from '@openhead/ui';
-import { Plus, Play, Square, Circle, Type, Sparkles } from 'lucide-react';
+import { Plus, Play, Square, Circle, Type, Sparkles, Copy, Trash2, Sliders } from 'lucide-react';
 
 interface GlimpseViewProps {
   deck: GlimpseDeck;
@@ -12,11 +12,29 @@ interface GlimpseViewProps {
 export const GlimpseView: React.FC<GlimpseViewProps> = ({ deck, onUpdate, onAiPrompt }) => {
   const model = deck.getModel();
   const activeSlide = deck.getActiveSlide();
+  const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
   const [isPresenterMode, setIsPresenterMode] = useState<boolean>(false);
   const [currentSlideIndex, setCurrentSlideIndex] = useState<number>(0);
+  const [presenterTimer, setPresenterTimer] = useState<number>(0);
+
+  React.useEffect(() => {
+    let timer: any;
+    if (isPresenterMode) {
+      setPresenterTimer(0);
+      timer = setInterval(() => setPresenterTimer((t) => t + 1), 1000);
+    }
+    return () => clearInterval(timer);
+  }, [isPresenterMode]);
+
+  const selectedNode = activeSlide.nodes.find((n) => n.id === selectedNodeId);
 
   const handleAddSlide = () => {
     deck.addSlide(`Slide ${model.slides.length + 1}`);
+    onUpdate();
+  };
+
+  const handleDuplicateSlide = () => {
+    deck.duplicateSlide(activeSlide.id);
     onUpdate();
   };
 
@@ -29,12 +47,13 @@ export const GlimpseView: React.FC<GlimpseViewProps> = ({ deck, onUpdate, onAiPr
       width: 400,
       height: 60,
       text: 'Editable presentation text',
-      fontSize: 24,
+      fontSize: 28,
       color: '#ffffff',
       align: 'left',
       zIndex: 5,
     };
     deck.addNode(node);
+    setSelectedNodeId(node.id);
     onUpdate();
   };
 
@@ -54,18 +73,35 @@ export const GlimpseView: React.FC<GlimpseViewProps> = ({ deck, onUpdate, onAiPr
       zIndex: 4,
     };
     deck.addNode(node);
+    setSelectedNodeId(node.id);
     onUpdate();
+  };
+
+  const handleDeleteSelectedNode = () => {
+    if (selectedNodeId) {
+      deck.deleteNode(selectedNodeId);
+      setSelectedNodeId(null);
+      onUpdate();
+    }
   };
 
   return (
     <div className="flex-1 flex flex-col h-full overflow-hidden bg-slate-950/40">
-      <div className={`flex items-center justify-between px-6 py-2.5 border-b border-white/10 ${glassStyles.panelSubtle}`}>
+      {/* Ribbon Toolbar */}
+      <div className={`flex items-center justify-between px-6 py-2 border-b border-white/10 ${glassStyles.panelSubtle}`}>
         <div className="flex items-center gap-2">
           <button
             onClick={handleAddSlide}
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-slate-200 bg-white/5 border border-white/10 hover:bg-white/10 transition-all"
           >
             <Plus className="w-3.5 h-3.5" /> New Slide
+          </button>
+          <button
+            onClick={handleDuplicateSlide}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-slate-300 hover:bg-white/10 hover:text-white"
+            title="Duplicate Slide"
+          >
+            <Copy className="w-3.5 h-3.5" /> Duplicate
           </button>
           <div className="w-[1px] h-4 bg-white/10 mx-1" />
           <button
@@ -90,6 +126,16 @@ export const GlimpseView: React.FC<GlimpseViewProps> = ({ deck, onUpdate, onAiPr
             <Circle className="w-4 h-4" />
           </button>
 
+          {selectedNodeId && (
+            <button
+              onClick={handleDeleteSelectedNode}
+              className="p-1.5 rounded-lg text-red-400 hover:bg-white/10 hover:text-red-300"
+              title="Delete Selected Shape"
+            >
+              <Trash2 className="w-4 h-4" />
+            </button>
+          )}
+
           <div className="w-[1px] h-4 bg-white/10 mx-1" />
 
           <button
@@ -108,7 +154,9 @@ export const GlimpseView: React.FC<GlimpseViewProps> = ({ deck, onUpdate, onAiPr
         </button>
       </div>
 
+      {/* Main Studio Area */}
       <div className="flex-1 flex overflow-hidden">
+        {/* Left Thumbnails Strip */}
         <div className="w-56 border-r border-white/5 p-4 flex flex-col gap-3 bg-slate-950/20 overflow-y-auto">
           <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Slides</span>
           <div className="space-y-3">
@@ -132,6 +180,7 @@ export const GlimpseView: React.FC<GlimpseViewProps> = ({ deck, onUpdate, onAiPr
           </div>
         </div>
 
+        {/* Center Presentation Canvas */}
         <div className="flex-1 p-8 flex items-center justify-center overflow-auto">
           <div
             className="relative rounded-2xl shadow-2xl overflow-hidden border border-white/10"
@@ -147,13 +196,20 @@ export const GlimpseView: React.FC<GlimpseViewProps> = ({ deck, onUpdate, onAiPr
               const top = node.y * scale;
               const width = node.width * scale;
               const height = node.height * scale;
+              const isSelected = selectedNodeId === node.id;
 
               if (node.type === 'text') {
                 const t = node as TextNode;
                 return (
                   <div
                     key={t.id}
-                    className="absolute cursor-move select-none p-1 border border-transparent hover:border-indigo-400/40 rounded transition-colors"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setSelectedNodeId(t.id);
+                    }}
+                    className={`absolute cursor-move select-none p-1 rounded transition-colors ${
+                      isSelected ? 'ring-2 ring-indigo-400 bg-white/5' : 'hover:ring-1 hover:ring-indigo-400/40'
+                    }`}
                     style={{
                       left: `${left}px`,
                       top: `${top}px`,
@@ -175,7 +231,13 @@ export const GlimpseView: React.FC<GlimpseViewProps> = ({ deck, onUpdate, onAiPr
                 return (
                   <div
                     key={s.id}
-                    className="absolute backdrop-blur-md cursor-move border hover:border-indigo-400/60 transition-colors"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setSelectedNodeId(s.id);
+                    }}
+                    className={`absolute backdrop-blur-md cursor-move border transition-colors ${
+                      isSelected ? 'ring-2 ring-indigo-400 border-indigo-400' : 'hover:border-indigo-400/60'
+                    }`}
                     style={{
                       left: `${left}px`,
                       top: `${top}px`,
@@ -194,14 +256,84 @@ export const GlimpseView: React.FC<GlimpseViewProps> = ({ deck, onUpdate, onAiPr
             })}
           </div>
         </div>
+
+        {/* Right Property Inspector */}
+        {selectedNode && (
+          <div className="w-64 border-l border-white/5 p-4 flex flex-col gap-4 bg-slate-950/20 text-xs">
+            <div className="flex items-center gap-2 pb-2 border-b border-white/10 font-semibold text-slate-300">
+              <Sliders className="w-4 h-4 text-indigo-400" />
+              <span>Shape Inspector</span>
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-slate-400 font-medium">Position & Size</label>
+              <div className="grid grid-cols-2 gap-2">
+                <div>
+                  <span className="text-[10px] text-slate-500">X:</span>
+                  <input
+                    type="number"
+                    value={selectedNode.x}
+                    onChange={(e) => {
+                      deck.updateNode(selectedNode.id, { x: Number(e.target.value) });
+                      onUpdate();
+                    }}
+                    className="w-full bg-slate-900 border border-white/10 rounded px-2 py-1 text-white"
+                  />
+                </div>
+                <div>
+                  <span className="text-[10px] text-slate-500">Y:</span>
+                  <input
+                    type="number"
+                    value={selectedNode.y}
+                    onChange={(e) => {
+                      deck.updateNode(selectedNode.id, { y: Number(e.target.value) });
+                      onUpdate();
+                    }}
+                    className="w-full bg-slate-900 border border-white/10 rounded px-2 py-1 text-white"
+                  />
+                </div>
+                <div>
+                  <span className="text-[10px] text-slate-500">W:</span>
+                  <input
+                    type="number"
+                    value={selectedNode.width}
+                    onChange={(e) => {
+                      deck.updateNode(selectedNode.id, { width: Number(e.target.value) });
+                      onUpdate();
+                    }}
+                    className="w-full bg-slate-900 border border-white/10 rounded px-2 py-1 text-white"
+                  />
+                </div>
+                <div>
+                  <span className="text-[10px] text-slate-500">H:</span>
+                  <input
+                    type="number"
+                    value={selectedNode.height}
+                    onChange={(e) => {
+                      deck.updateNode(selectedNode.id, { height: Number(e.target.value) });
+                      onUpdate();
+                    }}
+                    className="w-full bg-slate-900 border border-white/10 rounded px-2 py-1 text-white"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
 
+      {/* Fullscreen Presenter Mode Modal */}
       {isPresenterMode && (
         <div className="fixed inset-0 z-50 bg-black flex flex-col justify-between p-8 animate-in fade-in duration-200">
           <div className="flex justify-between items-center text-white">
-            <span className="text-sm font-medium text-slate-400">
-              Openhead Presenter Mode — Slide {currentSlideIndex + 1} of {model.slides.length}
-            </span>
+            <div className="flex items-center gap-4">
+              <span className="text-sm font-medium text-slate-400">
+                Openhead Presenter Mode — Slide {currentSlideIndex + 1} of {model.slides.length}
+              </span>
+              <span className="text-xs px-2.5 py-1 rounded bg-white/10 text-indigo-300 font-mono">
+                ⏱ {Math.floor(presenterTimer / 60)}:{(presenterTimer % 60).toString().padStart(2, '0')}
+              </span>
+            </div>
             <button
               onClick={() => setIsPresenterMode(false)}
               className="px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-xs font-medium"
