@@ -13,7 +13,7 @@
 [![CI](https://github.com/krtvysinghh/Openhead/actions/workflows/ci.yml/badge.svg)](https://github.com/krtvysinghh/Openhead/actions/workflows/ci.yml)
 [![Release](https://github.com/krtvysinghh/Openhead/actions/workflows/release.yml/badge.svg)](https://github.com/krtvysinghh/Openhead/actions/workflows/release.yml)
 [![License: Apache-2.0](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](LICENSE)
-[![Tests](https://img.shields.io/badge/Tests-337%20passing-brightgreen.svg)](#-testing)
+[![Tests](https://img.shields.io/badge/Tests-343%20passing-brightgreen.svg)](#-testing)
 [![Version](https://img.shields.io/badge/Version-v1.0.0-6366f1.svg)](https://github.com/krtvysinghh/Openhead/releases/tag/v1.0.0)
 [![TypeScript](https://img.shields.io/badge/TypeScript-Strict-3178c6.svg)](tsconfig.base.json)
 [![pnpm](https://img.shields.io/badge/pnpm-Monorepo-f69220.svg)](pnpm-workspace.yaml)
@@ -783,7 +783,8 @@ pnpm test --grep "DOCX"
 | Storage & Recovery | 10 | Atomic writes, crash journal, restore flow |
 | Templates | 12 | All 16 templates, structure validation |
 | Office Parity | 18 | Goal Seek, Text-to-Columns, watermark, image insert |
-| **Total** | **337** | **87 test suites** |
+| Apps UI & Performance | 6 | Dynamic grid bounds, real styles, presenter scene graph |
+| **Total** | **343** | **88 test suites** |
 
 ---
 

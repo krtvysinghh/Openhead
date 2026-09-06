@@ -52,10 +52,28 @@ export const GlimpseView: React.FC<GlimpseViewProps> = ({ deck, onUpdate, onAiPr
     let timer: any;
     if (isPresenterMode) {
       setPresenterTimer(0);
-      timer = setInterval(() => setPresenterTimer((t) => t + 1), 1000);
+      timer = setInterval(() => setPresenterTimer((t: number) => t + 1), 1000);
     }
     return () => clearInterval(timer);
   }, [isPresenterMode]);
+
+  // Keyboard navigation for Presenter Mode
+  React.useEffect(() => {
+    if (!isPresenterMode) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setIsPresenterMode(false);
+      } else if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown' || e.key === 'Enter') {
+        e.preventDefault();
+        setCurrentSlideIndex((prev: number) => Math.min(model.slides.length - 1, prev + 1));
+      } else if (e.key === 'ArrowLeft' || e.key === 'Backspace' || e.key === 'PageUp') {
+        e.preventDefault();
+        setCurrentSlideIndex((prev: number) => Math.max(0, prev - 1));
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isPresenterMode, model.slides.length]);
 
   const selectedNode = activeSlide.nodes.find((n) => n.id === selectedNodeId);
 
@@ -621,6 +639,81 @@ export const GlimpseView: React.FC<GlimpseViewProps> = ({ deck, onUpdate, onAiPr
                 </div>
               </div>
             </div>
+
+            {/* Text Node Specific Properties */}
+            {selectedNode.type === 'text' && (
+              <div className="space-y-2 border-t border-white/10 pt-3">
+                <label className="text-slate-400 font-medium">Text Content & Style</label>
+                <textarea
+                  value={(selectedNode as TextNode).text || ''}
+                  onChange={(e) => {
+                    deck.updateNode(selectedNode.id, { text: e.target.value });
+                    onUpdate();
+                  }}
+                  className="w-full bg-slate-900 border border-white/10 rounded px-2 py-1.5 text-white resize-none text-xs"
+                  rows={3}
+                />
+                <div className="grid grid-cols-2 gap-2">
+                  <div>
+                    <span className="text-[10px] text-slate-500">Font Size:</span>
+                    <input
+                      type="number"
+                      value={(selectedNode as TextNode).fontSize || 24}
+                      onChange={(e) => {
+                        deck.updateNode(selectedNode.id, { fontSize: Number(e.target.value) });
+                        onUpdate();
+                      }}
+                      className="w-full bg-slate-900 border border-white/10 rounded px-2 py-1 text-white"
+                    />
+                  </div>
+                  <div>
+                    <span className="text-[10px] text-slate-500">Color:</span>
+                    <input
+                      type="text"
+                      value={(selectedNode as TextNode).color || '#ffffff'}
+                      onChange={(e) => {
+                        deck.updateNode(selectedNode.id, { color: e.target.value });
+                        onUpdate();
+                      }}
+                      className="w-full bg-slate-900 border border-white/10 rounded px-2 py-1 text-white font-mono"
+                    />
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Shape Node Specific Properties */}
+            {selectedNode.type === 'shape' && (
+              <div className="space-y-2 border-t border-white/10 pt-3">
+                <label className="text-slate-400 font-medium">Shape Style</label>
+                <div className="grid grid-cols-2 gap-2">
+                  <div>
+                    <span className="text-[10px] text-slate-500">Fill:</span>
+                    <input
+                      type="text"
+                      value={(selectedNode as ShapeNode).fill || ''}
+                      onChange={(e) => {
+                        deck.updateNode(selectedNode.id, { fill: e.target.value });
+                        onUpdate();
+                      }}
+                      className="w-full bg-slate-900 border border-white/10 rounded px-2 py-1 text-white font-mono"
+                    />
+                  </div>
+                  <div>
+                    <span className="text-[10px] text-slate-500">Radius:</span>
+                    <input
+                      type="number"
+                      value={(selectedNode as ShapeNode).cornerRadius || 8}
+                      onChange={(e) => {
+                        deck.updateNode(selectedNode.id, { cornerRadius: Number(e.target.value) });
+                        onUpdate();
+                      }}
+                      className="w-full bg-slate-900 border border-white/10 rounded px-2 py-1 text-white"
+                    />
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         )}
       </div>
@@ -647,10 +740,145 @@ export const GlimpseView: React.FC<GlimpseViewProps> = ({ deck, onUpdate, onAiPr
 
           <div className="flex-1 flex items-center justify-center gap-8 p-4">
             <div
-              className="w-full max-w-4xl aspect-video rounded-xl shadow-2xl p-8 relative flex items-center justify-center border border-white/10"
-              style={{ background: model.slides[currentSlideIndex].background }}
+              className="w-full max-w-4xl aspect-video rounded-xl shadow-2xl relative border border-white/10 overflow-hidden"
+              style={{ background: model.slides[currentSlideIndex].background || '#0f172a' }}
             >
-              <h1 className="text-4xl font-bold text-white tracking-tight">{model.slides[currentSlideIndex].title}</h1>
+              {model.slides[currentSlideIndex].nodes.map((node) => {
+                const presScale = 896 / 1920;
+                const left = node.x * presScale;
+                const top = node.y * presScale;
+                const width = node.width * presScale;
+                const height = node.height * presScale;
+
+                if (node.type === 'text') {
+                  const t = node as TextNode;
+                  return (
+                    <div
+                      key={t.id}
+                      className="absolute p-1 select-none"
+                      style={{
+                        left: `${left}px`,
+                        top: `${top}px`,
+                        width: `${width}px`,
+                        fontSize: `${(t.fontSize || 24) * presScale}px`,
+                        color: t.color || '#ffffff',
+                        fontWeight: t.fontWeight || 'normal',
+                        textAlign: t.align || 'left',
+                        zIndex: t.zIndex,
+                      }}
+                    >
+                      {t.text}
+                    </div>
+                  );
+                }
+
+                if (node.type === 'shape') {
+                  const s = node as ShapeNode;
+                  return (
+                    <div
+                      key={s.id}
+                      className="absolute backdrop-blur-md border"
+                      style={{
+                        left: `${left}px`,
+                        top: `${top}px`,
+                        width: `${width}px`,
+                        height: `${height}px`,
+                        background: s.fill,
+                        borderColor: s.stroke || 'rgba(255,255,255,0.1)',
+                        borderRadius: `${(s.cornerRadius || 8) * presScale}px`,
+                        zIndex: s.zIndex,
+                      }}
+                    />
+                  );
+                }
+
+                if (node.type === 'image') {
+                  const img = node as any;
+                  return (
+                    <div
+                      key={img.id}
+                      className="absolute p-1 select-none"
+                      style={{
+                        left: `${left}px`,
+                        top: `${top}px`,
+                        width: `${width}px`,
+                        height: `${height}px`,
+                        zIndex: img.zIndex,
+                      }}
+                    >
+                      <img
+                        src={img.src}
+                        alt={img.alt || 'Slide image'}
+                        className="w-full h-full object-contain pointer-events-none rounded shadow-md"
+                        style={{ opacity: img.opacity ?? 1 }}
+                      />
+                    </div>
+                  );
+                }
+
+                if (node.type === 'table') {
+                  const tbl = node as any;
+                  return (
+                    <div
+                      key={tbl.id}
+                      className="absolute overflow-auto border border-white/10 rounded-lg bg-slate-900/80 backdrop-blur-md p-1"
+                      style={{
+                        left: `${left}px`,
+                        top: `${top}px`,
+                        width: `${width}px`,
+                        height: `${height}px`,
+                        zIndex: tbl.zIndex,
+                      }}
+                    >
+                      <table className="w-full h-full text-left border-collapse text-xs">
+                        <tbody>
+                          {(tbl.cells || []).map((row: any[], r: number) => (
+                            <tr key={r}>
+                              {row.map((c: any, ci: number) => (
+                                <td
+                                  key={c.id || ci}
+                                  className={`p-1.5 border border-white/10 ${r === 0 && tbl.headerRow ? 'font-bold bg-white/10 text-white' : 'text-slate-300'}`}
+                                >
+                                  {c.text || ''}
+                                </td>
+                              ))}
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  );
+                }
+
+                if (node.type === 'chart') {
+                  const ch = node as any;
+                  return (
+                    <div
+                      key={ch.id}
+                      className="absolute border border-indigo-500/20 rounded-xl bg-slate-900/90 backdrop-blur-md p-3 flex flex-col justify-between"
+                      style={{
+                        left: `${left}px`,
+                        top: `${top}px`,
+                        width: `${width}px`,
+                        height: `${height}px`,
+                        zIndex: ch.zIndex,
+                      }}
+                    >
+                      <span className="text-xs font-bold text-white truncate">{ch.title || ch.chartType?.toUpperCase() || 'CHART'}</span>
+                      <div className="flex-1 flex items-end gap-2 pt-2 pb-1">
+                        {(ch.series?.[0]?.data || [20, 50, 80, 40]).map((val: number, idx: number) => (
+                          <div key={idx} className="flex-1 bg-indigo-500/80 rounded-t flex items-end justify-center" style={{ height: `${Math.min(100, val)}%` }}>
+                            <span className="text-[9px] text-white/80">{ch.categories?.[idx] || ''}</span>
+                          </div>
+                        ))}
+                      </div>
+                      <span className="text-[10px] text-slate-400 text-center truncate">{ch.series?.map((s: any) => s.name).join(', ')}</span>
+                    </div>
+                  );
+                }
+
+                return null;
+              })}
             </div>
 
             {/* Presenter Notes Panel */}
@@ -670,14 +898,14 @@ export const GlimpseView: React.FC<GlimpseViewProps> = ({ deck, onUpdate, onAiPr
 
           <div className="flex justify-center gap-4">
             <button
-              onClick={() => setCurrentSlideIndex((prev) => Math.max(0, prev - 1))}
+              onClick={() => setCurrentSlideIndex((prev: number) => Math.max(0, prev - 1))}
               disabled={currentSlideIndex === 0}
               className="px-4 py-2 rounded-lg bg-white/10 hover:bg-white/20 text-sm disabled:opacity-30"
             >
               Previous
             </button>
             <button
-              onClick={() => setCurrentSlideIndex((prev) => Math.min(model.slides.length - 1, prev + 1))}
+              onClick={() => setCurrentSlideIndex((prev: number) => Math.min(model.slides.length - 1, prev + 1))}
               disabled={currentSlideIndex === model.slides.length - 1}
               className="px-4 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-sm font-medium"
             >

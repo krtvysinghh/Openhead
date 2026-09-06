@@ -995,52 +995,72 @@ export const PenView: React.FC<PenViewProps> = ({ document: doc, onUpdate, onAiP
                 }
 
                 const text = 'inlines' in block ? (block as any).inlines.map((i: InlineText) => i.text).join('') : '';
+                const blockProps = (block as any).props || {};
+                const inlineStyle = (block as any).inlines?.[0]?.styles || {};
 
                 return (
                   <div
                     key={block.id}
                     onClick={() => setActiveBlockIndex(idx)}
-                    className={`group relative flex items-start gap-2 ${
-                      isActive ? 'ring-1 ring-indigo-400/20 rounded p-1.5' : ''
-                    }`}
-                  >
-                    {block.type === 'heading' ? (
-                      <input
-                        type="text"
-                        value={text}
-                        onChange={(e) => {
-                          (block as any).inlines[0] = {
-                            id: `inl_${Date.now()}`,
-                            text: e.target.value,
-                            styles: (block as any).inlines[0]?.styles,
-                          };
-                          onUpdate();
-                        }}
-                        className={`w-full bg-transparent border-none outline-none font-bold text-white tracking-tight ${
-                          (block as HeadingBlock).level === 1
-                            ? 'text-2xl mt-4 mb-2 text-indigo-200'
-                            : (block as HeadingBlock).level === 2
-                            ? 'text-xl mt-3 mb-1 text-slate-200'
-                            : 'text-lg mt-2 mb-1 text-slate-300'
+                        className={`group relative flex items-start gap-2 ${
+                          isActive ? 'ring-1 ring-indigo-400/20 rounded p-1.5' : ''
                         }`}
-                        placeholder="Heading..."
-                      />
-                    ) : (
-                      <textarea
-                        value={text}
-                        onChange={(e) => {
-                          (block as any).inlines[0] = {
-                            id: `inl_${Date.now()}`,
-                            text: e.target.value,
-                            styles: (block as any).inlines[0]?.styles,
-                          };
-                          onUpdate();
-                        }}
-                        rows={Math.max(1, Math.ceil(text.length / 70))}
-                        className="w-full bg-transparent border-none outline-none text-slate-200 text-base leading-relaxed resize-none placeholder-slate-500"
-                        placeholder="Write content..."
-                      />
-                    )}
+                      >
+                        {block.type === 'heading' ? (
+                          <input
+                            type="text"
+                            value={text}
+                            onChange={(e) => {
+                              (block as any).inlines[0] = {
+                                id: `inl_${Date.now()}`,
+                                text: e.target.value,
+                                styles: (block as any).inlines[0]?.styles,
+                              };
+                              onUpdate();
+                            }}
+                            style={{
+                              textAlign: blockProps.align || 'left',
+                              fontWeight: inlineStyle.bold !== false ? 'bold' : 'normal',
+                              fontStyle: inlineStyle.italic ? 'italic' : 'normal',
+                              textDecoration: inlineStyle.underline ? 'underline' : inlineStyle.strikethrough ? 'line-through' : 'none',
+                              color: inlineStyle.fontColor || undefined,
+                              fontFamily: inlineStyle.fontFamily || undefined,
+                            }}
+                            className={`w-full bg-transparent border-none outline-none font-bold text-white tracking-tight ${
+                              (block as HeadingBlock).level === 1
+                                ? 'text-2xl mt-4 mb-2 text-indigo-200'
+                                : (block as HeadingBlock).level === 2
+                                ? 'text-xl mt-3 mb-1 text-slate-200'
+                                : 'text-lg mt-2 mb-1 text-slate-300'
+                            }`}
+                            placeholder="Heading..."
+                          />
+                        ) : (
+                          <textarea
+                            value={text}
+                            onChange={(e) => {
+                              (block as any).inlines[0] = {
+                                id: `inl_${Date.now()}`,
+                                text: e.target.value,
+                                styles: (block as any).inlines[0]?.styles,
+                              };
+                              onUpdate();
+                            }}
+                            rows={Math.max(1, Math.ceil(text.length / 70))}
+                            style={{
+                              textAlign: blockProps.align || 'left',
+                              lineHeight: blockProps.lineSpacing ? `${blockProps.lineSpacing}` : '1.6',
+                              fontWeight: inlineStyle.bold ? 'bold' : 'normal',
+                              fontStyle: inlineStyle.italic ? 'italic' : 'normal',
+                              textDecoration: inlineStyle.underline ? 'underline' : inlineStyle.strikethrough ? 'line-through' : 'none',
+                              color: inlineStyle.fontColor || undefined,
+                              fontFamily: inlineStyle.fontFamily || undefined,
+                              fontSize: inlineStyle.fontSize ? `${inlineStyle.fontSize}pt` : undefined,
+                            }}
+                            className="w-full bg-transparent border-none outline-none text-slate-200 text-base leading-relaxed resize-none placeholder-slate-500"
+                            placeholder="Write content..."
+                          />
+                        )}
 
                     <button
                       onClick={() => handleDeleteBlock(idx)}

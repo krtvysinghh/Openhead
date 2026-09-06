@@ -23,6 +23,11 @@ import {
   ArrowDownAZ,
   ArrowUpAZ,
   Bold,
+  Italic,
+  Underline,
+  AlignLeft,
+  AlignCenter,
+  AlignRight,
   Columns,
   Square,
   Snowflake,
@@ -298,8 +303,21 @@ export const SumView: React.FC<SumViewProps> = ({ workbook: wb, onUpdate, onAiPr
     reader.readAsText(file);
   };
 
-  const rowsCount = 25;
-  const colsCount = 12;
+  // Dynamically compute row and column counts based on populated cells
+  const cellKeys = Object.keys(activeSheet.cells);
+  let maxUsedRow = 20;
+  let maxUsedCol = 10;
+  for (const k of cellKeys) {
+    const addr = parseCellAddress(k);
+    if (addr) {
+      if (addr.row + 1 > maxUsedRow) maxUsedRow = addr.row + 1;
+      if (addr.col + 1 > maxUsedCol) maxUsedCol = addr.col + 1;
+    }
+  }
+  const rowsCount = Math.max(30, maxUsedRow + 8);
+  const colsCount = Math.max(14, maxUsedCol + 3);
+
+  const activeCellStyle = activeSheet.cells[selectedCell]?.style || {};
 
   return (
     <div className="flex-1 flex flex-col h-full overflow-hidden bg-slate-950/40" onKeyDown={handleKeyDownGrid} tabIndex={0}>
@@ -343,27 +361,97 @@ export const SumView: React.FC<SumViewProps> = ({ workbook: wb, onUpdate, onAiPr
 
           <div className="w-[1px] h-4 bg-white/10 mx-1" />
 
+          {/* Typography / Cell Styling */}
           <button
             onClick={() => {
-              const currentStyle = activeSheet.cells[selectedCell]?.style || {};
-              wb.setCellStyle(selectedCell, { ...currentStyle, bold: !currentStyle.bold });
+              wb.setCellStyle(selectedCell, { ...activeCellStyle, bold: !activeCellStyle.bold });
               onUpdate();
             }}
-            className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-medium text-slate-300 hover:bg-white/10 hover:text-white"
+            className={`flex items-center gap-1 px-2 py-1.5 rounded-lg text-xs font-medium transition-all ${
+              activeCellStyle.bold ? 'bg-indigo-600/40 text-white border border-indigo-400/50' : 'text-slate-300 hover:bg-white/10 hover:text-white'
+            }`}
             title="Bold"
           >
             <Bold className="w-4 h-4" />
           </button>
           <button
             onClick={() => {
-              const currentStyle = activeSheet.cells[selectedCell]?.style || {};
+              wb.setCellStyle(selectedCell, { ...activeCellStyle, italic: !activeCellStyle.italic });
+              onUpdate();
+            }}
+            className={`flex items-center gap-1 px-2 py-1.5 rounded-lg text-xs font-medium transition-all ${
+              activeCellStyle.italic ? 'bg-indigo-600/40 text-white border border-indigo-400/50' : 'text-slate-300 hover:bg-white/10 hover:text-white'
+            }`}
+            title="Italic"
+          >
+            <Italic className="w-4 h-4" />
+          </button>
+          <button
+            onClick={() => {
+              wb.setCellStyle(selectedCell, { ...activeCellStyle, underline: !activeCellStyle.underline });
+              onUpdate();
+            }}
+            className={`flex items-center gap-1 px-2 py-1.5 rounded-lg text-xs font-medium transition-all ${
+              activeCellStyle.underline ? 'bg-indigo-600/40 text-white border border-indigo-400/50' : 'text-slate-300 hover:bg-white/10 hover:text-white'
+            }`}
+            title="Underline"
+          >
+            <Underline className="w-4 h-4" />
+          </button>
+
+          <div className="w-[1px] h-4 bg-white/10 mx-1" />
+
+          {/* Alignments */}
+          <button
+            onClick={() => {
+              wb.setCellStyle(selectedCell, { ...activeCellStyle, align: 'left' });
+              onUpdate();
+            }}
+            className={`p-1.5 rounded-lg text-xs font-medium transition-all ${
+              activeCellStyle.align === 'left' ? 'bg-white/20 text-white' : 'text-slate-400 hover:text-white hover:bg-white/10'
+            }`}
+            title="Align Left"
+          >
+            <AlignLeft className="w-3.5 h-3.5" />
+          </button>
+          <button
+            onClick={() => {
+              wb.setCellStyle(selectedCell, { ...activeCellStyle, align: 'center' });
+              onUpdate();
+            }}
+            className={`p-1.5 rounded-lg text-xs font-medium transition-all ${
+              activeCellStyle.align === 'center' ? 'bg-white/20 text-white' : 'text-slate-400 hover:text-white hover:bg-white/10'
+            }`}
+            title="Align Center"
+          >
+            <AlignCenter className="w-3.5 h-3.5" />
+          </button>
+          <button
+            onClick={() => {
+              wb.setCellStyle(selectedCell, { ...activeCellStyle, align: 'right' });
+              onUpdate();
+            }}
+            className={`p-1.5 rounded-lg text-xs font-medium transition-all ${
+              activeCellStyle.align === 'right' ? 'bg-white/20 text-white' : 'text-slate-400 hover:text-white hover:bg-white/10'
+            }`}
+            title="Align Right"
+          >
+            <AlignRight className="w-3.5 h-3.5" />
+          </button>
+
+          <div className="w-[1px] h-4 bg-white/10 mx-1" />
+
+          <button
+            onClick={() => {
               wb.setCellStyle(selectedCell, {
-                ...currentStyle,
-                borders: currentStyle.borders ? undefined : { top: true, bottom: true, left: true, right: true },
+                ...activeCellStyle,
+                borders: activeCellStyle.borders ? undefined : { top: true, bottom: true, left: true, right: true },
               });
               onUpdate();
             }}
-            className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-medium text-slate-300 hover:bg-white/10 hover:text-white"
+            className={`flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all ${
+              activeCellStyle.borders ? 'bg-indigo-600/30 text-indigo-200 border border-indigo-400/40' : 'text-slate-300 hover:bg-white/10 hover:text-white'
+            }`}
             title="Toggle All Borders"
           >
             <Square className="w-4 h-4" />
@@ -618,6 +706,20 @@ export const SumView: React.FC<SumViewProps> = ({ workbook: wb, onUpdate, onAiPr
                         key={c}
                         onClick={() => handleCellSelect(cellKey)}
                         onDoubleClick={() => setIsEditing(true)}
+                        style={{
+                          fontWeight: cell?.style?.bold ? 'bold' : 'normal',
+                          fontStyle: cell?.style?.italic ? 'italic' : 'normal',
+                          textDecoration: cell?.style?.underline ? 'underline' : cell?.style?.strike ? 'line-through' : 'none',
+                          textAlign: (cell?.style?.align as any) || (typeof cell?.value === 'number' ? 'right' : 'left'),
+                          color: cell?.style?.color || undefined,
+                          backgroundColor: isSelected ? undefined : (cell?.style?.background || undefined),
+                          fontSize: cell?.style?.fontSize ? `${cell.style.fontSize}pt` : undefined,
+                          fontFamily: cell?.style?.fontFamily || undefined,
+                          borderTop: cell?.style?.borders?.top ? '1px solid rgba(255,255,255,0.4)' : undefined,
+                          borderBottom: cell?.style?.borders?.bottom ? '1px solid rgba(255,255,255,0.4)' : undefined,
+                          borderLeft: cell?.style?.borders?.left ? '1px solid rgba(255,255,255,0.4)' : undefined,
+                          borderRight: cell?.style?.borders?.right ? '1px solid rgba(255,255,255,0.4)' : undefined,
+                        }}
                         className={`border-r border-b border-white/5 px-2.5 py-1.5 font-mono truncate cursor-pointer transition-colors ${
                           isSelected
                             ? 'bg-indigo-600/20 text-white outline outline-2 outline-indigo-400 z-10'
