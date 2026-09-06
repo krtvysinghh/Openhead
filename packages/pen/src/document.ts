@@ -147,6 +147,55 @@ export class PenDocument {
     });
   }
 
+  public addParagraph(text: string, sectionIndex: number = 0): ParagraphBlock {
+    const p: ParagraphBlock = {
+      id: generateId('blk'),
+      type: 'paragraph',
+      inlines: [{ id: generateId('inl'), text }],
+      props: { styleId: 'Normal', lineSpacing: 1.15, spacingAfter: 6 },
+    };
+    const blockIdx = this.model.sections[sectionIndex]?.blocks.length || 0;
+    this.insertBlock(sectionIndex, blockIdx, p);
+    return p;
+  }
+
+  public addHeading(text: string, level: 1 | 2 | 3 | 4 | 5 | 6 = 1, sectionIndex: number = 0): HeadingBlock {
+    const h: HeadingBlock = {
+      id: generateId('blk'),
+      type: 'heading',
+      level,
+      inlines: [{ id: generateId('inl'), text }],
+      props: { styleId: `Heading${level}`, spacingBefore: 12, spacingAfter: 6 },
+    };
+    const blockIdx = this.model.sections[sectionIndex]?.blocks.length || 0;
+    this.insertBlock(sectionIndex, blockIdx, h);
+    return h;
+  }
+
+  public addTable(rows: number = 3, cols: number = 3, sectionIndex: number = 0): TableBlock {
+    const tableCells: TableCell[][] = [];
+    for (let r = 0; r < rows; r++) {
+      const row: TableCell[] = [];
+      for (let c = 0; c < cols; c++) {
+        row.push({
+          id: generateId('cell'),
+          inlines: [{ id: generateId('inl'), text: '' }],
+        });
+      }
+      tableCells.push(row);
+    }
+
+    const t: TableBlock = {
+      id: generateId('blk'),
+      type: 'table',
+      rows: tableCells,
+      hasHeaderRow: true,
+    };
+    const blockIdx = this.model.sections[sectionIndex]?.blocks.length || 0;
+    this.insertBlock(sectionIndex, blockIdx, t);
+    return t;
+  }
+
   /**
    * Formats a selection range [startChar, endChar] in a block's inline runs.
    */

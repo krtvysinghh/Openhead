@@ -376,6 +376,17 @@ export class GlimpseDeck {
     return defaultNode;
   }
 
+  public addShape(
+    kind: ShapeKind,
+    x: number = 300,
+    y: number = 300,
+    width: number = 240,
+    height: number = 160,
+    options: Partial<ShapeNode> = {}
+  ): ShapeNode {
+    return this.addShapeNode(kind, { x, y, width, height, ...options });
+  }
+
   public addTableNode(rows: number = 3, cols: number = 3, options: Partial<TableNode> = {}): TableNode {
     const cells = Array.from({ length: rows }, (_, r) =>
       Array.from({ length: cols }, (_, c) => ({

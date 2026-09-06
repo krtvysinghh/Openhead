@@ -1,6 +1,6 @@
 import { BaseDocumentMetadata } from '@openhead/core';
 
-export type NodeType = 'text' | 'shape' | 'image' | 'table' | 'chart' | 'group';
+export type NodeType = 'text' | 'shape' | 'image' | 'table' | 'chart' | 'group' | 'connector';
 
 export interface BaseNode {
   id: string;
@@ -131,7 +131,22 @@ export interface GroupNode extends BaseNode {
   children: SlideNode[];
 }
 
-export type SlideNode = TextNode | ShapeNode | ImageNode | TableNode | ChartNode | GroupNode;
+export interface ConnectorNode extends BaseNode {
+  type: 'connector';
+  startNodeId?: string;
+  endNodeId?: string;
+  startX: number;
+  startY: number;
+  endX: number;
+  endY: number;
+  style?: 'straight' | 'elbow' | 'curved';
+  strokeColor?: string;
+  strokeWidth?: number;
+  startArrow?: boolean;
+  endArrow?: boolean;
+}
+
+export type SlideNode = TextNode | ShapeNode | ImageNode | TableNode | ChartNode | GroupNode | ConnectorNode;
 
 export interface ThemeDefinition {
   id: string;
@@ -152,6 +167,38 @@ export interface SlideTransition {
   duration?: number; // ms
 }
 
+export interface SlideAnimation {
+  id: string;
+  targetNodeId: string;
+  type: 'appear' | 'fade' | 'fly-in' | 'zoom' | 'spin';
+  trigger: 'onClick' | 'afterPrevious' | 'withPrevious';
+  durationMs: number;
+  delayMs: number;
+}
+
+export interface SlidePlaceholder {
+  id: string;
+  type: 'title' | 'subtitle' | 'body' | 'footer' | 'slideNumber' | 'dateTime';
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+}
+
+export interface SlideLayoutDefinition {
+  id: string;
+  name: string;
+  placeholders: SlidePlaceholder[];
+}
+
+export interface SlideMaster {
+  id: string;
+  name: string;
+  background: string;
+  theme?: ThemeDefinition;
+  layouts: SlideLayoutDefinition[];
+}
+
 export interface SlideModel {
   id: string;
   title: string;
@@ -160,6 +207,7 @@ export interface SlideModel {
   notes?: string;
   nodes: SlideNode[];
   transition?: SlideTransition | SlideTransitionType;
+  animations?: SlideAnimation[];
   hidden?: boolean;
 }
 
@@ -173,6 +221,7 @@ export interface GlimpseDeckModel {
   metadata: BaseDocumentMetadata;
   dimensions: DeckDimensions;
   theme?: ThemeDefinition;
+  masters?: SlideMaster[];
   slides: SlideModel[];
   activeSlideId: string;
 }

@@ -192,6 +192,7 @@ export class Lexer {
         this.isDigit(this.input[this.pos]) ||
         this.input[this.pos] === '$' ||
         this.input[this.pos] === '_' ||
+        this.input[this.pos] === '.' ||
         this.input[this.pos] === '!')
     ) {
       this.pos++;

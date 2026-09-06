@@ -4,5 +4,8 @@ export * from './editor';
 export * from './alignment';
 export * from './layouts';
 export * from './themes';
+export * from './masters';
+export * from './animations';
+export * from './connectors';
 export * from './security';
 export * from './export/pptx';

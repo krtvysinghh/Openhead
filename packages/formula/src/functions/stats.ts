@@ -311,7 +311,152 @@ export const statsFunctions: FunctionImplementation[] = [
       return min === Infinity ? 0 : min;
     },
   },
+  {
+    name: 'STDEV.S',
+    minArgs: 1,
+    maxArgs: 255,
+    execute: (args) => {
+      const nums = extractNumbers(args);
+      if (nums.length < 2) return 0;
+      const mean = nums.reduce((a, b) => a + b, 0) / nums.length;
+      const variance = nums.reduce((sum, val) => sum + Math.pow(val - mean, 2), 0) / (nums.length - 1);
+      return Math.sqrt(variance);
+    },
+  },
+  {
+    name: 'STDEV',
+    minArgs: 1,
+    maxArgs: 255,
+    execute: (args) => {
+      const nums = extractNumbers(args);
+      if (nums.length < 2) return 0;
+      const mean = nums.reduce((a, b) => a + b, 0) / nums.length;
+      const variance = nums.reduce((sum, val) => sum + Math.pow(val - mean, 2), 0) / (nums.length - 1);
+      return Math.sqrt(variance);
+    },
+  },
+  {
+    name: 'STDEV.P',
+    minArgs: 1,
+    maxArgs: 255,
+    execute: (args) => {
+      const nums = extractNumbers(args);
+      if (nums.length === 0) return 0;
+      const mean = nums.reduce((a, b) => a + b, 0) / nums.length;
+      const variance = nums.reduce((sum, val) => sum + Math.pow(val - mean, 2), 0) / nums.length;
+      return Math.sqrt(variance);
+    },
+  },
+  {
+    name: 'VAR.S',
+    minArgs: 1,
+    maxArgs: 255,
+    execute: (args) => {
+      const nums = extractNumbers(args);
+      if (nums.length < 2) return 0;
+      const mean = nums.reduce((a, b) => a + b, 0) / nums.length;
+      return nums.reduce((sum, val) => sum + Math.pow(val - mean, 2), 0) / (nums.length - 1);
+    },
+  },
+  {
+    name: 'VAR',
+    minArgs: 1,
+    maxArgs: 255,
+    execute: (args) => {
+      const nums = extractNumbers(args);
+      if (nums.length < 2) return 0;
+      const mean = nums.reduce((a, b) => a + b, 0) / nums.length;
+      return nums.reduce((sum, val) => sum + Math.pow(val - mean, 2), 0) / (nums.length - 1);
+    },
+  },
+  {
+    name: 'VAR.P',
+    minArgs: 1,
+    maxArgs: 255,
+    execute: (args) => {
+      const nums = extractNumbers(args);
+      if (nums.length === 0) return 0;
+      const mean = nums.reduce((a, b) => a + b, 0) / nums.length;
+      return nums.reduce((sum, val) => sum + Math.pow(val - mean, 2), 0) / nums.length;
+    },
+  },
+  {
+    name: 'MODE.SNGL',
+    minArgs: 1,
+    maxArgs: 255,
+    execute: (args) => {
+      const nums = extractNumbers(args);
+      if (nums.length === 0) return 0;
+      const counts = new Map<number, number>();
+      let maxCount = 0;
+      let mode = nums[0];
+      for (const n of nums) {
+        const c = (counts.get(n) || 0) + 1;
+        counts.set(n, c);
+        if (c > maxCount) {
+          maxCount = c;
+          mode = n;
+        }
+      }
+      return mode;
+    },
+  },
+  {
+    name: 'PERCENTILE.INC',
+    minArgs: 2,
+    maxArgs: 2,
+    execute: (args) => {
+      const nums = extractNumbers([args[0]]).sort((a, b) => a - b);
+      const k = Number(args[1]);
+      if (nums.length === 0 || isNaN(k) || k < 0 || k > 1) return 0;
+      const idx = k * (nums.length - 1);
+      const low = Math.floor(idx);
+      const high = Math.ceil(idx);
+      if (low === high) return nums[low];
+      return nums[low] + (nums[high] - nums[low]) * (idx - low);
+    },
+  },
+  {
+    name: 'QUARTILE.INC',
+    minArgs: 2,
+    maxArgs: 2,
+    execute: (args) => {
+      const quart = Number(args[1]);
+      const kMap: Record<number, number> = { 0: 0, 1: 0.25, 2: 0.5, 3: 0.75, 4: 1 };
+      const k = kMap[quart] ?? 0;
+      const nums = extractNumbers([args[0]]).sort((a, b) => a - b);
+      if (nums.length === 0) return 0;
+      const idx = k * (nums.length - 1);
+      const low = Math.floor(idx);
+      const high = Math.ceil(idx);
+      if (low === high) return nums[low];
+      return nums[low] + (nums[high] - nums[low]) * (idx - low);
+    },
+  },
 ];
+
+function extractNumbers(args: any[]): number[] {
+  const nums: number[] = [];
+  for (const arg of args) {
+    if (Array.isArray(arg)) {
+      for (const row of arg) {
+        if (Array.isArray(row)) {
+          for (const val of row) {
+            if (typeof val === 'number' && !isNaN(val)) nums.push(val);
+            else if (typeof val === 'string' && val.trim() !== '' && !isNaN(Number(val))) {
+              nums.push(Number(val));
+            }
+          }
+        } else if (typeof row === 'number' && !isNaN(row)) {
+          nums.push(row);
+        }
+      }
+    } else if (typeof arg === 'number' && !isNaN(arg)) {
+      nums.push(arg);
+    }
+  }
+  return nums;
+}
 
 function matchesCriteria(val: FormulaValue, criteria: FormulaValue): boolean {
   if (typeof criteria === 'string') {

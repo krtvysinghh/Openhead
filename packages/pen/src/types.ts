@@ -220,10 +220,43 @@ export interface DocumentSection {
   footnotes?: Footnote[];
 }
 
+export interface CommentEntry {
+  id: string;
+  author: string;
+  content: string;
+  createdAt: number;
+}
+
+export interface CommentThread {
+  id: string;
+  targetBlockId: string;
+  targetInlineId?: string;
+  author: string;
+  createdAt: number;
+  resolved: boolean;
+  comments: CommentEntry[];
+}
+
+export interface TrackedChange {
+  id: string;
+  type: 'insert' | 'delete' | 'format';
+  blockId: string;
+  inlineId?: string;
+  author: string;
+  timestamp: number;
+  originalValue?: string;
+  newValue?: string;
+  originalStyle?: InlineStyle;
+  newStyle?: InlineStyle;
+  status: 'pending' | 'accepted' | 'rejected';
+}
+
 export interface PenDocumentModel {
   metadata: BaseDocumentMetadata;
   styles?: Record<string, NamedStyle>;
   sections: DocumentSection[];
+  comments?: CommentThread[];
+  trackedChanges?: TrackedChange[];
 }
 
 export interface DocStats {

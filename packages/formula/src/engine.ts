@@ -215,4 +215,20 @@ export class FormulaEngine {
 
     return order;
   }
+
+  /**
+   * Directly evaluates a formula expression against a dictionary of cell coordinates.
+   */
+  public evaluate(formula: string, contextCells: Record<string, FormulaValue> = {}): FormulaValue {
+    const tempEngine = new FormulaEngine(this.registry);
+    for (const [coord, val] of Object.entries(contextCells)) {
+      const addr = parseCellAddress(coord);
+      if (addr) {
+        tempEngine.setCellValue(addr, val as any);
+      }
+    }
+    const evalAddr: CellAddress = { row: 9999, col: 9999 };
+    tempEngine.setCellValue(evalAddr, formula);
+    return tempEngine.getCellValue(evalAddr);
+  }
 }
