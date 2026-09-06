@@ -55,4 +55,63 @@ export const datetimeFunctions: FunctionImplementation[] = [
       return isNaN(date.getTime()) ? FormulaErrorCode.VALUE : date.getDate();
     },
   },
+  {
+    name: 'EOMONTH',
+    minArgs: 2,
+    maxArgs: 2,
+    execute: (args) => {
+      const date = new Date(String(args[0]));
+      const months = Number(args[1]);
+      if (isNaN(date.getTime()) || isNaN(months)) return FormulaErrorCode.VALUE;
+      const target = new Date(date.getFullYear(), date.getMonth() + months + 1, 0);
+      return `${target.getFullYear()}-${String(target.getMonth() + 1).padStart(2, '0')}-${String(target.getDate()).padStart(2, '0')}`;
+    },
+  },
+  {
+    name: 'WORKDAY',
+    minArgs: 2,
+    maxArgs: 2,
+    execute: (args) => {
+      const date = new Date(String(args[0]));
+      const days = Number(args[1]);
+      if (isNaN(date.getTime()) || isNaN(days)) return FormulaErrorCode.VALUE;
+      const cur = new Date(date);
+      let added = 0;
+      const step = days >= 0 ? 1 : -1;
+      const targetDays = Math.abs(days);
+
+      while (added < targetDays) {
+        cur.setDate(cur.getDate() + step);
+        const dayOfWeek = cur.getDay();
+        if (dayOfWeek !== 0 && dayOfWeek !== 6) {
+          added++;
+        }
+      }
+      return `${cur.getFullYear()}-${String(cur.getMonth() + 1).padStart(2, '0')}-${String(cur.getDate()).padStart(2, '0')}`;
+    },
+  },
+  {
+    name: 'NETWORKDAYS',
+    minArgs: 2,
+    maxArgs: 2,
+    execute: (args) => {
+      const start = new Date(String(args[0]));
+      const end = new Date(String(args[1]));
+      if (isNaN(start.getTime()) || isNaN(end.getTime())) return FormulaErrorCode.VALUE;
+
+      let count = 0;
+      const cur = new Date(start);
+      const isForward = end >= start;
+      const step = isForward ? 1 : -1;
+
+      while (isForward ? cur <= end : cur >= end) {
+        const dayOfWeek = cur.getDay();
+        if (dayOfWeek !== 0 && dayOfWeek !== 6) {
+          count++;
+        }
+        cur.setDate(cur.getDate() + step);
+      }
+      return isForward ? count : -count;
+    },
+  },
 ];

@@ -51,8 +51,18 @@ export class Evaluator {
           return lStr + rStr;
         }
 
-        // Comparisons
+        // Handle array broadcasting for comparisons (e.g. B1:B4 >= 80)
         if (['=', '<>', '<', '<=', '>', '>='].includes(node.operator)) {
+          if (Array.isArray(leftVal) && Array.isArray(leftVal[0])) {
+            const matrix = leftVal as FormulaValue[][];
+            return matrix.map((row) =>
+              row.map((cell) => this.evaluateComparison(node.operator, cell, rightVal as FormulaValue))
+            );
+          }
+          if (Array.isArray(leftVal)) {
+            const list = leftVal as unknown as FormulaValue[];
+            return list.map((cell) => [this.evaluateComparison(node.operator, cell, rightVal as FormulaValue)]);
+          }
           return this.evaluateComparison(node.operator, leftVal as FormulaValue, rightVal as FormulaValue);
         }
 

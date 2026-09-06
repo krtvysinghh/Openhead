@@ -195,4 +195,68 @@ export const mathFunctions: FunctionImplementation[] = [
       return Math.ceil(n / sig) * sig;
     },
   },
+  {
+    name: 'ROUNDUP',
+    minArgs: 1,
+    maxArgs: 2,
+    execute: (args) => {
+      const num = Number(args[0]);
+      const digits = args.length > 1 ? Number(args[1]) : 0;
+      if (isNaN(num) || isNaN(digits)) return FormulaErrorCode.VALUE;
+      const factor = Math.pow(10, digits);
+      return num >= 0 ? Math.ceil(num * factor) / factor : Math.floor(num * factor) / factor;
+    },
+  },
+  {
+    name: 'ROUNDDOWN',
+    minArgs: 1,
+    maxArgs: 2,
+    execute: (args) => {
+      const num = Number(args[0]);
+      const digits = args.length > 1 ? Number(args[1]) : 0;
+      if (isNaN(num) || isNaN(digits)) return FormulaErrorCode.VALUE;
+      const factor = Math.pow(10, digits);
+      return num >= 0 ? Math.floor(num * factor) / factor : Math.ceil(num * factor) / factor;
+    },
+  },
+  {
+    name: 'SUMPRODUCT',
+    minArgs: 1,
+    maxArgs: 30,
+    execute: (args) => {
+      if (args.length === 0) return 0;
+      // Flatten each argument into a numeric array
+      const arrays: number[][] = [];
+      for (const arg of args) {
+        const flat: number[] = [];
+        if (Array.isArray(arg)) {
+          if (Array.isArray(arg[0])) {
+            for (const row of arg as FormulaValue[][]) {
+              for (const cell of row) flat.push(Number(cell) || 0);
+            }
+          } else {
+            for (const cell of arg as unknown as FormulaValue[]) flat.push(Number(cell) || 0);
+          }
+        } else {
+          flat.push(Number(arg) || 0);
+        }
+        arrays.push(flat);
+      }
+
+      const len = arrays[0].length;
+      for (const arr of arrays) {
+        if (arr.length !== len) return FormulaErrorCode.VALUE;
+      }
+
+      let total = 0;
+      for (let i = 0; i < len; i++) {
+        let prod = 1;
+        for (const arr of arrays) {
+          prod *= arr[i];
+        }
+        total += prod;
+      }
+      return total;
+    },
+  },
 ];

@@ -8,6 +8,7 @@ export enum FormulaErrorCode {
   NUM = '#NUM!',
   NA = '#N/A',
   CYCLE = '#CYCLE!',
+  SPILL = '#SPILL!',
   ERROR = '#ERROR!',
 }
 

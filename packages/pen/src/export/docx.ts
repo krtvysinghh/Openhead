@@ -24,11 +24,13 @@ export class DocxAdapter {
           for (const inl of block.inlines) {
             const isBold = inl.styles?.bold;
             const isItalic = inl.styles?.italic;
+            const isUnderline = inl.styles?.underline;
             xml += `<w:r>`;
-            if (isBold || isItalic) {
+            if (isBold || isItalic || isUnderline) {
               xml += `<w:rPr>`;
               if (isBold) xml += `<w:b/>`;
               if (isItalic) xml += `<w:i/>`;
+              if (isUnderline) xml += `<w:u w:val="single"/>`;
               xml += `</w:rPr>`;
             }
             xml += `<w:t>${escapeXml(inl.text)}</w:t></w:r>`;
@@ -74,6 +76,22 @@ export class DocxAdapter {
           xml += `</w:p>\n`;
         }
       }
+
+      // Footnotes
+      if (section.footnotes && section.footnotes.length > 0) {
+        for (const fn of section.footnotes) {
+          xml += `    <w:p><w:pPr><w:pStyle w:val="FootnoteText"/></w:pPr>`;
+          xml += `<w:r><w:rPr><w:rStyle w:val="FootnoteReference"/></w:rPr><w:footnoteRef/></w:r>`;
+          xml += `<w:r><w:t xml:space="preserve"> [${fn.index}] ${escapeXml(fn.text)}</w:t></w:r></w:p>\n`;
+        }
+      }
+
+      // Section properties & margins
+      const m = section.pageSettings.margins;
+      xml += `    <w:sectPr>\n`;
+      xml += `      <w:pgSz w:w="11906" w:h="16838" w:orient="${section.pageSettings.orientation}"/>\n`;
+      xml += `      <w:pgMar w:top="${m.top * 20}" w:bottom="${m.bottom * 20}" w:left="${m.left * 20}" w:right="${m.right * 20}"/>\n`;
+      xml += `    </w:sectPr>\n`;
     }
 
     xml += `  </w:body>\n</w:document>`;

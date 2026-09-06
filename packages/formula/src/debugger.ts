@@ -74,6 +74,10 @@ export class FormulaDebugger {
       else if (finalResult === '#REF!') errorExplanation = 'A cell reference or range coordinates point outside valid boundaries.';
       else if (finalResult === '#NAME?') errorExplanation = 'An unrecognized formula function name was specified.';
       else if (finalResult === '#CYCLE!') errorExplanation = 'Circular dependency detected in calculation graph.';
+      else if (finalResult === '#SPILL!') errorExplanation = 'Dynamic array spill range collided with existing non-empty cell data.';
+      else if (finalResult === '#N/A!') errorExplanation = 'Value or lookup target not available to the formula.';
+      else if (finalResult === '#NUM!') errorExplanation = 'Formula contains invalid or out-of-range numeric values.';
+      else if (finalResult === '#NULL!') errorExplanation = 'Specified cell intersection did not produce any cells.';
     }
 
     return {

@@ -9,6 +9,7 @@ import { financialFunctions } from './financial';
 import { engineeringFunctions } from './engineering';
 import { databaseFunctions } from './database';
 import { dynamicFunctions } from './dynamic';
+import { infoFunctions } from './info';
 
 export class FunctionRegistry {
   private functions = new Map<string, FunctionImplementation>();
@@ -29,6 +30,7 @@ export class FunctionRegistry {
       ...engineeringFunctions,
       ...databaseFunctions,
       ...dynamicFunctions,
+      ...infoFunctions,
     ];
     for (const fn of all) {
       this.register(fn);

@@ -44,7 +44,12 @@ export interface ImageNode extends BaseNode {
   aspectRatio?: number;
 }
 
-export type SlideNode = TextNode | ShapeNode | ImageNode;
+export interface GroupNode extends BaseNode {
+  type: 'group';
+  children: SlideNode[];
+}
+
+export type SlideNode = TextNode | ShapeNode | ImageNode | GroupNode;
 
 export interface SlideModel {
   id: string;

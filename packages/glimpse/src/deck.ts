@@ -239,6 +239,135 @@ export class GlimpseDeck {
     this.model = this.history.execute(this.model, cmd);
   }
 
+  public bringToFront(nodeId: string): void {
+    const slide = this.getActiveSlide();
+    const prev = JSON.parse(JSON.stringify(this.model));
+    const next = JSON.parse(JSON.stringify(this.model));
+    const targetSlide = next.slides.find((s: SlideModel) => s.id === slide.id)!;
+
+    const maxZ = Math.max(...targetSlide.nodes.map((n: SlideNode) => n.zIndex || 0), 0);
+    const node = targetSlide.nodes.find((n: SlideNode) => n.id === nodeId);
+    if (node) {
+      node.zIndex = maxZ + 1;
+      next.metadata.updatedAt = Date.now();
+
+      const cmd: HistoryCommand<GlimpseDeckModel> = {
+        id: generateId('cmd'),
+        name: `Bring to Front`,
+        execute: () => next,
+        undo: () => prev,
+        timestamp: Date.now(),
+      };
+      this.model = this.history.execute(this.model, cmd);
+    }
+  }
+
+  public sendToBack(nodeId: string): void {
+    const slide = this.getActiveSlide();
+    const prev = JSON.parse(JSON.stringify(this.model));
+    const next = JSON.parse(JSON.stringify(this.model));
+    const targetSlide = next.slides.find((s: SlideModel) => s.id === slide.id)!;
+
+    const minZ = Math.min(...targetSlide.nodes.map((n: SlideNode) => n.zIndex || 0), 0);
+    const node = targetSlide.nodes.find((n: SlideNode) => n.id === nodeId);
+    if (node) {
+      node.zIndex = Math.max(0, minZ - 1);
+      next.metadata.updatedAt = Date.now();
+
+      const cmd: HistoryCommand<GlimpseDeckModel> = {
+        id: generateId('cmd'),
+        name: `Send to Back`,
+        execute: () => next,
+        undo: () => prev,
+        timestamp: Date.now(),
+      };
+      this.model = this.history.execute(this.model, cmd);
+    }
+  }
+
+  public bringForward(nodeId: string): void {
+    const slide = this.getActiveSlide();
+    const node = slide.nodes.find((n) => n.id === nodeId);
+    if (node) {
+      this.updateNode(nodeId, { zIndex: (node.zIndex || 0) + 1 });
+    }
+  }
+
+  public sendBackward(nodeId: string): void {
+    const slide = this.getActiveSlide();
+    const node = slide.nodes.find((n) => n.id === nodeId);
+    if (node) {
+      this.updateNode(nodeId, { zIndex: Math.max(0, (node.zIndex || 0) - 1) });
+    }
+  }
+
+  public groupNodes(nodeIds: string[]): SlideNode | null {
+    if (nodeIds.length < 2) return null;
+    const slide = this.getActiveSlide();
+    const nodesToGroup = slide.nodes.filter((n) => nodeIds.includes(n.id));
+    if (nodesToGroup.length !== nodeIds.length) return null;
+
+    const minX = Math.min(...nodesToGroup.map((n) => n.x));
+    const minY = Math.min(...nodesToGroup.map((n) => n.y));
+    const maxX = Math.max(...nodesToGroup.map((n) => n.x + n.width));
+    const maxY = Math.max(...nodesToGroup.map((n) => n.y + n.height));
+
+    const prev = JSON.parse(JSON.stringify(this.model));
+    const next = JSON.parse(JSON.stringify(this.model));
+    const targetSlide = next.slides.find((s: SlideModel) => s.id === slide.id)!;
+
+    const groupNode: SlideNode = {
+      id: generateId('group'),
+      type: 'group',
+      x: minX,
+      y: minY,
+      width: maxX - minX,
+      height: maxY - minY,
+      zIndex: Math.max(...nodesToGroup.map((n) => n.zIndex || 1)),
+      children: nodesToGroup,
+    };
+
+    targetSlide.nodes = targetSlide.nodes.filter((n: SlideNode) => !nodeIds.includes(n.id));
+    targetSlide.nodes.push(groupNode);
+    next.metadata.updatedAt = Date.now();
+
+    const cmd: HistoryCommand<GlimpseDeckModel> = {
+      id: generateId('cmd'),
+      name: `Group ${nodeIds.length} objects`,
+      execute: () => next,
+      undo: () => prev,
+      timestamp: Date.now(),
+    };
+    this.model = this.history.execute(this.model, cmd);
+    return groupNode;
+  }
+
+  public ungroupNode(groupId: string): SlideNode[] | null {
+    const slide = this.getActiveSlide();
+    const group = slide.nodes.find((n) => n.id === groupId && n.type === 'group') as any;
+    if (!group || !group.children) return null;
+
+    const prev = JSON.parse(JSON.stringify(this.model));
+    const next = JSON.parse(JSON.stringify(this.model));
+    const targetSlide = next.slides.find((s: SlideModel) => s.id === slide.id)!;
+
+    targetSlide.nodes = targetSlide.nodes.filter((n: SlideNode) => n.id !== groupId);
+    for (const child of group.children) {
+      targetSlide.nodes.push(child);
+    }
+    next.metadata.updatedAt = Date.now();
+
+    const cmd: HistoryCommand<GlimpseDeckModel> = {
+      id: generateId('cmd'),
+      name: `Ungroup objects`,
+      execute: () => next,
+      undo: () => prev,
+      timestamp: Date.now(),
+    };
+    this.model = this.history.execute(this.model, cmd);
+    return group.children;
+  }
+
   public undo(): boolean {
     if (!this.history.canUndo) return false;
     const res = this.history.undo(this.model);

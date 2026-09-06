@@ -109,4 +109,59 @@ export const lookupFunctions: FunctionImplementation[] = [
       return args[index] as FormulaValue;
     },
   },
+  {
+    name: 'XLOOKUP',
+    minArgs: 3,
+    maxArgs: 6,
+    execute: (args) => {
+      const lookupVal = args[0];
+      const lookupArray = args[1];
+      const returnArray = args[2];
+      const ifNotFound = args.length > 3 ? args[3] : FormulaErrorCode.NA;
+      const searchMode = args.length > 5 ? Number(args[5]) || 1 : 1;
+
+      const flatLookup: FormulaValue[] = [];
+      if (Array.isArray(lookupArray)) {
+        if (Array.isArray(lookupArray[0])) {
+          for (const row of lookupArray as FormulaValue[][]) {
+            for (const item of row) flatLookup.push(item);
+          }
+        } else {
+          for (const item of lookupArray as unknown as FormulaValue[]) flatLookup.push(item);
+        }
+      } else {
+        flatLookup.push(lookupArray as FormulaValue);
+      }
+
+      const flatReturn: FormulaValue[] = [];
+      if (Array.isArray(returnArray)) {
+        if (Array.isArray(returnArray[0])) {
+          for (const row of returnArray as FormulaValue[][]) {
+            for (const item of row) flatReturn.push(item);
+          }
+        } else {
+          for (const item of returnArray as unknown as FormulaValue[]) flatReturn.push(item);
+        }
+      } else {
+        flatReturn.push(returnArray as FormulaValue);
+      }
+
+      const len = flatLookup.length;
+      if (searchMode === -1) {
+        for (let i = len - 1; i >= 0; i--) {
+          if (flatLookup[i] === lookupVal || String(flatLookup[i]).toLowerCase() === String(lookupVal).toLowerCase()) {
+            return flatReturn[i] ?? null;
+          }
+        }
+      } else {
+        for (let i = 0; i < len; i++) {
+          if (flatLookup[i] === lookupVal || String(flatLookup[i]).toLowerCase() === String(lookupVal).toLowerCase()) {
+            return flatReturn[i] ?? null;
+          }
+        }
+      }
+
+      return Array.isArray(ifNotFound) ? ifNotFound : (ifNotFound as FormulaValue);
+    },
+  },
 ];
