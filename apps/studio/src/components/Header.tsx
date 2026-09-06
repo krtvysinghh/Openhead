@@ -14,6 +14,8 @@ import {
   Settings,
   Save,
   Menu,
+  HelpCircle,
+  LayoutTemplate,
 } from 'lucide-react';
 
 interface HeaderProps {
@@ -25,6 +27,8 @@ interface HeaderProps {
   onToggleAi: () => void;
   onOpenRecentFiles: () => void;
   onOpenSettings: () => void;
+  onOpenTemplates?: () => void;
+  onOpenHelp?: () => void;
   onManualSave: () => void;
   canUndo: boolean;
   canRedo: boolean;
@@ -42,6 +46,8 @@ export const Header: React.FC<HeaderProps> = ({
   onToggleAi,
   onOpenRecentFiles,
   onOpenSettings,
+  onOpenTemplates,
+  onOpenHelp,
   onManualSave,
   canUndo,
   canRedo,
@@ -175,6 +181,15 @@ export const Header: React.FC<HeaderProps> = ({
           >
             <Save className="w-4 h-4" />
           </button>
+          {onOpenTemplates && (
+            <button
+              onClick={onOpenTemplates}
+              className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-white/10 transition-all"
+              title="Browse Templates"
+            >
+              <LayoutTemplate className="w-4 h-4" />
+            </button>
+          )}
           <button
             onClick={onOpenRecentFiles}
             className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-white/10 transition-all"
@@ -189,6 +204,15 @@ export const Header: React.FC<HeaderProps> = ({
           >
             <Settings className="w-4 h-4" />
           </button>
+          {onOpenHelp && (
+            <button
+              onClick={onOpenHelp}
+              className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-white/10 transition-all"
+              title="Help & Shortcuts"
+            >
+              <HelpCircle className="w-4 h-4" />
+            </button>
+          )}
         </div>
 
         <div className="w-[1px] h-4 bg-white/10 mx-1" />

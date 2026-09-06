@@ -7,13 +7,23 @@ export interface OfficeTemplateItem<T = any> {
   id: string;
   product: 'pen' | 'sum' | 'glimpse';
   title: string;
+  name?: string;
   description: string;
   category: string;
   tags: string[];
   createModel: () => T;
+  generator?: () => T;
 }
 
+export type OfficeTemplate<T = any> = OfficeTemplateItem<T>;
+
 export class OfficeTemplateLibrary {
+  public static getTemplates(product: 'pen' | 'sum' | 'glimpse'): OfficeTemplateItem[] {
+    if (product === 'pen') return this.getPenTemplates();
+    if (product === 'sum') return this.getSumTemplates();
+    if (product === 'glimpse') return this.getGlimpseTemplates();
+    return this.getAllTemplates();
+  }
   public static getPenTemplates(): OfficeTemplateItem<PenDocumentModel>[] {
     return [
       {

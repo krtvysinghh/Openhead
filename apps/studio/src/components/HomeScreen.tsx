@@ -1,7 +1,7 @@
 import React from 'react';
 import { BaseDocumentMetadata, ProductType, StorageManager, CrashRecoveryLog } from '@openhead/core';
 import { glassStyles } from '@openhead/ui';
-import { FileText, Table, Presentation, Plus, Clock, AlertTriangle, Trash2, FolderOpen, Shield } from 'lucide-react';
+import { FileText, Table, Presentation, Plus, Clock, AlertTriangle, Trash2, FolderOpen, Shield, LayoutTemplate } from 'lucide-react';
 
 interface HomeScreenProps {
   recentDocs: BaseDocumentMetadata[];
@@ -10,6 +10,7 @@ interface HomeScreenProps {
   onDeleteDoc: (id: string) => void;
   onRecoverCrash: (recovery: CrashRecoveryLog) => void;
   onDismissRecovery: (docId: string) => void;
+  onBrowseTemplates?: () => void;
 }
 
 export const HomeScreen: React.FC<HomeScreenProps> = ({
@@ -19,6 +20,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
   onDeleteDoc,
   onRecoverCrash,
   onDismissRecovery,
+  onBrowseTemplates,
 }) => {
   const [recoveries, setRecoveries] = React.useState<CrashRecoveryLog[]>([]);
 
@@ -113,7 +115,18 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
 
         {/* Create New Document Cards */}
         <div>
-          <h2 className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-4">Create New</h2>
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Create New</h2>
+            {onBrowseTemplates && (
+              <button
+                onClick={onBrowseTemplates}
+                className="flex items-center gap-1.5 px-3 py-1 rounded-xl text-xs font-medium text-indigo-300 bg-indigo-500/10 border border-indigo-400/20 hover:bg-indigo-500/20 transition-all"
+              >
+                <LayoutTemplate className="w-3.5 h-3.5 text-indigo-400" />
+                <span>Browse Template Library</span>
+              </button>
+            )}
+          </div>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
             {/* New Pen */}
             <div

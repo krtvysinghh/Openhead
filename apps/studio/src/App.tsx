@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { ProductType, StorageManager, CrashRecoveryLog, SettingsManager, CommandRegistry } from '@openhead/core';
+import { ProductType, StorageManager, CrashRecoveryLog, SettingsManager, CommandRegistry, OfficeTemplate } from '@openhead/core';
 import { PenDocument } from '@openhead/pen';
 import { SumWorkbook } from '@openhead/sum';
 import { GlimpseDeck } from '@openhead/glimpse';
@@ -12,6 +12,8 @@ import { CommandPaletteModal } from './components/CommandPaletteModal';
 import { SettingsModal } from './components/SettingsModal';
 import { UnifiedSearchModal } from './components/UnifiedSearchModal';
 import { AiAssistantDrawer } from './components/AiAssistantDrawer';
+import { TemplatePickerModal } from './components/TemplatePickerModal';
+import { HelpModal } from './components/HelpModal';
 
 export const App: React.FC = () => {
   const [activeProduct, setActiveProduct] = useState<ProductType | 'home'>('home');
@@ -63,6 +65,8 @@ export const App: React.FC = () => {
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isAiOpen, setIsAiOpen] = useState(false);
+  const [isTemplatePickerOpen, setIsTemplatePickerOpen] = useState(false);
+  const [isHelpOpen, setIsHelpOpen] = useState(false);
   const [aiContext, setAiContext] = useState<string>('');
   const [aiPrompt, setAiPrompt] = useState<string>('');
 
@@ -108,6 +112,20 @@ export const App: React.FC = () => {
       execute: handleManualSave,
     });
     CommandRegistry.register({
+      id: 'view.templates',
+      label: 'Browse Office Template Library',
+      category: 'file',
+      shortcut: 'Ctrl+T',
+      execute: () => setIsTemplatePickerOpen(true),
+    });
+    CommandRegistry.register({
+      id: 'view.help',
+      label: 'Help & Keyboard Shortcuts',
+      category: 'help',
+      shortcut: 'F1',
+      execute: () => setIsHelpOpen(true),
+    });
+    CommandRegistry.register({
       id: 'view.search',
       label: 'Search Document Contents',
       category: 'view',
@@ -145,6 +163,9 @@ export const App: React.FC = () => {
       } else if ((e.metaKey || e.ctrlKey) && e.key === ',') {
         e.preventDefault();
         setIsSettingsOpen(true);
+      } else if (e.key === 'F1') {
+        e.preventDefault();
+        setIsHelpOpen(true);
       }
     };
 
@@ -183,6 +204,24 @@ export const App: React.FC = () => {
     setAiPrompt(prompt);
     setAiContext(context);
     setIsAiOpen(true);
+  };
+
+  const handleApplyTemplate = (tpl: OfficeTemplate) => {
+    const generated = typeof tpl.createModel === 'function' ? tpl.createModel() : (tpl.generator ? tpl.generator() : null);
+    if (!generated) return;
+
+    if (tpl.product === 'pen') {
+      penDoc.getModel().sections = generated.sections;
+      penDoc.setTitle(tpl.title || tpl.name || 'Untitled Document');
+      setActiveProduct('pen');
+    } else if (tpl.product === 'sum') {
+      sumWb.getModel().sheets = generated.sheets;
+      setActiveProduct('sum');
+    } else if (tpl.product === 'glimpse') {
+      glimpseDeck.getModel().slides = generated.slides;
+      setActiveProduct('glimpse');
+    }
+    triggerUpdate();
   };
 
   const handleNewDoc = (type: ProductType) => {
@@ -297,6 +336,8 @@ export const App: React.FC = () => {
         onToggleAi={() => setIsAiOpen((prev) => !prev)}
         onOpenRecentFiles={() => setActiveProduct('home')}
         onOpenSettings={() => setIsSettingsOpen(true)}
+        onOpenTemplates={() => setIsTemplatePickerOpen(true)}
+        onOpenHelp={() => setIsHelpOpen(true)}
         onManualSave={handleManualSave}
         isAutosaved={isAutosaved}
         canUndo={true}
@@ -321,6 +362,7 @@ export const App: React.FC = () => {
             recentDocs={storageManager.listDocuments()}
             onNewDoc={handleNewDoc}
             onOpenDoc={handleOpenDoc}
+            onBrowseTemplates={() => setIsTemplatePickerOpen(true)}
             onDeleteDoc={(id) => {
               storageManager.deleteDocument(id);
               triggerUpdate();
@@ -366,6 +408,18 @@ export const App: React.FC = () => {
         onClose={() => setIsSearchOpen(false)}
         activeApp={activeProduct === 'home' ? 'pen' : activeProduct}
         model={getActiveModel()}
+      />
+
+      <TemplatePickerModal
+        isOpen={isTemplatePickerOpen}
+        onClose={() => setIsTemplatePickerOpen(false)}
+        onSelectTemplate={handleApplyTemplate}
+        initialType={activeProduct === 'home' ? 'pen' : activeProduct}
+      />
+
+      <HelpModal
+        isOpen={isHelpOpen}
+        onClose={() => setIsHelpOpen(false)}
       />
     </div>
   );
