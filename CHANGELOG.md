@@ -2,6 +2,23 @@
 
 All notable changes to Openhead are documented in this file.
 
+## [0.6.0] - 2026-09-06 (Phase 6: Production Sum + XLSX Compatibility)
+
+### Added
+- **Full OpenXML (.xlsx) ZIP Archive Package Adapter**: Native `XlsxAdapter.toBuffer` and `XlsxAdapter.fromBuffer` generating and parsing standards-compliant SpreadsheetML archives (`[Content_Types].xml`, `xl/workbook.xml`, `xl/styles.xml`, `xl/sharedStrings.xml`, `xl/worksheets/sheet*.xml`) with freeze panes, formulas, values, and styles.
+- **Formula Library Expansion (90+ Functions)**:
+  - **Multi-Criteria Aggregations**: `SUMIFS`, `COUNTIFS`, `AVERAGEIFS`, `MAXIFS`, `MINIFS`.
+  - **Advanced Text Manipulation**: `PROPER`, `SUBSTITUTE`, `REPLACE`, `FIND`, `SEARCH`, `TEXT`, `VALUE`.
+  - **Date & Calendar Calculations**: `DAYS`, `WEEKDAY`, `WEEKNUM`, `DATEDIF` (supporting `"Y"`, `"M"`, `"D"`, `"YM"`, `"YD"`, `"MD"`).
+  - **Lookups & Structural References**: `XMATCH`, `ROWS`, `COLUMNS`, `ADDRESS`.
+  - **Financial Cash Flow Solvers**: `IPMT`, `PPMT`, `IRR` (Newton-Raphson iterative solver).
+  - **Logical Operators**: `IFNA`, `XOR`.
+- **Spreadsheet Range Shifting & Reference Translation**: Formula reference translator (`shiftFormulaReferences`) accurately translating relative cell coordinates while preserving `$A$1` absolute and `$A1`/`A$1` mixed coordinates during copy/paste and row/col insertions.
+- **Grid Column Mutations & Merged Cells**: Added `insertCol(atColIndex)` and `deleteCol(atColIndex)` with coordinate shifting, and `mergeCells(rangeStr)` / `unmergeCells(rangeStr)`.
+- **Studio Sum UI Updates**: Added column insertion/deletion controls, header freeze/unfreeze toggles, bold/border styling, sheet tab deletion, and XLSX direct file import/export.
+- **Expanded Compatibility Corpus (Fixtures 05–09)**: Corporate multi-sheet consolidation, statistical datasets, dynamic array spill matrices, executive dashboards with freeze panes, and error diagnostic test cases.
+- **76 Passing Automated Tests across 27 Test Files**: 100% test pass rate with full coverage of aggregation formulas, column ops, and XLSX round-trip fidelity.
+
 ## [0.5.0] - 2026-09-06 (Phase 5: Office Engine Expansion)
 
 ### Added

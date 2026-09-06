@@ -1,0 +1,30 @@
+{
+  "metadata": {
+    "id": "wb-exec-08",
+    "title": "Executive KPI Dashboard",
+    "type": "sum",
+    "createdAt": 1772774400000,
+    "updatedAt": 1772774400000,
+    "version": 1
+  },
+  "sheets": [
+    {
+      "id": "sheet-exec",
+      "name": "Executive Dashboard",
+      "rowCount": 50,
+      "colCount": 15,
+      "freezePanes": { "rows": 1, "cols": 1 },
+      "mergedRanges": ["B1:E1"],
+      "cells": {
+        "A1": { "raw": "Metric", "value": "Metric", "style": { "bold": true } },
+        "B1": { "raw": "Quarterly Performance", "value": "Quarterly Performance", "style": { "bold": true } },
+        "A2": { "raw": "ARR ($M)", "value": "ARR ($M)" },
+        "B2": { "raw": 12.4, "value": 12.4 },
+        "C2": { "raw": 14.8, "value": 14.8 },
+        "D2": { "raw": 18.2, "value": 18.2 },
+        "E2": { "raw": 22.5, "value": 22.5 }
+      }
+    }
+  ],
+  "activeSheetId": "sheet-exec"
+}

@@ -1,5 +1,11 @@
 import React, { useState } from 'react';
-import { SumWorkbook, exportWorksheetToCsv, importCsvToWorksheet, SortingFilteringEngine } from '@openhead/sum';
+import {
+  SumWorkbook,
+  exportWorksheetToCsv,
+  importCsvToWorksheet,
+  SortingFilteringEngine,
+  XlsxAdapter,
+} from '@openhead/sum';
 import { colIndexToName, parseCellAddress, FormulaAutocomplete, AutocompleteSuggestion } from '@openhead/formula';
 import { glassStyles } from '@openhead/ui';
 import {
@@ -16,6 +22,11 @@ import {
   Bug,
   ArrowDownAZ,
   ArrowUpAZ,
+  Bold,
+  Columns,
+  Square,
+  Snowflake,
+  Trash2,
 } from 'lucide-react';
 import { FormulaDebuggerDrawer } from '../components/FormulaDebuggerDrawer';
 
@@ -119,6 +130,32 @@ export const SumView: React.FC<SumViewProps> = ({ workbook: wb, onUpdate, onAiPr
     }
   };
 
+  const handleInsertCol = () => {
+    const addr = parseCellAddress(selectedCell);
+    if (addr) {
+      wb.insertCol(addr.col);
+      onUpdate();
+    }
+  };
+
+  const handleDeleteCol = () => {
+    const addr = parseCellAddress(selectedCell);
+    if (addr) {
+      wb.deleteCol(addr.col);
+      onUpdate();
+    }
+  };
+
+  const handleToggleFreezeHeader = () => {
+    const currentSplit = activeSheet.freezePanes?.rows;
+    if (currentSplit) {
+      activeSheet.freezePanes = undefined;
+    } else {
+      activeSheet.freezePanes = { rows: 1, cols: 0 };
+    }
+    onUpdate();
+  };
+
   const handleExportCsv = () => {
     const csv = exportWorksheetToCsv(activeSheet);
     const blob = new Blob([csv], { type: 'text/csv' });
@@ -128,6 +165,29 @@ export const SumView: React.FC<SumViewProps> = ({ workbook: wb, onUpdate, onAiPr
     a.download = `${activeSheet.name.toLowerCase()}.csv`;
     a.click();
     URL.revokeObjectURL(url);
+  };
+
+  const handleExportXlsx = async () => {
+    const buffer = await XlsxAdapter.toBuffer(wb.getModel());
+    const blob = new Blob([buffer as any], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+    const url = URL.createObjectURL(blob);
+    const a = window.document.createElement('a');
+    a.href = url;
+    a.download = `${wb.getModel().metadata.title || 'workbook'}.xlsx`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const handleImportXlsx = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const arrayBuffer = await file.arrayBuffer();
+    const importedModel = await XlsxAdapter.fromBuffer(arrayBuffer);
+    const currentModel = wb.getModel();
+    currentModel.metadata.title = importedModel.metadata.title;
+    currentModel.sheets = importedModel.sheets;
+    currentModel.activeSheetId = importedModel.activeSheetId;
+    onUpdate();
   };
 
   const handleImportCsv = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -154,6 +214,34 @@ export const SumView: React.FC<SumViewProps> = ({ workbook: wb, onUpdate, onAiPr
       {/* Ribbon Toolbar */}
       <div className={`flex items-center justify-between px-6 py-2 border-b border-white/10 ${glassStyles.panelSubtle}`}>
         <div className="flex items-center gap-1.5 flex-wrap">
+          <button
+            onClick={() => {
+              const currentStyle = activeSheet.cells[selectedCell]?.style || {};
+              wb.setCellStyle(selectedCell, { ...currentStyle, bold: !currentStyle.bold });
+              onUpdate();
+            }}
+            className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-medium text-slate-300 hover:bg-white/10 hover:text-white"
+            title="Bold"
+          >
+            <Bold className="w-4 h-4" />
+          </button>
+          <button
+            onClick={() => {
+              const currentStyle = activeSheet.cells[selectedCell]?.style || {};
+              wb.setCellStyle(selectedCell, {
+                ...currentStyle,
+                borders: currentStyle.borders ? undefined : { top: true, bottom: true, left: true, right: true },
+              });
+              onUpdate();
+            }}
+            className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-medium text-slate-300 hover:bg-white/10 hover:text-white"
+            title="Toggle All Borders"
+          >
+            <Square className="w-4 h-4" />
+          </button>
+
+          <div className="w-[1px] h-4 bg-white/10 mx-1" />
+
           <button
             onClick={() => {
               wb.setCellFormat(selectedCell, { type: 'currency', currencySymbol: '$', decimals: 2 });
@@ -218,6 +306,31 @@ export const SumView: React.FC<SumViewProps> = ({ workbook: wb, onUpdate, onAiPr
           >
             <MinusSquare className="w-4 h-4 text-red-400" /> Row-
           </button>
+          <button
+            onClick={handleInsertCol}
+            className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-medium text-slate-300 hover:bg-white/10 hover:text-white"
+            title="Insert Column at Selection"
+          >
+            <Columns className="w-4 h-4 text-emerald-400" /> Col+
+          </button>
+          <button
+            onClick={handleDeleteCol}
+            className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-medium text-slate-300 hover:bg-white/10 hover:text-white"
+            title="Delete Current Column"
+          >
+            <MinusSquare className="w-4 h-4 text-red-400" /> Col-
+          </button>
+          <button
+            onClick={handleToggleFreezeHeader}
+            className={`flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all ${
+              activeSheet.freezePanes?.rows
+                ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-400/30'
+                : 'text-slate-300 hover:bg-white/10 hover:text-white'
+            }`}
+            title="Freeze/Unfreeze Top Header Row"
+          >
+            <Snowflake className="w-4 h-4 text-cyan-400" /> Freeze
+          </button>
 
           <div className="w-[1px] h-4 bg-white/10 mx-1" />
 
@@ -240,14 +353,24 @@ export const SumView: React.FC<SumViewProps> = ({ workbook: wb, onUpdate, onAiPr
 
         <div className="flex items-center gap-2">
           <label className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-slate-300 bg-white/5 border border-white/10 hover:bg-white/10 cursor-pointer transition-all">
-            <FileUp className="w-3.5 h-3.5" /> Import CSV
+            <FileUp className="w-3.5 h-3.5 text-green-400" /> Import XLSX
+            <input type="file" accept=".xlsx" onChange={handleImportXlsx} className="hidden" />
+          </label>
+          <button
+            onClick={handleExportXlsx}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-slate-200 bg-emerald-600/20 border border-emerald-400/30 hover:bg-emerald-600/30 transition-all"
+          >
+            <FileDown className="w-3.5 h-3.5 text-emerald-400" /> Export XLSX
+          </button>
+          <label className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-slate-300 bg-white/5 border border-white/10 hover:bg-white/10 cursor-pointer transition-all">
+            <FileUp className="w-3.5 h-3.5" /> CSV
             <input type="file" accept=".csv,.tsv,.txt" onChange={handleImportCsv} className="hidden" />
           </label>
           <button
             onClick={handleExportCsv}
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-slate-200 bg-white/5 border border-white/10 hover:bg-white/10 transition-all"
           >
-            <FileDown className="w-3.5 h-3.5" /> Export CSV
+            <FileDown className="w-3.5 h-3.5" /> CSV
           </button>
         </div>
       </div>
@@ -352,20 +475,33 @@ export const SumView: React.FC<SumViewProps> = ({ workbook: wb, onUpdate, onAiPr
       <div className="px-4 py-2 border-t border-white/10 bg-slate-950/80 flex items-center justify-between">
         <div className="flex items-center gap-2">
           {wb.getModel().sheets.map((sheet) => (
-            <button
-              key={sheet.id}
-              onClick={() => {
-                wb.setActiveSheet(sheet.id);
-                onUpdate();
-              }}
-              className={`px-3 py-1 rounded-md text-xs font-medium transition-all ${
-                sheet.id === activeSheet.id
-                  ? 'bg-indigo-600/30 text-indigo-200 border border-indigo-400/40 shadow'
-                  : 'text-slate-400 hover:bg-white/5 hover:text-slate-200'
-              }`}
-            >
-              {sheet.name}
-            </button>
+            <div key={sheet.id} className="flex items-center gap-1 group">
+              <button
+                onClick={() => {
+                  wb.setActiveSheet(sheet.id);
+                  onUpdate();
+                }}
+                className={`px-3 py-1 rounded-md text-xs font-medium transition-all ${
+                  sheet.id === activeSheet.id
+                    ? 'bg-indigo-600/30 text-indigo-200 border border-indigo-400/40 shadow'
+                    : 'text-slate-400 hover:bg-white/5 hover:text-slate-200'
+                }`}
+              >
+                {sheet.name}
+              </button>
+              {wb.getModel().sheets.length > 1 && (
+                <button
+                  onClick={() => {
+                    wb.deleteSheet(sheet.id);
+                    onUpdate();
+                  }}
+                  className="opacity-0 group-hover:opacity-100 p-0.5 rounded text-slate-500 hover:text-red-400 hover:bg-red-500/10 transition-all"
+                  title={`Delete ${sheet.name}`}
+                >
+                  <Trash2 className="w-3 h-3" />
+                </button>
+              )}
+            </div>
           ))}
           <button
             onClick={() => {
@@ -379,7 +515,7 @@ export const SumView: React.FC<SumViewProps> = ({ workbook: wb, onUpdate, onAiPr
           </button>
         </div>
 
-        <span className="text-xs text-slate-500 font-mono">Topological DAG Active</span>
+        <span className="text-xs text-slate-500 font-mono">Topological DAG Active • XLSX Compatible</span>
       </div>
 
       {/* Formula Debugger Drawer */}

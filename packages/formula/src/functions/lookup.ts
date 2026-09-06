@@ -164,4 +164,94 @@ export const lookupFunctions: FunctionImplementation[] = [
       return Array.isArray(ifNotFound) ? ifNotFound : (ifNotFound as FormulaValue);
     },
   },
+  {
+    name: 'XMATCH',
+    minArgs: 2,
+    maxArgs: 4,
+    execute: (args) => {
+      const lookupVal = args[0];
+      const lookupArray = args[1];
+      const searchMode = args.length > 3 ? Number(args[3]) || 1 : 1;
+
+      const flat: FormulaValue[] = [];
+      if (Array.isArray(lookupArray)) {
+        if (Array.isArray(lookupArray[0])) {
+          for (const row of lookupArray as FormulaValue[][]) {
+            for (const item of row) flat.push(item);
+          }
+        } else {
+          for (const item of lookupArray as unknown as FormulaValue[]) flat.push(item);
+        }
+      } else {
+        flat.push(lookupArray as FormulaValue);
+      }
+
+      const len = flat.length;
+      if (searchMode === -1) {
+        for (let i = len - 1; i >= 0; i--) {
+          if (flat[i] === lookupVal || String(flat[i]).toLowerCase() === String(lookupVal).toLowerCase()) {
+            return i + 1;
+          }
+        }
+      } else {
+        for (let i = 0; i < len; i++) {
+          if (flat[i] === lookupVal || String(flat[i]).toLowerCase() === String(lookupVal).toLowerCase()) {
+            return i + 1;
+          }
+        }
+      }
+      return FormulaErrorCode.NA;
+    },
+  },
+  {
+    name: 'ROWS',
+    minArgs: 1,
+    maxArgs: 1,
+    execute: (args) => {
+      const array = args[0];
+      if (Array.isArray(array)) {
+        return array.length;
+      }
+      return 1;
+    },
+  },
+  {
+    name: 'COLUMNS',
+    minArgs: 1,
+    maxArgs: 1,
+    execute: (args) => {
+      const array = args[0];
+      if (Array.isArray(array) && Array.isArray(array[0])) {
+        return array[0].length;
+      }
+      return 1;
+    },
+  },
+  {
+    name: 'ADDRESS',
+    minArgs: 2,
+    maxArgs: 5,
+    execute: (args) => {
+      const row = Number(args[0]);
+      const col = Number(args[1]);
+      const abs = args.length > 2 ? Number(args[2]) : 1; // 1=$A$1, 2=A$1, 3=$A1, 4=A1
+      const sheet = args.length > 4 ? String(args[4]) : undefined;
+
+      if (isNaN(row) || isNaN(col) || row < 1 || col < 1) return FormulaErrorCode.VALUE;
+
+      let colName = '';
+      let temp = col;
+      while (temp > 0) {
+        const rem = (temp - 1) % 26;
+        colName = String.fromCharCode(65 + rem) + colName;
+        temp = Math.floor((temp - 1) / 26);
+      }
+
+      const colPrefix = abs === 1 || abs === 3 ? '$' : '';
+      const rowPrefix = abs === 1 || abs === 2 ? '$' : '';
+      const sheetPrefix = sheet ? `${sheet}!` : '';
+
+      return `${sheetPrefix}${colPrefix}${colName}${rowPrefix}${row}`;
+    },
+  },
 ];

@@ -120,10 +120,42 @@ export const logicalFunctions: FunctionImplementation[] = [
     maxArgs: 2,
     execute: (args) => {
       const val = args[0] as FormulaValue;
-      if (typeof val === 'string' && val.startsWith('#') && val.endsWith('!')) {
+      if (typeof val === 'string' && val.startsWith('#')) {
         return args[1] as FormulaValue;
       }
       return val;
+    },
+  },
+  {
+    name: 'IFNA',
+    minArgs: 2,
+    maxArgs: 2,
+    execute: (args) => {
+      const val = args[0] as FormulaValue;
+      if (val === FormulaErrorCode.NA) {
+        return args[1] as FormulaValue;
+      }
+      return val;
+    },
+  },
+  {
+    name: 'XOR',
+    minArgs: 1,
+    maxArgs: 255,
+    execute: (args) => {
+      let trueCount = 0;
+      for (const arg of args) {
+        if (Array.isArray(arg)) {
+          for (const row of arg) {
+            for (const val of row) {
+              if (val === true || (typeof val === 'number' && val !== 0)) trueCount++;
+            }
+          }
+        } else if (arg === true || (typeof arg === 'number' && arg !== 0)) {
+          trueCount++;
+        }
+      }
+      return trueCount % 2 !== 0;
     },
   },
 ];

@@ -1,0 +1,24 @@
+{
+  "metadata": {
+    "id": "wb-errors-09",
+    "title": "Error Diagnostics Matrix",
+    "type": "sum",
+    "createdAt": 1772774400000,
+    "updatedAt": 1772774400000,
+    "version": 1
+  },
+  "sheets": [
+    {
+      "id": "sheet-errors",
+      "name": "Error Cases",
+      "rowCount": 20,
+      "colCount": 10,
+      "cells": {
+        "A1": { "raw": "=1/0", "value": "#DIV/0!" },
+        "A2": { "raw": "='Invalid Function'()", "value": "#NAME?" },
+        "A3": { "raw": "=MATCH(999, B1:B3)", "value": "#N/A" }
+      }
+    }
+  ],
+  "activeSheetId": "sheet-errors"
+}

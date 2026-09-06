@@ -1,0 +1,35 @@
+{
+  "metadata": {
+    "id": "wb-academic-06",
+    "title": "Academic Research & Empirical Analysis",
+    "type": "sum",
+    "createdAt": 1772774400000,
+    "updatedAt": 1772774400000,
+    "version": 1
+  },
+  "sheets": [
+    {
+      "id": "sheet-dataset",
+      "name": "Empirical Data",
+      "rowCount": 25,
+      "colCount": 10,
+      "cells": {
+        "A1": { "raw": "Sample ID", "value": "Sample ID", "style": { "bold": true } },
+        "B1": { "raw": "Observation", "value": "Observation", "style": { "bold": true } },
+        "A2": { "raw": "S-01", "value": "S-01" },
+        "B2": { "raw": 42.5, "value": 42.5 },
+        "A3": { "raw": "S-02", "value": "S-02" },
+        "B3": { "raw": 48.1, "value": 48.1 },
+        "A4": { "raw": "S-03", "value": "S-03" },
+        "B4": { "raw": 55.4, "value": 55.4 },
+        "A5": { "raw": "S-04", "value": "S-04" },
+        "B5": { "raw": 39.8, "value": 39.8 },
+        "D1": { "raw": "Sample Mean", "value": "Sample Mean", "style": { "bold": true } },
+        "E1": { "raw": "=AVERAGE(B2:B5)", "value": 46.45 },
+        "D2": { "raw": "Median", "value": "Median", "style": { "bold": true } },
+        "E2": { "raw": "=MEDIAN(B2:B5)", "value": 45.3 }
+      }
+    }
+  ],
+  "activeSheetId": "sheet-dataset"
+}

@@ -1,0 +1,43 @@
+{
+  "metadata": {
+    "id": "wb-corp-fin-05",
+    "title": "Corporate Financial Model & Projections",
+    "type": "sum",
+    "createdAt": 1772774400000,
+    "updatedAt": 1772774400000,
+    "version": 1
+  },
+  "sheets": [
+    {
+      "id": "sheet-income",
+      "name": "Income Statement",
+      "rowCount": 20,
+      "colCount": 10,
+      "cells": {
+        "A1": { "raw": "Revenue", "value": "Revenue", "style": { "bold": true } },
+        "B1": { "raw": 2500000, "value": 2500000, "format": { "type": "currency" } },
+        "A2": { "raw": "COGS", "value": "COGS" },
+        "B2": { "raw": 1100000, "value": 1100000, "format": { "type": "currency" } },
+        "A3": { "raw": "Gross Profit", "value": "Gross Profit", "style": { "bold": true } },
+        "B3": { "raw": "=B1-B2", "value": 1400000, "format": { "type": "currency" } },
+        "A4": { "raw": "OpEx", "value": "OpEx" },
+        "B4": { "raw": 600000, "value": 600000, "format": { "type": "currency" } },
+        "A5": { "raw": "EBITDA", "value": "EBITDA", "style": { "bold": true } },
+        "B5": { "raw": "=B3-B4", "value": 800000, "format": { "type": "currency" } }
+      }
+    },
+    {
+      "id": "sheet-projections",
+      "name": "Projections",
+      "rowCount": 20,
+      "colCount": 10,
+      "cells": {
+        "A1": { "raw": "Target EBITDA Multiple", "value": "Target EBITDA Multiple" },
+        "B1": { "raw": 8.5, "value": 8.5 },
+        "A2": { "raw": "Projected Enterprise Value", "value": "Projected Enterprise Value", "style": { "bold": true } },
+        "B2": { "raw": "='Income Statement'!B5*B1", "value": 6800000, "format": { "type": "currency" } }
+      }
+    }
+  ],
+  "activeSheetId": "sheet-income"
+}

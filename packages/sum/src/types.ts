@@ -51,6 +51,7 @@ export interface WorksheetModel {
   hiddenRows?: number[];
   hiddenCols?: number[];
   freezePanes?: { rows: number; cols: number };
+  mergedRanges?: string[];
 }
 
 export interface WorkbookModel {

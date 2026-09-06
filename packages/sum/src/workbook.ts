@@ -341,26 +341,117 @@ export class SumWorkbook {
     this.rebuildFormulaEngine();
   }
 
-  public setCellStyle(cellKey: string, style: Partial<CellStyle>): void {
+  public insertCol(atColIndex: number): void {
     const sheet = this.getActiveSheet();
-    const existing = sheet.cells[cellKey] || { raw: '', value: null };
-    sheet.cells[cellKey] = {
-      ...existing,
-      style: { ...(existing.style || {}), ...style },
+    const prevModel = JSON.parse(JSON.stringify(this.model));
+    const nextModel = JSON.parse(JSON.stringify(this.model));
+    const targetSheet = nextModel.sheets.find((s: WorksheetModel) => s.id === sheet.id)!;
+
+    const newCells: Record<string, any> = {};
+    for (const [key, cell] of Object.entries(targetSheet.cells)) {
+      const addr = parseCellAddress(key);
+      if (addr) {
+        if (addr.col >= atColIndex) {
+          const newKey = `${colIndexToName(addr.col + 1)}${addr.row + 1}`;
+          newCells[newKey] = cell;
+        } else {
+          newCells[key] = cell;
+        }
+      }
+    }
+    targetSheet.cells = newCells;
+    targetSheet.colCount += 1;
+    nextModel.metadata.updatedAt = Date.now();
+
+    const cmd: HistoryCommand<WorkbookModel> = {
+      id: generateId('cmd'),
+      name: `Insert column ${colIndexToName(atColIndex)}`,
+      execute: () => nextModel,
+      undo: () => prevModel,
+      timestamp: Date.now(),
     };
+    this.model = this.history.execute(this.model, cmd);
+    this.rebuildFormulaEngine();
   }
 
-  public setCellBorders(cellKey: string, borders: CellBorders): void {
-    this.setCellStyle(cellKey, { borders });
+  public deleteCol(atColIndex: number): void {
+    const sheet = this.getActiveSheet();
+    const prevModel = JSON.parse(JSON.stringify(this.model));
+    const nextModel = JSON.parse(JSON.stringify(this.model));
+    const targetSheet = nextModel.sheets.find((s: WorksheetModel) => s.id === sheet.id)!;
+
+    const newCells: Record<string, any> = {};
+    for (const [key, cell] of Object.entries(targetSheet.cells)) {
+      const addr = parseCellAddress(key);
+      if (addr) {
+        if (addr.col === atColIndex) {
+          continue;
+        } else if (addr.col > atColIndex) {
+          const newKey = `${colIndexToName(addr.col - 1)}${addr.row + 1}`;
+          newCells[newKey] = cell;
+        } else {
+          newCells[key] = cell;
+        }
+      }
+    }
+    targetSheet.cells = newCells;
+    targetSheet.colCount = Math.max(5, targetSheet.colCount - 1);
+    nextModel.metadata.updatedAt = Date.now();
+
+    const cmd: HistoryCommand<WorkbookModel> = {
+      id: generateId('cmd'),
+      name: `Delete column ${colIndexToName(atColIndex)}`,
+      execute: () => nextModel,
+      undo: () => prevModel,
+      timestamp: Date.now(),
+    };
+    this.model = this.history.execute(this.model, cmd);
+    this.rebuildFormulaEngine();
   }
 
-  public setCellFormat(cellKey: string, format: CellFormat): void {
+  public mergeCells(rangeStr: string): void {
     const sheet = this.getActiveSheet();
-    const existing = sheet.cells[cellKey] || { raw: '', value: null };
-    sheet.cells[cellKey] = {
-      ...existing,
-      format,
-    };
+    if (!sheet.mergedRanges) sheet.mergedRanges = [];
+    if (!sheet.mergedRanges.includes(rangeStr)) {
+      sheet.mergedRanges.push(rangeStr);
+    }
+  }
+
+  public unmergeCells(rangeStr: string): void {
+    const sheet = this.getActiveSheet();
+    if (sheet.mergedRanges) {
+      sheet.mergedRanges = sheet.mergedRanges.filter((r) => r !== rangeStr);
+    }
+  }
+
+  public copyPasteRange(sourceKey: string, targetKey: string): void {
+    const srcAddr = parseCellAddress(sourceKey);
+    const tgtAddr = parseCellAddress(targetKey);
+    if (!srcAddr || !tgtAddr) return;
+
+    const sheet = this.getActiveSheet();
+    const srcCell = sheet.cells[sourceKey];
+    if (!srcCell) {
+      this.setCellValue(targetKey, null);
+      return;
+    }
+
+    const dRow = tgtAddr.row - srcAddr.row;
+    const dCol = tgtAddr.col - srcAddr.col;
+
+    if (typeof srcCell.raw === 'string' && srcCell.raw.startsWith('=')) {
+      const shiftedFormula = shiftFormulaReferences(srcCell.raw, dRow, dCol);
+      this.setCellValue(targetKey, shiftedFormula);
+    } else {
+      this.setCellValue(targetKey, srcCell.raw);
+    }
+
+    if (srcCell.style) {
+      this.setCellStyle(targetKey, srcCell.style);
+    }
+    if (srcCell.format) {
+      this.setCellFormat(targetKey, srcCell.format);
+    }
   }
 
   public fillRange(sourceRange: string, targetRange: string): void {
@@ -399,6 +490,28 @@ export class SumWorkbook {
     }
   }
 
+  public setCellStyle(cellKey: string, style: Partial<CellStyle>): void {
+    const sheet = this.getActiveSheet();
+    const existing = sheet.cells[cellKey] || { raw: '', value: null };
+    sheet.cells[cellKey] = {
+      ...existing,
+      style: { ...(existing.style || {}), ...style },
+    };
+  }
+
+  public setCellBorders(cellKey: string, borders: CellBorders): void {
+    this.setCellStyle(cellKey, { borders });
+  }
+
+  public setCellFormat(cellKey: string, format: CellFormat): void {
+    const sheet = this.getActiveSheet();
+    const existing = sheet.cells[cellKey] || { raw: '', value: null };
+    sheet.cells[cellKey] = {
+      ...existing,
+      format,
+    };
+  }
+
   public undo(): boolean {
     if (!this.history.canUndo) return false;
     const res = this.history.undo(this.model);
@@ -426,4 +539,38 @@ export class SumWorkbook {
       }
     }
   }
+}
+
+export function shiftFormulaReferences(formula: string, dRow: number, dCol: number): string {
+  if (!formula.startsWith('=')) return formula;
+
+  // Match cell references: e.g. Sheet1!$A$1, $B$2, C3, $D4, E$5
+  const refRegex = /(?:([A-Za-z0-9_]+)!)?(\$?)([A-Za-z]+)(\$?)([0-9]+)/g;
+
+  return formula.replace(refRegex, (_fullMatch, sheet, colAbs, colName, rowAbs, rowNumStr) => {
+    // Avoid function names like SUM, AVERAGE if no row number is matched
+    const rowNum = parseInt(rowNumStr, 10);
+    let colIdx = 0;
+    const upperCol = colName.toUpperCase();
+    for (let i = 0; i < upperCol.length; i++) {
+      colIdx = colIdx * 26 + (upperCol.charCodeAt(i) - 64);
+    }
+    colIdx -= 1; // 0-based
+
+    const isColAbsolute = colAbs === '$';
+    const isRowAbsolute = rowAbs === '$';
+
+    const targetCol = isColAbsolute ? colIdx : colIdx + dCol;
+    const targetRow = isRowAbsolute ? rowNum - 1 : rowNum - 1 + dRow;
+
+    if (targetCol < 0 || targetRow < 0) {
+      return '#REF!';
+    }
+
+    const sheetPart = sheet ? `${sheet}!` : '';
+    const colPart = `${isColAbsolute ? '$' : ''}${colIndexToName(targetCol)}`;
+    const rowPart = `${isRowAbsolute ? '$' : ''}${targetRow + 1}`;
+
+    return `${sheetPart}${colPart}${rowPart}`;
+  });
 }

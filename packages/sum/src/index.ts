@@ -5,3 +5,4 @@ export * from './workbook';
 export * from './namedRanges';
 export * from './sortingFiltering';
 export * from './conditionalFormatting';
+export * from './export/xlsx';

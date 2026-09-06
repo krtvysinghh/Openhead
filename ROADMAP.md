@@ -51,8 +51,21 @@
 - [x] WordprocessingML DOCX export fidelity (footnotes, section properties, margins, orientation)
 - [x] 69 passing automated test suites across 24 test files
 
-## Phase 6: Desktop Packaging & Multi-Platform Distribution (Upcoming)
+## Phase 6: Production Sum + XLSX Compatibility (Completed)
+- [x] Phase 6 reality audit (`docs/PHASE6_AUDIT.md`)
+- [x] Native OpenXML (.xlsx) ZIP package exporter and importer (`XlsxAdapter`)
+- [x] Multi-criteria statistical aggregations (`SUMIFS`, `COUNTIFS`, `AVERAGEIFS`, `MAXIFS`, `MINIFS`)
+- [x] Text manipulation functions (`PROPER`, `SUBSTITUTE`, `REPLACE`, `FIND`, `SEARCH`, `TEXT`, `VALUE`)
+- [x] Date/calendar calculations (`DAYS`, `WEEKDAY`, `WEEKNUM`, `DATEDIF`)
+- [x] Lookup & financial expansions (`XMATCH`, `ROWS`, `COLUMNS`, `ADDRESS`, `IPMT`, `PPMT`, `IRR`, `IFNA`, `XOR`)
+- [x] Spreadsheet range copy/paste with formula reference translation (`$A$1`, `$A1`, `A$1`, `A1`)
+- [x] Grid column mutations (`insertCol`, `deleteCol`) and merged cell ranges (`mergedRanges`)
+- [x] Studio Sum UI enhancements (column buttons, header freeze toggle, cell styling, sheet tab actions, XLSX file export/import)
+- [x] Compatibility corpus expansions (fixtures 05–09) and automated XLSX round-trip test suites
+- [x] 76 passing automated test suites across 27 test files
+
+## Phase 7: Desktop Packaging & Multi-Platform Distribution (Upcoming)
 - [ ] Tauri 2.0 native packaging for macOS (.dmg / .app), Windows (.msi / .exe), and Linux (.AppImage / .deb)
-- [ ] Direct binary ZIP compressor for zero-dependency local `.docx`, `.xlsx`, `.pptx` writing
 - [ ] Offline WebLLM / ONNX runtime for zero-configuration in-browser local AI inference
 - [ ] CRDT-based offline-first multi-device sync
+
