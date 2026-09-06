@@ -2,6 +2,39 @@
 
 All notable changes to Openhead are documented in this file.
 
+## [1.0.0] - 2026-09-06 (Phases 10–13: Unified Office + Local AI + Security + Cross-Platform Desktop)
+
+### Added
+- **Phase 10 — Unified Openhead Office Shell & Cross-App Subsystems**:
+  - `OfficeClipboardEngine` (`packages/core/src/clipboard.ts`): Tabular clipboard matrix translator seamlessly converting spreadsheet matrices into Pen document tables, Glimpse slide tables, or multi-series charts.
+  - `CommandRegistry` (`packages/core/src/commands.ts`): Global keyboard command palette (`Ctrl+K` / `Cmd+K`) supporting hierarchical categories, contextual predicates, execution, and undo history.
+  - `SettingsManager` (`packages/core/src/settings.ts`): Unified persistent preferences manager for appearance, file handling, local AI endpoints, keyboard bindings, and privacy.
+  - `OfficeSearchEngine` (`packages/core/src/search.ts`): Cross-document unified search engine querying across Pen text ASTs, Sum multi-sheet cells/formulas, and Glimpse slide scene graphs.
+  - `StorageManager` Atomic Journaling & Crash Recovery (`packages/core/src/storage.ts`): Safe two-phase atomic write transactions, SHA-256 integrity checksums, and crash-recovery document restoration.
+  - `ThemeEngine` (`packages/core/src/themes.ts`): 5 curated theme palettes (Dark, Light, High Contrast, Cyberpunk, Forest) with WCAG 2.1 AA/AAA contrast ratio validation.
+  - `ZeroTelemetryPolicy` (`packages/core/src/telemetry.ts`): Enforces runtime zero-telemetry invariant, blocking outbound tracking beacons and unauthorized network calls.
+  - Unified Studio Home Screen (`apps/studio/src/components/HomeScreen.tsx`): Start surface with Quick Create cards, recent files, and crash recovery restore banners.
+- **Phase 11 — Local-First AI Architecture (`@openhead/ai`)**:
+  - `AiProvider` Pluggable Engine: `LocalHttpProvider` (Ollama at `localhost:11434`, LM Studio at `localhost:1234`), `OfflineMockProvider` (deterministic offline fallback), and `OpenAiCompatibleProvider`.
+  - `PromptSanitizer` & Security Sandboxing: Strips delimiter injection attacks (`<|im_start|>`, `[INST]`, `<<SYS>>`) and isolates untrusted document excerpts in `<document_context>` envelopes.
+  - `DiffEngine`: Word-level LCS diff algorithm computing granular additions, deletions, and unchanged text.
+  - Explicit `AiPermissionScope` (`selection`, `paragraph`, `slide`, `sheet`, `document`) with visual diff preview and user Accept/Reject commit cycle.
+  - `AiAuditLogger`: Local append-only audit trail logging prompts, tokens, scopes, and user decisions.
+  - AI Application Workflows: `PenAiWorkflow` (rewriting & summarization), `SumAiWorkflow` (formula explanation & natural language formula generation), `GlimpseAiWorkflow` (presentation outline generation & speaker notes).
+  - Studio `AiAssistantDrawer` upgraded with provider/scope selectors, diff preview, and accept/reject controls.
+- **Phase 12 — Security + Privacy Hardening & Hostile Document Corpus**:
+  - `MacroExecutionPolicy`: Invariant hard denial and quarantine of all VBA/VBScript macros (`.docm`, `.xlsm`, `.pptm`, `vbaProject.bin`).
+  - `FormulaInjectionGuard`: Detection and sanitization of hostile spreadsheet injection (`WEBSERVICE`, `FILTERXML`, `DDE`, `cmd|`, `powershell|`).
+  - Strict Zip Slip (`..` traversal) rejection and 100:1 decompression bomb ratio limiters.
+  - XML Entity Expansion (XXE) and recursive entity expansion (Billion Laughs) blockers.
+  - `tests/security/hostile_security_corpus.test.ts` with 12 security test cases validating defenses.
+- **Phase 13 — Cross-Platform Desktop + Release Engineering**:
+  - Native **Tauri 2.0** desktop shell configuration (`src-tauri/tauri.conf.json`, `Cargo.toml`, `src/main.rs`) providing a native desktop experience (<15 MB installer, ~40 MB RAM).
+  - Multi-platform GitHub Actions CI/CD workflows (`.github/workflows/ci.yml` and `.github/workflows/release.yml`) testing on Ubuntu, macOS, and Windows.
+  - Architectural Decision Records: `ADR-0005`, `ADR-0006`, `ADR-0007`, `ADR-0008`.
+  - Comprehensive Performance Benchmarks Report (`docs/PERFORMANCE.md`).
+- **291 Passing Automated Tests across 78 Test Files** and clean production build.
+
 ## [0.9.0] - 2026-09-06 (Phase 9: Production Glimpse + PPTX Compatibility)
 
 ### Added
