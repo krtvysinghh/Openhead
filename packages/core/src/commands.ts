@@ -34,6 +34,10 @@ export class CommandRegistry {
     this.commands.delete(commandId);
   }
 
+  public static clear(): void {
+    this.commands.clear();
+  }
+
   public static get(commandId: string): CommandDefinition | undefined {
     return this.commands.get(commandId);
   }

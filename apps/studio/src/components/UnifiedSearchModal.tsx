@@ -16,6 +16,15 @@ export const UnifiedSearchModal: React.FC<UnifiedSearchModalProps> = ({ isOpen, 
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
+    if (!isOpen) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose();
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isOpen, onClose]);
+
+  useEffect(() => {
     if (isOpen) {
       setTimeout(() => inputRef.current?.focus(), 50);
     }
@@ -39,8 +48,17 @@ export const UnifiedSearchModal: React.FC<UnifiedSearchModalProps> = ({ isOpen, 
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-start justify-center pt-24 bg-black/60 backdrop-blur-sm animate-in fade-in duration-150 p-4">
-      <div className="w-full max-w-xl bg-slate-900 border border-white/15 rounded-2xl shadow-2xl overflow-hidden flex flex-col">
+    <div
+      className="fixed inset-0 z-50 flex items-start justify-center pt-24 bg-black/60 backdrop-blur-sm animate-in fade-in duration-150 p-4"
+      onClick={onClose}
+      role="dialog"
+      aria-modal="true"
+      aria-label="Unified Search"
+    >
+      <div
+        className="w-full max-w-xl bg-slate-900 border border-white/15 rounded-2xl shadow-2xl overflow-hidden flex flex-col"
+        onClick={(e) => e.stopPropagation()}
+      >
         {/* Search Input Header */}
         <div className="flex items-center gap-3 px-4 py-3.5 border-b border-white/10 bg-slate-950/40">
           <Search className="w-4 h-4 text-slate-400" />
@@ -52,7 +70,11 @@ export const UnifiedSearchModal: React.FC<UnifiedSearchModalProps> = ({ isOpen, 
             placeholder={`Search in current ${activeApp.toUpperCase()} document...`}
             className="flex-1 bg-transparent border-none text-sm text-white placeholder-slate-500 focus:outline-none"
           />
-          <button onClick={onClose} className="p-1 rounded text-slate-400 hover:text-white">
+          <button
+            onClick={onClose}
+            aria-label="Close search dialog"
+            className="p-1 rounded text-slate-400 hover:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+          >
             <X className="w-4 h-4" />
           </button>
         </div>

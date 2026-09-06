@@ -12,6 +12,15 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, o
   const [settings, setSettings] = useState<OpenheadSettings>(SettingsManager.get());
   const [activeTab, setActiveTab] = useState<'appearance' | 'fileHandling' | 'ai' | 'privacy' | 'shortcuts'>('appearance');
 
+  React.useEffect(() => {
+    if (!isOpen) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose();
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isOpen, onClose]);
+
   if (!isOpen) return null;
 
   const handleUpdate = (partial: Partial<OpenheadSettings>) => {
@@ -21,8 +30,17 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, o
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm animate-in fade-in duration-150 p-4">
-      <div className="w-full max-w-2xl bg-slate-900 border border-white/15 rounded-2xl shadow-2xl overflow-hidden flex flex-col h-[520px]">
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm animate-in fade-in duration-150 p-4"
+      onClick={onClose}
+      role="dialog"
+      aria-modal="true"
+      aria-label="Openhead Settings"
+    >
+      <div
+        className="w-full max-w-2xl bg-slate-900 border border-white/15 rounded-2xl shadow-2xl overflow-hidden flex flex-col h-[520px]"
+        onClick={(e) => e.stopPropagation()}
+      >
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-white/10 bg-slate-950/40">
           <div className="flex items-center gap-2">
@@ -31,7 +49,11 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, o
               Local Storage Only
             </span>
           </div>
-          <button onClick={onClose} className="p-1 rounded-lg text-slate-400 hover:text-white hover:bg-white/10">
+          <button
+            onClick={onClose}
+            aria-label="Close settings dialog"
+            className="p-1 rounded-lg text-slate-400 hover:text-white hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+          >
             <X className="w-4 h-4" />
           </button>
         </div>
