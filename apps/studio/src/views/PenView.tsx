@@ -40,6 +40,7 @@ import {
   Redo2,
   BookmarkPlus,
   Settings2,
+  Image as ImageIcon,
 } from 'lucide-react';
 
 interface PenViewProps {
@@ -186,6 +187,22 @@ export const PenView: React.FC<PenViewProps> = ({ document: doc, onUpdate, onAiP
       doc.insertFootnote(0, activeBlockIndex, 0, fnText);
       onUpdate();
     }
+  };
+
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (evt) => {
+      const dataUrl = evt.target?.result as string;
+      if (dataUrl) {
+        doc.addImage(dataUrl, file.name);
+        setActiveBlockIndex(section.blocks.length - 1);
+        onUpdate();
+      }
+    };
+    reader.readAsDataURL(file);
+    e.target.value = '';
   };
 
   const handleDeleteBlock = (blockIdx: number) => {
@@ -503,6 +520,10 @@ export const PenView: React.FC<PenViewProps> = ({ document: doc, onUpdate, onAiP
           >
             <TableIcon className="w-4 h-4 text-emerald-400" /> Table
           </button>
+          <label className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-medium text-slate-300 hover:bg-white/10 hover:text-white cursor-pointer" title="Insert Image from Device">
+            <ImageIcon className="w-4 h-4 text-purple-400" /> Image
+            <input type="file" accept="image/*" onChange={handleImageUpload} className="hidden" />
+          </label>
           <button
             onClick={handleAddFootnote}
             className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-medium text-slate-300 hover:bg-white/10 hover:text-white"
@@ -651,6 +672,49 @@ export const PenView: React.FC<PenViewProps> = ({ document: doc, onUpdate, onAiP
               </div>
 
               <div>
+                <label className="block mb-1 font-medium">Columns Layout</label>
+                <div className="flex gap-3">
+                  {[1, 2, 3].map((cols) => (
+                    <button
+                      key={cols}
+                      type="button"
+                      onClick={() => {
+                        doc.setPageSettings(0, { columns: cols });
+                        onUpdate();
+                      }}
+                      className={`flex-1 py-1.5 rounded-lg border text-xs font-medium transition-all ${
+                        (section.pageSettings.columns || 1) === cols
+                          ? 'bg-indigo-600/30 border-indigo-400 text-indigo-200'
+                          : 'bg-white/5 border-white/10 text-slate-400 hover:text-white'
+                      }`}
+                    >
+                      {cols} {cols === 1 ? 'Column' : 'Columns'}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div>
+                <label className="block mb-1 font-medium">Document Watermark</label>
+                <select
+                  value={section.pageSettings.watermark || ''}
+                  onChange={(e) => {
+                    doc.setWatermark(e.target.value || undefined);
+                    onUpdate();
+                  }}
+                  className="w-full bg-slate-950/60 border border-white/10 rounded-lg px-2.5 py-1.5 text-white outline-none"
+                >
+                  <option value="">None (No Watermark)</option>
+                  <option value="CONFIDENTIAL">CONFIDENTIAL</option>
+                  <option value="DRAFT">DRAFT</option>
+                  <option value="TOP SECRET">TOP SECRET</option>
+                  <option value="URGENT">URGENT</option>
+                  <option value="DO NOT COPY">DO NOT COPY</option>
+                  <option value="SAMPLE">SAMPLE</option>
+                </select>
+              </div>
+
+              <div>
                 <label className="block mb-1 font-medium">Header Text</label>
                 <input
                   type="text"
@@ -722,6 +786,15 @@ export const PenView: React.FC<PenViewProps> = ({ document: doc, onUpdate, onAiP
               section.pageSettings.orientation === 'landscape' ? 'max-w-5xl' : 'max-w-3xl'
             } min-h-[900px] p-12 rounded-2xl ${glassStyles.panel} shadow-2xl relative flex flex-col gap-6`}
           >
+            {/* Watermark Overlay */}
+            {section.pageSettings.watermark && (
+              <div className="absolute inset-0 flex items-center justify-center pointer-events-none select-none z-0 overflow-hidden">
+                <span className="text-8xl font-black uppercase tracking-widest transform -rotate-45 opacity-[0.06] text-white">
+                  {section.pageSettings.watermark}
+                </span>
+              </div>
+            )}
+
             {/* Header Display */}
             {section.pageSettings.headerText && (
               <div className="text-xs text-slate-400 border-b border-white/10 pb-2 flex justify-between font-mono">
@@ -738,14 +811,57 @@ export const PenView: React.FC<PenViewProps> = ({ document: doc, onUpdate, onAiP
                 doc.setTitle(e.target.value);
                 onUpdate();
               }}
-              className="text-3xl font-bold bg-transparent border-none outline-none text-white tracking-tight placeholder-slate-500"
+              className="text-3xl font-bold bg-transparent border-none outline-none text-white tracking-tight placeholder-slate-500 z-10"
               placeholder="Document Title"
             />
 
             {/* Blocks Stream */}
-            <div className="space-y-4">
+            <div
+              className="space-y-4 z-10"
+              style={{
+                columnCount: section.pageSettings.columns && section.pageSettings.columns > 1 ? section.pageSettings.columns : 1,
+                columnGap: '2rem',
+              }}
+            >
               {section.blocks.map((block, idx) => {
                 const isActive = activeBlockIndex === idx;
+
+                if (block.type === 'image') {
+                  const img = block as any;
+                  return (
+                    <div
+                      key={block.id}
+                      onClick={() => setActiveBlockIndex(idx)}
+                      className={`group relative my-4 rounded-xl overflow-hidden border p-2 flex flex-col items-center gap-2 transition-all ${
+                        isActive ? 'border-indigo-400/50 ring-1 ring-indigo-400/30' : 'border-white/10'
+                      }`}
+                    >
+                      <img
+                        src={img.url}
+                        alt={img.caption || 'Document image'}
+                        style={{ maxWidth: '100%', maxHeight: '450px' }}
+                        className="rounded-lg object-contain"
+                      />
+                      <input
+                        type="text"
+                        value={img.caption || ''}
+                        onChange={(e) => {
+                          img.caption = e.target.value;
+                          onUpdate();
+                        }}
+                        placeholder="Image caption..."
+                        className="text-center text-xs text-slate-400 bg-transparent outline-none border-b border-transparent hover:border-white/10 w-3/4"
+                      />
+                      <button
+                        onClick={() => handleDeleteBlock(idx)}
+                        className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 p-1.5 rounded-lg bg-red-600/80 hover:bg-red-600 text-white transition-all"
+                        title="Delete image"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                  );
+                }
 
                 if (block.type === 'table') {
                   const tbl = block as TableBlock;

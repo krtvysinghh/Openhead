@@ -196,6 +196,31 @@ export class PenDocument {
     return t;
   }
 
+  public addImage(
+    url: string,
+    caption?: string,
+    width?: number,
+    height?: number,
+    sectionIndex: number = 0
+  ) {
+    const img = {
+      id: generateId('blk'),
+      type: 'image' as const,
+      url,
+      caption,
+      width: width || 600,
+      height: height || 400,
+      align: 'center' as const,
+    };
+    const blockIdx = this.model.sections[sectionIndex]?.blocks.length || 0;
+    this.insertBlock(sectionIndex, blockIdx, img);
+    return img;
+  }
+
+  public setWatermark(watermark?: string, sectionIndex: number = 0, color?: string): void {
+    this.setPageSettings(sectionIndex, { watermark, watermarkColor: color || '#E2E8F0' });
+  }
+
   /**
    * Formats a selection range [startChar, endChar] in a block's inline runs.
    */

@@ -57,7 +57,7 @@ function main() {
   }
 
   const files = fs.readdirSync(ARTIFACTS_DIR).filter(f => {
-    return !f.startsWith('.') && f !== 'checksums.txt' && f !== 'manifest.json';
+    return !f.startsWith('.') && !f.toLowerCase().includes('checksums') && !f.toLowerCase().includes('manifest');
   });
 
   console.log(`Scanning ${files.length} release artifacts in ${ARTIFACTS_DIR}...`);

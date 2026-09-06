@@ -43,6 +43,7 @@ tmp/
 
 # Tauri & Native binaries
 src-tauri/target/
+src-tauri/gen/
 target/
 *.apk
 *.aab

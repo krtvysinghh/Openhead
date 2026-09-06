@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { ProductType, OfficeTemplateLibrary, OfficeTemplate } from '@openhead/core';
 import { glassStyles } from '@openhead/ui';
-import { FileText, Table, Presentation, X, Sparkles, Check } from 'lucide-react';
+import { FileText, Table, Presentation, X, Sparkles, Check, Search, Tag } from 'lucide-react';
 
 interface TemplatePickerModalProps {
   isOpen: boolean;
@@ -17,7 +17,32 @@ export const TemplatePickerModal: React.FC<TemplatePickerModalProps> = ({
   initialType = 'pen',
 }) => {
   const [selectedType, setSelectedType] = useState<ProductType>(initialType);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState<string>('All');
+
   const templates = OfficeTemplateLibrary.getTemplates(selectedType);
+
+  const categories = useMemo(() => {
+    const cats = new Set<string>(['All']);
+    templates.forEach((t) => {
+      if (t.category) cats.add(t.category);
+    });
+    return Array.from(cats);
+  }, [templates]);
+
+  const filteredTemplates = useMemo(() => {
+    return templates.filter((tpl) => {
+      const matchCat = selectedCategory === 'All' || tpl.category === selectedCategory;
+      const q = searchQuery.toLowerCase();
+      const matchSearch =
+        !q ||
+        tpl.title.toLowerCase().includes(q) ||
+        tpl.description.toLowerCase().includes(q) ||
+        tpl.category.toLowerCase().includes(q) ||
+        (tpl.tags && tpl.tags.some((t) => t.toLowerCase().includes(q)));
+      return matchCat && matchSearch;
+    });
+  }, [templates, selectedCategory, searchQuery]);
 
   React.useEffect(() => {
     if (!isOpen) return;
@@ -62,74 +87,122 @@ export const TemplatePickerModal: React.FC<TemplatePickerModalProps> = ({
           </button>
         </div>
 
-        {/* Tab Switcher */}
-        <div className="flex items-center gap-2 px-6 py-3 border-b border-white/5 bg-slate-950/40">
-          <button
-            onClick={() => setSelectedType('pen')}
-            className={`flex items-center gap-2 px-4 py-1.5 rounded-xl text-xs font-medium transition-all ${
-              selectedType === 'pen'
-                ? 'bg-indigo-600/80 text-white shadow-sm border border-indigo-400/30'
-                : 'text-slate-400 hover:text-slate-200'
-            }`}
-          >
-            <FileText className="w-3.5 h-3.5" /> Pen Documents
-          </button>
-          <button
-            onClick={() => setSelectedType('sum')}
-            className={`flex items-center gap-2 px-4 py-1.5 rounded-xl text-xs font-medium transition-all ${
-              selectedType === 'sum'
-                ? 'bg-emerald-600/80 text-white shadow-sm border border-emerald-400/30'
-                : 'text-slate-400 hover:text-slate-200'
-            }`}
-          >
-            <Table className="w-3.5 h-3.5" /> Sum Spreadsheets
-          </button>
-          <button
-            onClick={() => setSelectedType('glimpse')}
-            className={`flex items-center gap-2 px-4 py-1.5 rounded-xl text-xs font-medium transition-all ${
-              selectedType === 'glimpse'
-                ? 'bg-amber-600/80 text-white shadow-sm border border-amber-400/30'
-                : 'text-slate-400 hover:text-slate-200'
-            }`}
-          >
-            <Presentation className="w-3.5 h-3.5" /> Glimpse Presentations
-          </button>
+        {/* Tab Switcher & Search Bar */}
+        <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3 px-6 py-3 border-b border-white/5 bg-slate-950/40">
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => {
+                setSelectedType('pen');
+                setSelectedCategory('All');
+              }}
+              className={`flex items-center gap-2 px-4 py-1.5 rounded-xl text-xs font-medium transition-all ${
+                selectedType === 'pen'
+                  ? 'bg-indigo-600/80 text-white shadow-sm border border-indigo-400/30'
+                  : 'text-slate-400 hover:text-slate-200'
+              }`}
+            >
+              <FileText className="w-3.5 h-3.5" /> Pen Documents
+            </button>
+            <button
+              onClick={() => {
+                setSelectedType('sum');
+                setSelectedCategory('All');
+              }}
+              className={`flex items-center gap-2 px-4 py-1.5 rounded-xl text-xs font-medium transition-all ${
+                selectedType === 'sum'
+                  ? 'bg-emerald-600/80 text-white shadow-sm border border-emerald-400/30'
+                  : 'text-slate-400 hover:text-slate-200'
+              }`}
+            >
+              <Table className="w-3.5 h-3.5" /> Sum Spreadsheets
+            </button>
+            <button
+              onClick={() => {
+                setSelectedType('glimpse');
+                setSelectedCategory('All');
+              }}
+              className={`flex items-center gap-2 px-4 py-1.5 rounded-xl text-xs font-medium transition-all ${
+                selectedType === 'glimpse'
+                  ? 'bg-amber-600/80 text-white shadow-sm border border-amber-400/30'
+                  : 'text-slate-400 hover:text-slate-200'
+              }`}
+            >
+              <Presentation className="w-3.5 h-3.5" /> Glimpse Presentations
+            </button>
+          </div>
+
+          <div className="relative">
+            <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search templates..."
+              className="w-full md:w-56 pl-8 pr-3 py-1.5 bg-slate-900/80 border border-white/10 rounded-xl text-xs text-white placeholder-slate-500 outline-none focus:border-indigo-400"
+            />
+          </div>
         </div>
+
+        {/* Category Pills */}
+        {categories.length > 2 && (
+          <div className="flex items-center gap-2 px-6 py-2 border-b border-white/5 bg-slate-950/20 overflow-x-auto">
+            <Tag className="w-3 h-3 text-slate-500 shrink-0" />
+            {categories.map((cat) => (
+              <button
+                key={cat}
+                onClick={() => setSelectedCategory(cat)}
+                className={`px-2.5 py-0.5 rounded-lg text-[11px] font-medium transition-all whitespace-nowrap ${
+                  selectedCategory === cat
+                    ? 'bg-white/15 text-white border border-white/20'
+                    : 'text-slate-400 hover:text-slate-200'
+                }`}
+              >
+                {cat}
+              </button>
+            ))}
+          </div>
+        )}
 
         {/* Templates Grid */}
         <div className="flex-1 overflow-y-auto p-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {templates.map((tpl) => (
-            <div
-              key={tpl.id}
-              onClick={() => {
-                onSelectTemplate(tpl);
-                onClose();
-              }}
-              className="p-5 rounded-xl border border-white/10 bg-slate-900/40 hover:bg-white/5 hover:border-white/20 transition-all cursor-pointer flex flex-col justify-between group"
-            >
-              <div>
-                <div className="flex items-center justify-between mb-3">
-                  <span className="text-[10px] px-2 py-0.5 rounded border border-white/10 bg-white/5 text-slate-300 font-mono">
-                    {tpl.category}
-                  </span>
-                  <div className="w-6 h-6 rounded-full bg-white/5 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                    <Check className="w-3.5 h-3.5 text-emerald-400" />
-                  </div>
-                </div>
-                <h3 className="text-sm font-semibold text-white group-hover:text-indigo-300 transition-colors">
-                  {tpl.title || tpl.name}
-                </h3>
-                <p className="text-xs text-slate-400 mt-1.5 leading-relaxed">
-                  {tpl.description}
-                </p>
-              </div>
-
-              <div className="mt-4 pt-3 border-t border-white/5 flex items-center justify-between text-[11px] text-slate-500">
-                <span>Use Template</span>
-                <span className="group-hover:translate-x-0.5 transition-transform">→</span>
-              </div>
+          {filteredTemplates.length === 0 ? (
+            <div className="col-span-full py-12 text-center text-slate-500 text-xs">
+              No templates match your search criteria.
             </div>
-          ))}
+          ) : (
+            filteredTemplates.map((tpl) => (
+              <div
+                key={tpl.id}
+                onClick={() => {
+                  onSelectTemplate(tpl);
+                  onClose();
+                }}
+                className="p-5 rounded-xl border border-white/10 bg-slate-900/40 hover:bg-white/5 hover:border-white/20 transition-all cursor-pointer flex flex-col justify-between group"
+              >
+                <div>
+                  <div className="flex items-center justify-between mb-3">
+                    <span className="text-[10px] px-2 py-0.5 rounded border border-white/10 bg-white/5 text-slate-300 font-mono">
+                      {tpl.category}
+                    </span>
+                    <div className="w-6 h-6 rounded-full bg-white/5 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                      <Check className="w-3.5 h-3.5 text-emerald-400" />
+                    </div>
+                  </div>
+                  <h3 className="text-sm font-semibold text-white group-hover:text-indigo-300 transition-colors">
+                    {tpl.title || tpl.name}
+                  </h3>
+                  <p className="text-xs text-slate-400 mt-1.5 leading-relaxed">
+                    {tpl.description}
+                  </p>
+                </div>
+
+                <div className="mt-4 pt-3 border-t border-white/5 flex items-center justify-between text-[11px] text-slate-500">
+                  <span>Use Template</span>
+                  <span className="group-hover:translate-x-0.5 transition-transform">→</span>
+                </div>
+              </div>
+            ))
+          )}
         </div>
       </div>
     </div>

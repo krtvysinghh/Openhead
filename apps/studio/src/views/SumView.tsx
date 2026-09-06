@@ -29,6 +29,9 @@ import {
   Trash2,
   Undo2,
   Redo2,
+  Target,
+  Split,
+  X,
 } from 'lucide-react';
 import { FormulaDebuggerDrawer } from '../components/FormulaDebuggerDrawer';
 
@@ -45,6 +48,51 @@ export const SumView: React.FC<SumViewProps> = ({ workbook: wb, onUpdate, onAiPr
   const [isEditing, setIsEditing] = useState<boolean>(false);
   const [suggestions, setSuggestions] = useState<AutocompleteSuggestion[]>([]);
   const [isDebuggerOpen, setIsDebuggerOpen] = useState(false);
+  const [isGoalSeekOpen, setIsGoalSeekOpen] = useState(false);
+  const [targetCell, setTargetCell] = useState('A1');
+  const [targetValue, setTargetValue] = useState('100');
+  const [changingCell, setChangingCell] = useState('A2');
+  const [goalSeekResult, setGoalSeekResult] = useState<string | null>(null);
+
+  const handleAutoSum = (func: 'SUM' | 'AVERAGE' | 'COUNT' | 'MIN' | 'MAX') => {
+    const addr = parseCellAddress(selectedCell);
+    if (!addr) return;
+    const colName = colIndexToName(addr.col);
+    if (addr.row > 0) {
+      const range = `${colName}1:${colName}${addr.row}`;
+      const formula = `=${func}(${range})`;
+      wb.setCellValue(selectedCell, formula);
+      setFormulaInput(formula);
+      onUpdate();
+    }
+  };
+
+  const handleRunGoalSeek = () => {
+    const tVal = parseFloat(targetValue);
+    if (isNaN(tVal)) return;
+    const res = wb.goalSeek(targetCell, tVal, changingCell);
+    if (res.success) {
+      setGoalSeekResult(`Target reached! ${changingCell} set to ${res.finalValue.toFixed(4)} in ${res.iterations} iterations.`);
+    } else {
+      setGoalSeekResult(`Could not fully converge. Best estimate: ${res.finalValue.toFixed(4)}`);
+    }
+    onUpdate();
+  };
+
+  const handleTextToColumns = () => {
+    const delim = window.prompt('Enter delimiter character (e.g. comma, semicolon, pipe):', ',') || ',';
+    wb.textToColumns(selectedCell, delim);
+    onUpdate();
+  };
+
+  const handleRemoveDuplicates = () => {
+    const range = window.prompt('Enter table range to deduplicate (e.g. A1:D20):', 'A1:D25');
+    if (range) {
+      const count = wb.removeDuplicates(range);
+      alert(`Successfully removed ${count} duplicate row(s).`);
+      onUpdate();
+    }
+  };
 
   const handleCellSelect = (cellKey: string) => {
     setSelectedCell(cellKey);
@@ -415,6 +463,55 @@ export const SumView: React.FC<SumViewProps> = ({ workbook: wb, onUpdate, onAiPr
 
           <div className="w-[1px] h-4 bg-white/10 mx-1" />
 
+          <select
+            onChange={(e) => {
+              if (e.target.value) {
+                handleAutoSum(e.target.value as any);
+                e.target.value = '';
+              }
+            }}
+            defaultValue=""
+            className="bg-slate-900 border border-white/10 rounded-lg px-2 py-1 text-xs text-slate-200 outline-none hover:border-white/20"
+            title="AutoSum Functions"
+          >
+            <option value="" disabled>Σ AutoSum</option>
+            <option value="SUM">SUM</option>
+            <option value="AVERAGE">AVERAGE</option>
+            <option value="COUNT">COUNT</option>
+            <option value="MIN">MIN</option>
+            <option value="MAX">MAX</option>
+          </select>
+
+          <button
+            onClick={() => {
+              setTargetCell(selectedCell);
+              setGoalSeekResult(null);
+              setIsGoalSeekOpen(true);
+            }}
+            className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-medium text-slate-300 hover:bg-white/10 hover:text-white"
+            title="Goal Seek Solver"
+          >
+            <Target className="w-4 h-4 text-purple-400" /> Goal Seek
+          </button>
+
+          <button
+            onClick={handleTextToColumns}
+            className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-medium text-slate-300 hover:bg-white/10 hover:text-white"
+            title="Split Text to Columns"
+          >
+            <Split className="w-4 h-4 text-amber-400" /> Text to Col
+          </button>
+
+          <button
+            onClick={handleRemoveDuplicates}
+            className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-medium text-slate-300 hover:bg-white/10 hover:text-white"
+            title="Remove Duplicate Rows"
+          >
+            <Trash2 className="w-4 h-4 text-rose-400" /> Deduplicate
+          </button>
+
+          <div className="w-[1px] h-4 bg-white/10 mx-1" />
+
           <button
             onClick={() => setIsDebuggerOpen(true)}
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-emerald-300 bg-emerald-500/10 border border-emerald-400/20 hover:bg-emerald-500/20 transition-all"
@@ -598,6 +695,73 @@ export const SumView: React.FC<SumViewProps> = ({ workbook: wb, onUpdate, onAiPr
 
         <span className="text-xs text-slate-500 font-mono">Topological DAG Active • XLSX Compatible</span>
       </div>
+
+      {/* Goal Seek Modal */}
+      {isGoalSeekOpen && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className={`w-full max-w-sm p-6 rounded-2xl ${glassStyles.panel} shadow-2xl flex flex-col gap-4 border border-white/10`}>
+            <div className="flex items-center justify-between border-b border-white/10 pb-3">
+              <h3 className="text-base font-bold text-white flex items-center gap-2">
+                <Target className="w-5 h-5 text-purple-400" /> Goal Seek Solver
+              </h3>
+              <button onClick={() => setIsGoalSeekOpen(false)} className="text-slate-400 hover:text-white">
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+            <div className="space-y-3 text-xs text-slate-300">
+              <div>
+                <label className="block mb-1 font-medium">Set Cell (Formula Cell):</label>
+                <input
+                  type="text"
+                  value={targetCell}
+                  onChange={(e) => setTargetCell(e.target.value.toUpperCase())}
+                  className="w-full bg-slate-950/60 border border-white/10 rounded-lg px-2.5 py-1.5 text-white font-mono outline-none"
+                  placeholder="e.g. C5"
+                />
+              </div>
+              <div>
+                <label className="block mb-1 font-medium">To Target Value:</label>
+                <input
+                  type="text"
+                  value={targetValue}
+                  onChange={(e) => setTargetValue(e.target.value)}
+                  className="w-full bg-slate-950/60 border border-white/10 rounded-lg px-2.5 py-1.5 text-white font-mono outline-none"
+                  placeholder="e.g. 100000"
+                />
+              </div>
+              <div>
+                <label className="block mb-1 font-medium">By Changing Cell (Variable):</label>
+                <input
+                  type="text"
+                  value={changingCell}
+                  onChange={(e) => setChangingCell(e.target.value.toUpperCase())}
+                  className="w-full bg-slate-950/60 border border-white/10 rounded-lg px-2.5 py-1.5 text-white font-mono outline-none"
+                  placeholder="e.g. B2"
+                />
+              </div>
+              {goalSeekResult && (
+                <div className="p-2.5 rounded-lg bg-purple-500/10 border border-purple-400/20 text-purple-200 text-xs font-mono">
+                  {goalSeekResult}
+                </div>
+              )}
+            </div>
+            <div className="flex justify-end gap-2 mt-2">
+              <button
+                onClick={() => setIsGoalSeekOpen(false)}
+                className="px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-slate-300 text-xs"
+              >
+                Close
+              </button>
+              <button
+                onClick={handleRunGoalSeek}
+                className="px-4 py-1.5 rounded-lg bg-purple-600 hover:bg-purple-500 text-white font-medium text-xs shadow-lg shadow-purple-600/20"
+              >
+                Solve Goal
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Formula Debugger Drawer */}
       <FormulaDebuggerDrawer

@@ -250,6 +250,13 @@ export class SumWorkbook {
     this.rebuildFormulaEngine();
   }
 
+  public getCellValue(cellKey: string, sheetId?: string): any {
+    const sheet = sheetId ? this.model.sheets.find((s) => s.id === sheetId) || this.getActiveSheet() : this.getActiveSheet();
+    const cell = sheet.cells[cellKey];
+    if (!cell) return undefined;
+    return cell.value !== undefined ? cell.value : cell.raw;
+  }
+
   public setCellStyle(cellKey: string, style: Partial<CellStyle>): void {
     const activeSheet = this.getActiveSheet();
     const prevModel = JSON.parse(JSON.stringify(this.model));
@@ -707,6 +714,122 @@ export class SumWorkbook {
         }
       }
     }
+  }
+
+  /**
+   * Goal Seek: Iterative numeric solver that adjusts changingCell until targetCell equals targetValue.
+   */
+  public goalSeek(
+    targetCell: string,
+    targetValue: number,
+    changingCell: string,
+    maxIterations: number = 100,
+    tolerance: number = 0.001
+  ): { success: boolean; iterations: number; finalValue: number } {
+    let guess = Number(this.getCellValue(changingCell)) || 0;
+    let step = 1.0;
+
+    for (let iter = 0; iter < maxIterations; iter++) {
+      this.setCellValue(changingCell, guess);
+      const current = Number(this.getCellValue(targetCell));
+
+      if (isNaN(current)) {
+        return { success: false, iterations: iter, finalValue: guess };
+      }
+
+      const diff = current - targetValue;
+      if (Math.abs(diff) <= tolerance) {
+        return { success: true, iterations: iter + 1, finalValue: guess };
+      }
+
+      // Finite difference approximation for derivative
+      this.setCellValue(changingCell, guess + 0.0001);
+      const currentPlus = Number(this.getCellValue(targetCell));
+      const derivative = (currentPlus - current) / 0.0001;
+
+      if (Math.abs(derivative) < 1e-9) {
+        guess += (Math.random() - 0.5) * step;
+      } else {
+        guess -= diff / derivative;
+      }
+    }
+
+    this.setCellValue(changingCell, guess);
+    const finalDiff = Math.abs(Number(this.getCellValue(targetCell)) - targetValue);
+    return { success: finalDiff <= tolerance, iterations: maxIterations, finalValue: guess };
+  }
+
+  /**
+   * Text to Columns: Splits cell strings in a range across adjacent columns by a delimiter.
+   */
+  public textToColumns(rangeStr: string, delimiter: string = ','): void {
+    const range = parseRangeAddress(rangeStr);
+    if (!range) return;
+
+    const sheet = this.getActiveSheet();
+    for (let r = range.start.row; r <= range.end.row; r++) {
+      const srcCoord = `${colIndexToName(range.start.col)}${r + 1}`;
+      const cell = sheet.cells[srcCoord];
+      if (cell && typeof cell.raw === 'string') {
+        const parts = cell.raw.split(delimiter);
+        parts.forEach((part, idx) => {
+          const targetCoord = `${colIndexToName(range.start.col + idx)}${r + 1}`;
+          const trimmed = part.trim();
+          const num = Number(trimmed);
+          const val = !isNaN(num) && trimmed !== '' ? num : trimmed;
+          this.setCellValue(targetCoord, val);
+        });
+      }
+    }
+  }
+
+  /**
+   * Remove Duplicates: Removes duplicate rows in a specified range.
+   */
+  public removeDuplicates(rangeStr: string, keyColOffsets: number[] = [0]): number {
+    const range = parseRangeAddress(rangeStr);
+    if (!range) return 0;
+
+    const seen = new Set<string>();
+    let removedCount = 0;
+    const sheet = this.getActiveSheet();
+
+    for (let r = range.start.row; r <= range.end.row; r++) {
+      const rowKey = keyColOffsets
+        .map((offset) => {
+          const coord = `${colIndexToName(range.start.col + offset)}${r + 1}`;
+          return String(sheet.cells[coord]?.value ?? '');
+        })
+        .join('|');
+
+      if (seen.has(rowKey)) {
+        // Clear duplicate row cells
+        for (let c = range.start.col; c <= range.end.col; c++) {
+          const coord = `${colIndexToName(c)}${r + 1}`;
+          delete sheet.cells[coord];
+        }
+        removedCount++;
+      } else {
+        seen.add(rowKey);
+      }
+    }
+
+    this.rebuildFormulaEngine();
+    return removedCount;
+  }
+
+  /**
+   * Quick freeze top row (row 1)
+   */
+  public freezeTopRow(): void {
+    this.setFreezePanes(1, 0);
+  }
+
+  /**
+   * Quick freeze first column (column A)
+   */
+  public freezeFirstColumn(): void {
+    this.setFreezePanes(0, 1);
   }
 }
 

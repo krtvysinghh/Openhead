@@ -192,6 +192,8 @@ export interface PageSettings {
   firstPageFooterText?: string;
   evenPageHeaderText?: string;
   evenPageFooterText?: string;
+  watermark?: string;
+  watermarkColor?: string;
 }
 
 export interface Footnote {

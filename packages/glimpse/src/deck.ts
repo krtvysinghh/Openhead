@@ -199,6 +199,42 @@ export class GlimpseDeck {
     return cloned;
   }
 
+  public toggleSlideHidden(slideId: string): boolean {
+    const prev = JSON.parse(JSON.stringify(this.model));
+    const next = JSON.parse(JSON.stringify(this.model));
+    const slide = next.slides.find((s: SlideModel) => s.id === slideId);
+    if (!slide) return false;
+
+    slide.hidden = !slide.hidden;
+    next.metadata.updatedAt = Date.now();
+
+    const cmd: HistoryCommand<GlimpseDeckModel> = {
+      id: generateId('cmd'),
+      name: slide.hidden ? 'Hide Slide' : 'Unhide Slide',
+      execute: () => next,
+      undo: () => prev,
+      timestamp: Date.now(),
+    };
+    this.model = this.history.execute(this.model, cmd);
+    return !!slide.hidden;
+  }
+
+  public setDimensions(width: number, height: number, aspectRatio: '16:9' | '4:3' = '16:9'): void {
+    const prev = JSON.parse(JSON.stringify(this.model));
+    const next = JSON.parse(JSON.stringify(this.model));
+    next.dimensions = { width, height, aspectRatio };
+    next.metadata.updatedAt = Date.now();
+
+    const cmd: HistoryCommand<GlimpseDeckModel> = {
+      id: generateId('cmd'),
+      name: `Set Aspect Ratio (${aspectRatio})`,
+      execute: () => next,
+      undo: () => prev,
+      timestamp: Date.now(),
+    };
+    this.model = this.history.execute(this.model, cmd);
+  }
+
   public deleteSlide(slideId: string): void {
     if (this.model.slides.length <= 1) return; // Keep at least one slide
 

@@ -27,6 +27,9 @@ import {
   Table,
   BarChart2,
   FileText,
+  Image as ImageIcon,
+  Eye,
+  EyeOff,
 } from 'lucide-react';
 
 interface GlimpseViewProps {
@@ -176,6 +179,27 @@ export const GlimpseView: React.FC<GlimpseViewProps> = ({ deck, onUpdate, onAiPr
     reader.readAsArrayBuffer(file);
   };
 
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (evt) => {
+      const dataUrl = evt.target?.result as string;
+      if (dataUrl) {
+        deck.addImageNode(dataUrl, {
+          x: 300,
+          y: 200,
+          width: 640,
+          height: 380,
+          alt: file.name,
+        });
+        onUpdate();
+      }
+    };
+    reader.readAsDataURL(file);
+    e.target.value = '';
+  };
+
   return (
     <div className="flex-1 flex flex-col h-full overflow-hidden bg-slate-950/40">
       {/* Ribbon Toolbar */}
@@ -236,6 +260,10 @@ export const GlimpseView: React.FC<GlimpseViewProps> = ({ deck, onUpdate, onAiPr
           <button onClick={handleAddChart} className="p-1.5 rounded-lg text-slate-300 hover:bg-white/10 hover:text-white" title="Insert Chart">
             <BarChart2 className="w-4 h-4" />
           </button>
+          <label className="p-1.5 rounded-lg text-slate-300 hover:bg-white/10 hover:text-white cursor-pointer" title="Insert Image from Device">
+            <ImageIcon className="w-4 h-4" />
+            <input type="file" accept="image/*" onChange={handleImageUpload} className="hidden" />
+          </label>
 
           <div className="w-[1px] h-4 bg-white/10 mx-1" />
 
@@ -308,14 +336,27 @@ export const GlimpseView: React.FC<GlimpseViewProps> = ({ deck, onUpdate, onAiPr
                   deck.setActiveSlide(slide.id);
                   onUpdate();
                 }}
-                className={`p-2 rounded-xl border cursor-pointer transition-all aspect-video flex flex-col justify-between ${
+                className={`group relative p-2 rounded-xl border cursor-pointer transition-all aspect-video flex flex-col justify-between ${
                   slide.id === activeSlide.id
                     ? 'border-indigo-400/60 bg-indigo-950/40 shadow-lg shadow-indigo-500/10 ring-1 ring-indigo-400/50'
                     : 'border-white/10 bg-slate-900/40 hover:border-white/20'
-                }`}
+                } ${slide.hidden ? 'opacity-40' : ''}`}
               >
-                <span className="text-xs font-medium text-slate-300 truncate">{slide.title}</span>
-                <span className="text-[10px] text-slate-500">Slide {idx + 1}</span>
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-medium text-slate-300 truncate">{slide.title}</span>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      deck.toggleSlideHidden(slide.id);
+                      onUpdate();
+                    }}
+                    className="opacity-0 group-hover:opacity-100 p-0.5 rounded text-slate-400 hover:text-white transition-opacity"
+                    title={slide.hidden ? 'Unhide Slide' : 'Hide Slide'}
+                  >
+                    {slide.hidden ? <EyeOff className="w-3 h-3 text-amber-400" /> : <Eye className="w-3 h-3" />}
+                  </button>
+                </div>
+                <span className="text-[10px] text-slate-500">{slide.hidden ? 'Hidden Slide' : `Slide ${idx + 1}`}</span>
               </div>
             ))}
           </div>
@@ -391,6 +432,109 @@ export const GlimpseView: React.FC<GlimpseViewProps> = ({ deck, onUpdate, onAiPr
                         zIndex: s.zIndex,
                       }}
                     />
+                  );
+                }
+
+                if (node.type === 'image') {
+                  const img = node as any;
+                  return (
+                    <div
+                      key={img.id}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setSelectedNodeId(img.id);
+                      }}
+                      className={`absolute cursor-move select-none p-1 rounded transition-all ${
+                        isSelected ? 'ring-2 ring-indigo-400 bg-white/5' : 'hover:ring-1 hover:ring-indigo-400/40'
+                      }`}
+                      style={{
+                        left: `${left}px`,
+                        top: `${top}px`,
+                        width: `${width}px`,
+                        height: `${height}px`,
+                        zIndex: img.zIndex,
+                      }}
+                    >
+                      <img
+                        src={img.src}
+                        alt={img.alt || 'Slide image'}
+                        className="w-full h-full object-contain pointer-events-none rounded shadow-md"
+                        style={{ opacity: img.opacity ?? 1 }}
+                      />
+                    </div>
+                  );
+                }
+
+                if (node.type === 'table') {
+                  const tbl = node as any;
+                  return (
+                    <div
+                      key={tbl.id}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setSelectedNodeId(tbl.id);
+                      }}
+                      className={`absolute overflow-auto cursor-move border border-white/10 rounded-lg bg-slate-900/80 backdrop-blur-md p-1 ${
+                        isSelected ? 'ring-2 ring-indigo-400' : ''
+                      }`}
+                      style={{
+                        left: `${left}px`,
+                        top: `${top}px`,
+                        width: `${width}px`,
+                        height: `${height}px`,
+                        zIndex: tbl.zIndex,
+                      }}
+                    >
+                      <table className="w-full h-full text-left border-collapse text-[10px]">
+                        <tbody>
+                          {(tbl.cells || []).map((row: any[], r: number) => (
+                            <tr key={r}>
+                              {row.map((c: any, ci: number) => (
+                                <td
+                                  key={c.id || ci}
+                                  className={`p-1 border border-white/10 ${r === 0 && tbl.headerRow ? 'font-bold bg-white/10 text-white' : 'text-slate-300'}`}
+                                >
+                                  {c.text || ''}
+                                </td>
+                              ))}
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  );
+                }
+
+                if (node.type === 'chart') {
+                  const ch = node as any;
+                  return (
+                    <div
+                      key={ch.id}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setSelectedNodeId(ch.id);
+                      }}
+                      className={`absolute cursor-move border border-indigo-500/20 rounded-xl bg-slate-900/90 backdrop-blur-md p-2 flex flex-col justify-between ${
+                        isSelected ? 'ring-2 ring-indigo-400' : ''
+                      }`}
+                      style={{
+                        left: `${left}px`,
+                        top: `${top}px`,
+                        width: `${width}px`,
+                        height: `${height}px`,
+                        zIndex: ch.zIndex,
+                      }}
+                    >
+                      <span className="text-[11px] font-bold text-white truncate">{ch.title || ch.chartType?.toUpperCase() || 'CHART'}</span>
+                      <div className="flex-1 flex items-end gap-1.5 pt-1 pb-1">
+                        {(ch.series?.[0]?.data || [20, 50, 80, 40]).map((val: number, idx: number) => (
+                          <div key={idx} className="flex-1 bg-indigo-500/80 rounded-t flex items-end justify-center" style={{ height: `${Math.min(100, val)}%` }}>
+                            <span className="text-[8px] text-white/80">{ch.categories?.[idx] || ''}</span>
+                          </div>
+                        ))}
+                      </div>
+                      <span className="text-[9px] text-slate-400 text-center truncate">{ch.series?.map((s: any) => s.name).join(', ')}</span>
+                    </div>
                   );
                 }
 
