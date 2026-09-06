@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import { CommandRegistry, SettingsManager, StorageManager, OfficeTemplateLibrary } from '@openhead/core';
+import { CommandRegistry, SettingsManager, OfficeTemplateLibrary } from '@openhead/core';
 import { PenDocument } from '@openhead/pen';
 import { SumWorkbook } from '@openhead/sum';
 import { GlimpseDeck } from '@openhead/glimpse';
