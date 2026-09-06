@@ -27,6 +27,8 @@ import {
   Square,
   Snowflake,
   Trash2,
+  Undo2,
+  Redo2,
 } from 'lucide-react';
 import { FormulaDebuggerDrawer } from '../components/FormulaDebuggerDrawer';
 
@@ -79,7 +81,39 @@ export const SumView: React.FC<SumViewProps> = ({ workbook: wb, onUpdate, onAiPr
   };
 
   const handleKeyDownGrid = (e: React.KeyboardEvent) => {
-    if (isEditing) return;
+    // Undo / Redo shortcuts
+    if ((e.ctrlKey || e.metaKey) && e.key === 'z') {
+      e.preventDefault();
+      if (e.shiftKey) {
+        if (wb.canRedo) {
+          wb.redo();
+          onUpdate();
+        }
+      } else {
+        if (wb.canUndo) {
+          wb.undo();
+          onUpdate();
+        }
+      }
+      return;
+    }
+    if ((e.ctrlKey || e.metaKey) && e.key === 'y') {
+      e.preventDefault();
+      if (wb.canRedo) {
+        wb.redo();
+        onUpdate();
+      }
+      return;
+    }
+
+    if (isEditing) {
+      if (e.key === 'Escape') {
+        setIsEditing(false);
+        setSuggestions([]);
+      }
+      return;
+    }
+
     const addr = parseCellAddress(selectedCell);
     if (!addr) return;
 
@@ -95,6 +129,16 @@ export const SumView: React.FC<SumViewProps> = ({ workbook: wb, onUpdate, onAiPr
     } else if (e.key === 'ArrowRight') {
       e.preventDefault();
       handleCellSelect(`${colIndexToName(addr.col + 1)}${addr.row + 1}`);
+    } else if (e.key === 'Tab') {
+      e.preventDefault();
+      if (e.shiftKey && addr.col > 0) {
+        handleCellSelect(`${colIndexToName(addr.col - 1)}${addr.row + 1}`);
+      } else if (!e.shiftKey) {
+        handleCellSelect(`${colIndexToName(addr.col + 1)}${addr.row + 1}`);
+      }
+    } else if (e.key === 'Home') {
+      e.preventDefault();
+      handleCellSelect(`A${addr.row + 1}`);
     } else if (e.key === 'F2') {
       e.preventDefault();
       setIsEditing(true);
@@ -214,6 +258,43 @@ export const SumView: React.FC<SumViewProps> = ({ workbook: wb, onUpdate, onAiPr
       {/* Ribbon Toolbar */}
       <div className={`flex items-center justify-between px-6 py-2 border-b border-white/10 ${glassStyles.panelSubtle}`}>
         <div className="flex items-center gap-1.5 flex-wrap">
+          <button
+            onClick={() => {
+              if (wb.canUndo) {
+                wb.undo();
+                onUpdate();
+              }
+            }}
+            disabled={!wb.canUndo}
+            className={`flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all ${
+              wb.canUndo
+                ? 'text-slate-300 hover:bg-white/10 hover:text-white'
+                : 'text-slate-600 cursor-not-allowed opacity-50'
+            }`}
+            title="Undo (Ctrl+Z)"
+          >
+            <Undo2 className="w-4 h-4" />
+          </button>
+          <button
+            onClick={() => {
+              if (wb.canRedo) {
+                wb.redo();
+                onUpdate();
+              }
+            }}
+            disabled={!wb.canRedo}
+            className={`flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all ${
+              wb.canRedo
+                ? 'text-slate-300 hover:bg-white/10 hover:text-white'
+                : 'text-slate-600 cursor-not-allowed opacity-50'
+            }`}
+            title="Redo (Ctrl+Y / Ctrl+Shift+Z)"
+          >
+            <Redo2 className="w-4 h-4" />
+          </button>
+
+          <div className="w-[1px] h-4 bg-white/10 mx-1" />
+
           <button
             onClick={() => {
               const currentStyle = activeSheet.cells[selectedCell]?.style || {};

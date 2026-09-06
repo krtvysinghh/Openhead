@@ -68,6 +68,12 @@ export class Lexer {
         continue;
       }
 
+      // Single-quoted sheet references: 'Quarter 1'!A1
+      if (char === "'") {
+        tokens.push(this.readQuotedSheetCellRef());
+        continue;
+      }
+
       // Identifiers, Cell references, Boolean literals
       if (this.isAlpha(char) || char === '$' || char === '_') {
         tokens.push(this.readIdentifierOrCellRef());
@@ -79,6 +85,43 @@ export class Lexer {
 
     tokens.push({ type: TokenType.EOF, value: '', position: this.pos });
     return tokens;
+  }
+
+  private readQuotedSheetCellRef(): Token {
+    const start = this.pos;
+    this.pos++; // skip opening '
+    let sheetName = '';
+    while (this.pos < this.input.length) {
+      if (this.input[this.pos] === "'") {
+        if (this.peek(1) === "'") {
+          sheetName += "'";
+          this.pos += 2;
+        } else {
+          this.pos++; // skip closing '
+          break;
+        }
+      } else {
+        sheetName += this.input[this.pos];
+        this.pos++;
+      }
+    }
+
+    if (this.pos < this.input.length && this.input[this.pos] === '!') {
+      this.pos++; // skip !
+      const cellStart = this.pos;
+      while (
+        this.pos < this.input.length &&
+        (this.isAlpha(this.input[this.pos]) ||
+          this.isDigit(this.input[this.pos]) ||
+          this.input[this.pos] === '$')
+      ) {
+        this.pos++;
+      }
+      const cellPart = this.input.substring(cellStart, this.pos);
+      return { type: TokenType.CELL_REF, value: `'${sheetName}'!${cellPart}`, position: start };
+    }
+
+    return { type: TokenType.STRING, value: sheetName, position: start };
   }
 
   private skipWhitespace(): void {

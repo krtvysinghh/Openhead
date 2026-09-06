@@ -1,0 +1,34 @@
+{
+  "name": "fixture_02_accounting_ledger",
+  "description": "General journal ledger with debit/credit balancing and conditional alerts",
+  "model": {
+    "metadata": { "id": "wb_ledger_02", "title": "Corporate Ledger", "type": "sum", "createdAt": 1741250000000, "updatedAt": 1741250000000, "version": 1 },
+    "sheets": [
+      {
+        "id": "sheet_ledger",
+        "name": "Journal",
+        "rowCount": 50,
+        "colCount": 10,
+        "colWidths": { "0": 15, "1": 30, "2": 16, "3": 16 },
+        "cells": {
+          "A1": { "raw": "Date", "value": "Date", "style": { "bold": true } },
+          "B1": { "raw": "Account Description", "value": "Account Description", "style": { "bold": true } },
+          "C1": { "raw": "Debit", "value": "Debit", "style": { "bold": true } },
+          "D1": { "raw": "Credit", "value": "Credit", "style": { "bold": true } },
+          "A2": { "raw": "2026-03-01", "value": "2026-03-01", "format": { "type": "date" } },
+          "B2": { "raw": "Cash & Equivalents", "value": "Cash & Equivalents" },
+          "C2": { "raw": 50000, "value": 50000, "format": { "type": "currency", "currencySymbol": "$", "decimals": 2 } },
+          "D2": { "raw": 0, "value": 0, "format": { "type": "currency", "currencySymbol": "$", "decimals": 2 } },
+          "A3": { "raw": "2026-03-01", "value": "2026-03-01", "format": { "type": "date" } },
+          "B3": { "raw": "Common Stock Issuance", "value": "Common Stock Issuance" },
+          "C3": { "raw": 0, "value": 0, "format": { "type": "currency", "currencySymbol": "$", "decimals": 2 } },
+          "D3": { "raw": 50000, "value": 50000, "format": { "type": "currency", "currencySymbol": "$", "decimals": 2 } },
+          "A4": { "raw": "Total", "value": "Total", "style": { "bold": true } },
+          "C4": { "raw": "=SUM(C2:C3)", "value": 50000, "style": { "bold": true, "borders": { "top": { "style": "thin" }, "bottom": { "style": "double" } } } },
+          "D4": { "raw": "=SUM(D2:D3)", "value": 50000, "style": { "bold": true, "borders": { "top": { "style": "thin" }, "bottom": { "style": "double" } } } }
+        }
+      }
+    ],
+    "activeSheetId": "sheet_ledger"
+  }
+}

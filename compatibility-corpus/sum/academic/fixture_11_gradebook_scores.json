@@ -1,0 +1,29 @@
+{
+  "name": "fixture_11_gradebook_scores",
+  "description": "Academic gradebook calculating weighted exam scores and letter grades using IFS and RANK",
+  "model": {
+    "metadata": { "id": "wb_grades_11", "title": "Class Gradebook", "type": "sum", "createdAt": 1741250000000, "updatedAt": 1741250000000, "version": 1 },
+    "sheets": [
+      {
+        "id": "sheet_grades",
+        "name": "Grades",
+        "rowCount": 30,
+        "colCount": 8,
+        "cells": {
+          "A1": { "raw": "Student", "value": "Student", "style": { "bold": true } },
+          "B1": { "raw": "Midterm", "value": "Midterm", "style": { "bold": true } },
+          "C1": { "raw": "Final", "value": "Final", "style": { "bold": true } },
+          "D1": { "raw": "Score", "value": "Score", "style": { "bold": true } },
+          "E1": { "raw": "Grade", "value": "Grade", "style": { "bold": true } },
+          "A2": { "raw": "Emma", "value": "Emma" }, "B2": { "raw": 88, "value": 88 }, "C2": { "raw": 94, "value": 94 },
+          "D2": { "raw": "=B2*0.4 + C2*0.6", "value": 91.6 },
+          "E2": { "raw": "=IFS(D2>=90, \"A\", D2>=80, \"B\", D2>=70, \"C\", 1, \"F\")", "value": "A" },
+          "A3": { "raw": "Liam", "value": "Liam" }, "B3": { "raw": 75, "value": 75 }, "C3": { "raw": 82, "value": 82 },
+          "D3": { "raw": "=B3*0.4 + C3*0.6", "value": 79.2 },
+          "E3": { "raw": "=IFS(D3>=90, \"A\", D3>=80, \"B\", D3>=70, \"C\", 1, \"F\")", "value": "C" }
+        }
+      }
+    ],
+    "activeSheetId": "sheet_grades"
+  }
+}

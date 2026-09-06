@@ -2,6 +2,30 @@
 
 All notable changes to Openhead are documented in this file.
 
+## [0.7.0] - 2026-09-06 (Phase 7: XLSX Fidelity + Production Sum)
+
+### Added
+- **High-Fidelity OOXML SpreadsheetML Styling**:
+  - Full `xl/styles.xml` generation and bidirectional ingestion preserving fonts (families, sizes, bold, italic, underline, strike, colors), fills (solid, pattern types, hex foreground/background), borders (thin, medium, thick, double, dashed, colors across all 4 edges and diagonal), alignments (horizontal, vertical, wrapText, textRotation, indent), and number format identifiers.
+  - Complete built-in number format mapping (`numFmtId` 0–49) and custom number format preservation (`<numFmts>`), with dynamic date serial / time / currency formatting engines.
+- **Shared Strings & Formula Reference Preservation**:
+  - `xl/sharedStrings.xml` parser supporting plain (`<t>`) and rich text (`<r><t>`) string runs with de-duplication on write.
+  - Shared formula master-to-follower coordinate translation (`<f t="shared">`) and array formula (`<f t="array">`) preservation.
+  - Automatic XML entity escaping and unescaping (`&gt;=`, `&lt;`, `&amp;`, `&quot;`).
+- **Data Validation & AutoFilter Engines**:
+  - `DataValidationEngine` evaluating `list`, `whole`, `decimal`, `date`, `textLength`, and `custom` rules across `sqref` cell ranges with custom error titles and prompt messages.
+  - Non-destructive `AutoFilterConfig` supporting multi-column sorting and filtering with automatic row hiding (`hiddenRows`).
+- **Transactional Undo / Redo & Grid Polish**:
+  - Full `HistoryStack` transactional history supporting undo/redo across cell updates, format adjustments, range fills, row/col insertions, and deletions.
+  - Multi-cell matrix copy/paste with formula reference translation (`shiftFormulaReferences`).
+  - Keyboard navigation improvements (`Tab`, `Shift+Tab`, `Home`, `F2`, `Ctrl+Z`, `Ctrl+Y`) and ribbon toolbar Undo/Redo buttons.
+- **Security Hardening**:
+  - Guardrails against hostile XLSX payloads: XML Entity Expansion (XXE) blocking, zip bomb compression ratio and uncompressed size bounds, and path traversal sanitization on zip entry extraction.
+- **15 Real-World Compatibility Corpus Fixtures**:
+  - Added corporate DCF valuation models, double-entry general ledgers, regional sales performance dashboards, inventory reorder threshold matrices, rich typography and borders showcases, and data validation rules.
+- **127 Passing Automated Tests across 38 Test Files**:
+  - 100% test pass rate with strict TypeScript compilation across the entire monorepo.
+
 ## [0.6.0] - 2026-09-06 (Phase 6: Production Sum + XLSX Compatibility)
 
 ### Added

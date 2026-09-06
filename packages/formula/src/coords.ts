@@ -21,14 +21,14 @@ export function colNameToIndex(name: string): number {
 }
 
 export function parseCellAddress(ref: string): CellAddress | null {
-  const match = ref.match(/^([A-Za-z0-9_]+!)?(\$?)([A-Za-z]+)(\$?)([0-9]+)$/);
+  const match = ref.match(/^(?:(?:'([^']+)'|([A-Za-z0-9_]+))!)?(\$?)([A-Za-z]+)(\$?)([0-9]+)$/);
   if (!match) return null;
 
-  const sheet = match[1] ? match[1].slice(0, -1) : undefined;
-  const colAbsolute = match[2] === '$';
-  const colName = match[3];
-  const rowAbsolute = match[4] === '$';
-  const rowNum = parseInt(match[5], 10);
+  const sheet = match[1] || match[2] || undefined;
+  const colAbsolute = match[3] === '$';
+  const colName = match[4];
+  const rowAbsolute = match[5] === '$';
+  const rowNum = parseInt(match[6], 10);
 
   return {
     sheet,

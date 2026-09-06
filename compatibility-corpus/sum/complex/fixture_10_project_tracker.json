@@ -1,0 +1,30 @@
+{
+  "name": "fixture_10_project_tracker",
+  "description": "Project milestone tracking with DATEDIF durations and WORKDAY delivery dates",
+  "model": {
+    "metadata": { "id": "wb_proj_10", "title": "Project Schedule", "type": "sum", "createdAt": 1741250000000, "updatedAt": 1741250000000, "version": 1 },
+    "sheets": [
+      {
+        "id": "sheet_tracker",
+        "name": "Milestones",
+        "rowCount": 30,
+        "colCount": 8,
+        "cells": {
+          "A1": { "raw": "Task", "value": "Task", "style": { "bold": true } },
+          "B1": { "raw": "Start Date", "value": "Start Date", "style": { "bold": true } },
+          "C1": { "raw": "End Date", "value": "End Date", "style": { "bold": true } },
+          "D1": { "raw": "Duration (Days)", "value": "Duration (Days)", "style": { "bold": true } },
+          "A2": { "raw": "Architecture Design", "value": "Architecture Design" },
+          "B2": { "raw": "2026-01-01", "value": "2026-01-01" },
+          "C2": { "raw": "2026-01-15", "value": "2026-01-15" },
+          "D2": { "raw": "=DAYS(C2, B2)", "value": 14 },
+          "A3": { "raw": "Implementation", "value": "Implementation" },
+          "B3": { "raw": "2026-01-16", "value": "2026-01-16" },
+          "C3": { "raw": "2026-02-15", "value": "2026-02-15" },
+          "D3": { "raw": "=DAYS(C3, B3)", "value": 30 }
+        }
+      }
+    ],
+    "activeSheetId": "sheet_tracker"
+  }
+}

@@ -1,0 +1,27 @@
+{
+  "name": "fixture_12_inventory_stock",
+  "description": "Warehouse stock inventory with reorder alerts and XLOOKUP item metadata",
+  "model": {
+    "metadata": { "id": "wb_inv_12", "title": "Warehouse Inventory", "type": "sum", "createdAt": 1741250000000, "updatedAt": 1741250000000, "version": 1 },
+    "sheets": [
+      {
+        "id": "sheet_inv",
+        "name": "Stock",
+        "rowCount": 30,
+        "colCount": 8,
+        "cells": {
+          "A1": { "raw": "SKU", "value": "SKU", "style": { "bold": true } },
+          "B1": { "raw": "Description", "value": "Description", "style": { "bold": true } },
+          "C1": { "raw": "Quantity", "value": "Quantity", "style": { "bold": true } },
+          "D1": { "raw": "Reorder Level", "value": "Reorder Level", "style": { "bold": true } },
+          "E1": { "raw": "Status", "value": "Status", "style": { "bold": true } },
+          "A2": { "raw": "SKU-101", "value": "SKU-101" }, "B2": { "raw": "Wireless Mouse", "value": "Wireless Mouse" }, "C2": { "raw": 45, "value": 45 }, "D2": { "raw": 50, "value": 50 },
+          "E2": { "raw": "=IF(C2<D2, \"REORDER\", \"OK\")", "value": "REORDER", "style": { "color": "#DC2626", "bold": true } },
+          "A3": { "raw": "SKU-102", "value": "SKU-102" }, "B3": { "raw": "Mechanical Keyboard", "value": "Mechanical Keyboard" }, "C3": { "raw": 120, "value": 120 }, "D3": { "raw": 40, "value": 40 },
+          "E3": { "raw": "=IF(C3<D3, \"REORDER\", \"OK\")", "value": "OK", "style": { "color": "#16A34A" } }
+        }
+      }
+    ],
+    "activeSheetId": "sheet_inv"
+  }
+}

@@ -1,0 +1,28 @@
+{
+  "name": "fixture_15_data_validation_and_autofilter",
+  "description": "Worksheet with Data Validation rules (list dropdown, integer bounds) and AutoFilter table",
+  "model": {
+    "metadata": { "id": "wb_val_15", "title": "Validation and Filter", "type": "sum", "createdAt": 1741250000000, "updatedAt": 1741250000000, "version": 1 },
+    "sheets": [
+      {
+        "id": "sheet_val",
+        "name": "DataEntry",
+        "rowCount": 30,
+        "colCount": 10,
+        "autoFilter": { "range": "A1:C10" },
+        "dataValidations": [
+          { "id": "dv_dept", "type": "list", "sqref": "B2:B10", "formula1": "\"Engineering,Marketing,Finance,HR\"", "allowBlank": true, "showErrorMessage": true, "errorMessage": "Select a valid department" },
+          { "id": "dv_age", "type": "whole", "operator": "between", "sqref": "C2:C10", "formula1": "18", "formula2": "65", "allowBlank": false, "errorMessage": "Age must be between 18 and 65" }
+        ],
+        "cells": {
+          "A1": { "raw": "Employee", "value": "Employee", "style": { "bold": true } },
+          "B1": { "raw": "Department", "value": "Department", "style": { "bold": true } },
+          "C1": { "raw": "Age", "value": "Age", "style": { "bold": true } },
+          "A2": { "raw": "Sarah Connor", "value": "Sarah Connor" }, "B2": { "raw": "Engineering", "value": "Engineering" }, "C2": { "raw": 32, "value": 32 },
+          "A3": { "raw": "John Doe", "value": "John Doe" }, "B3": { "raw": "Marketing", "value": "Marketing" }, "C3": { "raw": 28, "value": 28 }
+        }
+      }
+    ],
+    "activeSheetId": "sheet_val"
+  }
+}

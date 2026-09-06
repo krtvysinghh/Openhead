@@ -1,0 +1,30 @@
+{
+  "name": "fixture_14_defined_names_ranges",
+  "description": "Workbook containing workbook-scoped and sheet-scoped Defined Names and Named Ranges",
+  "model": {
+    "metadata": { "id": "wb_names_14", "title": "Defined Names Model", "type": "sum", "createdAt": 1741250000000, "updatedAt": 1741250000000, "version": 1 },
+    "definedNames": [
+      { "name": "TaxRate", "formula": "0.075", "comment": "State standard sales tax rate" },
+      { "name": "GrossSales", "formula": "Rates!$B$2:$B$4", "comment": "Sales array" }
+    ],
+    "sheets": [
+      {
+        "id": "sheet_rates",
+        "name": "Rates",
+        "rowCount": 20,
+        "colCount": 10,
+        "cells": {
+          "A1": { "raw": "Item", "value": "Item", "style": { "bold": true } },
+          "B1": { "raw": "Amount", "value": "Amount", "style": { "bold": true } },
+          "A2": { "raw": "Subtotal", "value": "Subtotal" },
+          "B2": { "raw": 1000, "value": 1000 },
+          "A3": { "raw": "Tax", "value": "Tax" },
+          "B3": { "raw": "=B2*0.075", "value": 75 },
+          "A4": { "raw": "Total", "value": "Total", "style": { "bold": true } },
+          "B4": { "raw": "=SUM(B2:B3)", "value": 1075, "style": { "bold": true } }
+        }
+      }
+    ],
+    "activeSheetId": "sheet_rates"
+  }
+}

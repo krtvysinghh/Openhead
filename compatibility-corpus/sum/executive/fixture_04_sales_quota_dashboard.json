@@ -1,0 +1,32 @@
+{
+  "name": "fixture_04_sales_quota_dashboard",
+  "description": "Executive sales dashboard with commissions, performance tiers, and SUMIFS quotas",
+  "model": {
+    "metadata": { "id": "wb_sales_04", "title": "Sales Quota Dashboard", "type": "sum", "createdAt": 1741250000000, "updatedAt": 1741250000000, "version": 1 },
+    "sheets": [
+      {
+        "id": "sheet_sales",
+        "name": "Performance",
+        "rowCount": 30,
+        "colCount": 10,
+        "freezePanes": { "rows": 1, "cols": 0 },
+        "cells": {
+          "A1": { "raw": "Rep Name", "value": "Rep Name", "style": { "bold": true } },
+          "B1": { "raw": "Region", "value": "Region", "style": { "bold": true } },
+          "C1": { "raw": "Target", "value": "Target", "style": { "bold": true } },
+          "D1": { "raw": "Actual", "value": "Actual", "style": { "bold": true } },
+          "E1": { "raw": "% Attainment", "value": "% Attainment", "style": { "bold": true } },
+          "A2": { "raw": "Alice", "value": "Alice" }, "B2": { "raw": "North", "value": "North" }, "C2": { "raw": 100000, "value": 100000 }, "D2": { "raw": 125000, "value": 125000 },
+          "E2": { "raw": "=D2/C2", "value": 1.25, "format": { "type": "percent", "decimals": 1 } },
+          "A3": { "raw": "Bob", "value": "Bob" }, "B3": { "raw": "South", "value": "South" }, "C3": { "raw": 80000, "value": 80000 }, "D3": { "raw": 72000, "value": 72000 },
+          "E3": { "raw": "=D3/C3", "value": 0.9, "format": { "type": "percent", "decimals": 1 } },
+          "A4": { "raw": "Charlie", "value": "Charlie" }, "B4": { "raw": "North", "value": "North" }, "C4": { "raw": 120000, "value": 120000 }, "D4": { "raw": 144000, "value": 144000 },
+          "E4": { "raw": "=D4/C4", "value": 1.2, "format": { "type": "percent", "decimals": 1 } },
+          "A5": { "raw": "Total North Sales", "value": "Total North Sales", "style": { "bold": true } },
+          "D5": { "raw": "=SUMIFS(D2:D4, B2:B4, \"North\")", "value": 269000, "style": { "bold": true } }
+        }
+      }
+    ],
+    "activeSheetId": "sheet_sales"
+  }
+}

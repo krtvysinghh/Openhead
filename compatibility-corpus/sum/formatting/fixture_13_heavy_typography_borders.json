@@ -1,0 +1,22 @@
+{
+  "name": "fixture_13_heavy_typography_borders",
+  "description": "Rich typographic formatting with custom fonts, colors, wrap text, and nested border grids",
+  "model": {
+    "metadata": { "id": "wb_fmt_13", "title": "Typographic Style Guide", "type": "sum", "createdAt": 1741250000000, "updatedAt": 1741250000000, "version": 1 },
+    "sheets": [
+      {
+        "id": "sheet_fmt",
+        "name": "Typography",
+        "rowCount": 20,
+        "colCount": 10,
+        "cells": {
+          "A1": { "raw": "Header 1 Bold", "value": "Header 1 Bold", "style": { "bold": true, "fontSize": 14, "color": "#1E3A8A", "background": "#DBEAFE" } },
+          "B1": { "raw": "Italic Strikethrough", "value": "Italic Strikethrough", "style": { "italic": true, "strike": true, "color": "#6B7280" } },
+          "A2": { "raw": "Double Bordered Box", "value": "Double Bordered Box", "style": { "borders": { "top": { "style": "thin" }, "bottom": { "style": "double", "color": "#1E293B" }, "left": { "style": "thin" }, "right": { "style": "thin" } } } },
+          "B2": { "raw": "Wrapped Text in Narrow Cell", "value": "Wrapped Text in Narrow Cell", "style": { "alignment": { "wrapText": true, "horizontal": "center", "vertical": "center" } } }
+        }
+      }
+    ],
+    "activeSheetId": "sheet_fmt"
+  }
+}

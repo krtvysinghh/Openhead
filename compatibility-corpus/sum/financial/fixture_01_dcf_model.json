@@ -1,0 +1,36 @@
+{
+  "name": "fixture_01_dcf_model",
+  "description": "Discounted Cash Flow (DCF) model with WACC discounting and Net Present Value calculations",
+  "model": {
+    "metadata": { "id": "wb_dcf_01", "title": "DCF Valuation Model", "type": "sum", "createdAt": 1741250000000, "updatedAt": 1741250000000, "version": 1 },
+    "sheets": [
+      {
+        "id": "sheet_dcf",
+        "name": "DCF_Summary",
+        "rowCount": 50,
+        "colCount": 15,
+        "colWidths": { "0": 28, "1": 14, "2": 14, "3": 14, "4": 14, "5": 14 },
+        "freezePanes": { "rows": 1, "cols": 1 },
+        "cells": {
+          "A1": { "raw": "Year", "value": "Year", "style": { "bold": true, "background": "#1E293B", "color": "#FFFFFF" } },
+          "B1": { "raw": "2024", "value": "2024", "style": { "bold": true, "background": "#1E293B", "color": "#FFFFFF" } },
+          "C1": { "raw": "2025", "value": "2025", "style": { "bold": true, "background": "#1E293B", "color": "#FFFFFF" } },
+          "D1": { "raw": "2026", "value": "2026", "style": { "bold": true, "background": "#1E293B", "color": "#FFFFFF" } },
+          "E1": { "raw": "2027", "value": "2027", "style": { "bold": true, "background": "#1E293B", "color": "#FFFFFF" } },
+          "F1": { "raw": "2028", "value": "2028", "style": { "bold": true, "background": "#1E293B", "color": "#FFFFFF" } },
+          "A2": { "raw": "Free Cash Flow", "value": "Free Cash Flow" },
+          "B2": { "raw": 1000000, "value": 1000000, "format": { "type": "currency", "currencySymbol": "$", "decimals": 0 } },
+          "C2": { "raw": 1250000, "value": 1250000, "format": { "type": "currency", "currencySymbol": "$", "decimals": 0 } },
+          "D2": { "raw": 1500000, "value": 1500000, "format": { "type": "currency", "currencySymbol": "$", "decimals": 0 } },
+          "E2": { "raw": 1800000, "value": 1800000, "format": { "type": "currency", "currencySymbol": "$", "decimals": 0 } },
+          "F2": { "raw": 2100000, "value": 2100000, "format": { "type": "currency", "currencySymbol": "$", "decimals": 0 } },
+          "A3": { "raw": "Discount Rate (WACC)", "value": "Discount Rate (WACC)" },
+          "B3": { "raw": 0.08, "value": 0.08, "format": { "type": "percent", "decimals": 1 } },
+          "A4": { "raw": "Enterprise Value (NPV)", "value": "Enterprise Value (NPV)", "style": { "bold": true } },
+          "B4": { "raw": "=NPV(B3, B2, C2, D2, E2, F2)", "value": 5834852.12, "style": { "bold": true, "background": "#F0FDF4" }, "format": { "type": "currency", "currencySymbol": "$", "decimals": 2 } }
+        }
+      }
+    ],
+    "activeSheetId": "sheet_dcf"
+  }
+}
