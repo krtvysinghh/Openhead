@@ -63,6 +63,9 @@ importers:
 
   apps/studio:
     dependencies:
+      '@openhead/ai':
+        specifier: workspace:*
+        version: link:../../packages/ai
       '@openhead/core':
         specifier: workspace:*
         version: link:../../packages/core
@@ -121,6 +124,31 @@ importers:
       vite:
         specifier: ^6.0.7
         version: 6.4.3(@types/node@22.20.1)(jiti@1.21.7)
+
+  packages/ai:
+    dependencies:
+      '@openhead/core':
+        specifier: workspace:*
+        version: link:../core
+      '@openhead/formula':
+        specifier: workspace:*
+        version: link:../formula
+      '@openhead/glimpse':
+        specifier: workspace:*
+        version: link:../glimpse
+      '@openhead/pen':
+        specifier: workspace:*
+        version: link:../pen
+      '@openhead/sum':
+        specifier: workspace:*
+        version: link:../sum
+    devDependencies:
+      typescript:
+        specifier: ^5.7.2
+        version: 5.9.3
+      vitest:
+        specifier: ^2.1.8
+        version: 2.1.9(@types/node@22.20.1)
 
   packages/core:
     devDependencies:

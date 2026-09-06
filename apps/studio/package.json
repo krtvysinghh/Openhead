@@ -15,6 +15,7 @@
     "@openhead/pen": "workspace:*",
     "@openhead/sum": "workspace:*",
     "@openhead/glimpse": "workspace:*",
+    "@openhead/ai": "workspace:*",
     "@openhead/ui": "workspace:*",
     "clsx": "^2.1.1",
     "lucide-react": "^0.469.0",
