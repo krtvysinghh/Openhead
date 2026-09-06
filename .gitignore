@@ -40,3 +40,17 @@ pnpm-debug.log*
 scratch/
 tmp/
 *.bak
+
+# Tauri & Native binaries
+src-tauri/target/
+target/
+*.apk
+*.aab
+*.ipa
+*.dmg
+*.msi
+*.exe
+*.AppImage
+*.deb
+*.rpm
+release-artifacts/

@@ -2,9 +2,16 @@
 
 All notable changes to Openhead are documented in this file.
 
-## [1.0.0] - 2026-09-06 (Final Production Release: Complete Office Suite)
+## [1.0.0] - 2026-09-06 (Final Production Release: Complete Office Suite & Global Distribution)
 
 ### Added
+- **Global Cross-Platform Release Pipelines**:
+  - Windows: Configured native installer targets (MSI & NSIS EXE) with file associations for documents, workbooks, and presentations.
+  - macOS: Universal DMG (Apple Silicon & Intel) bundle configuration with hardened runtime security and notarization workflow.
+  - Linux: Multi-format packaging supporting `.AppImage`, `.deb`, and `.rpm` with standard XDG desktop MIME associations.
+  - Mobile: Android release pipeline producing direct `.apk` and store-ready `.aab` bundles; iOS/iPadOS Xcode archive pipeline producing `.ipa` bundles.
+  - Docker & Self-Hosting: Production multi-stage `Dockerfile`, `docker-compose.yml`, and hardened Nginx server with zero telemetry headers.
+  - Automation & Checksums: Automated GitHub Actions release pipeline (`.github/workflows/release.yml`), cryptographic SHA-256 checksum generation, and machine-readable `manifest.json`.
 - **Complete Office Engines (Pen, Sum, Glimpse Depth)**:
   - Pen: Threaded comments (`CommentManager`), tracked changes revision history (`TrackChangesManager`), offline spellchecker with custom user dictionaries (`SpellCheckEngine`), structured outline generator (`OutlineGenerator`).
   - Sum: Per-sheet cell comments (`CellCommentManager`), auto-fill series expansion (`AutoFillEngine` for arithmetic, quarters, months, and days), 7 statistical/lookup formula functions (`STDEV.S`, `STDEV.P`, `VAR.S`, `VAR.P`, `MODE.SNGL`, `PERCENTILE.INC`, `QUARTILE.INC`).
@@ -25,7 +32,7 @@ All notable changes to Openhead are documented in this file.
 - **Security & Threat Model Hardening**:
   - `docs/SECURITY.md`: Defensive architecture against XML bombs, Zip Slip, formula injection, malicious macros, and unauthorized telemetry.
   - `ZeroTelemetryPolicy`: Runtime invariant blocking background tracking, analytics beacons, or unauthorized outbound network calls.
-- **322 Passing Automated Tests across 85 Test Files** and clean production build.
+- **324 Passing Automated Tests across 86 Test Files** and clean production build.
 
 ## [0.9.0] - 2026-09-06 (Phase 9: Production Glimpse + PPTX Compatibility)
 
