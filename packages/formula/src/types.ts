@@ -111,7 +111,7 @@ export interface FunctionImplementation {
   name: string;
   minArgs: number;
   maxArgs: number;
-  execute: (args: (FormulaValue | FormulaValue[][])[], context: EvaluationContext) => FormulaValue;
+  execute: (args: (FormulaValue | FormulaValue[][])[], context: EvaluationContext) => FormulaValue | FormulaValue[][];
 }
 
 export interface EvaluationContext {

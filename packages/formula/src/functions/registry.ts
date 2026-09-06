@@ -5,6 +5,10 @@ import { textFunctions } from './text';
 import { lookupFunctions } from './lookup';
 import { datetimeFunctions } from './datetime';
 import { statsFunctions } from './stats';
+import { financialFunctions } from './financial';
+import { engineeringFunctions } from './engineering';
+import { databaseFunctions } from './database';
+import { dynamicFunctions } from './dynamic';
 
 export class FunctionRegistry {
   private functions = new Map<string, FunctionImplementation>();
@@ -21,6 +25,10 @@ export class FunctionRegistry {
       ...lookupFunctions,
       ...datetimeFunctions,
       ...statsFunctions,
+      ...financialFunctions,
+      ...engineeringFunctions,
+      ...databaseFunctions,
+      ...dynamicFunctions,
     ];
     for (const fn of all) {
       this.register(fn);
