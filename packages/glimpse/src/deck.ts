@@ -127,6 +127,58 @@ export class GlimpseDeck {
     return newSlide;
   }
 
+  public duplicateSlide(slideId: string): SlideModel | null {
+    const idx = this.model.slides.findIndex((s) => s.id === slideId);
+    if (idx === -1) return null;
+
+    const prev = JSON.parse(JSON.stringify(this.model));
+    const next = JSON.parse(JSON.stringify(this.model));
+
+    const original = next.slides[idx];
+    const cloned: SlideModel = {
+      ...JSON.parse(JSON.stringify(original)),
+      id: generateId('slide'),
+      title: `${original.title} (Copy)`,
+      nodes: original.nodes.map((n: SlideNode) => ({ ...n, id: generateId('node') })),
+    };
+
+    next.slides.splice(idx + 1, 0, cloned);
+    next.activeSlideId = cloned.id;
+    next.metadata.updatedAt = Date.now();
+
+    const cmd: HistoryCommand<GlimpseDeckModel> = {
+      id: generateId('cmd'),
+      name: 'Duplicate Slide',
+      execute: () => next,
+      undo: () => prev,
+      timestamp: Date.now(),
+    };
+    this.model = this.history.execute(this.model, cmd);
+    return cloned;
+  }
+
+  public reorderSlides(fromIndex: number, toIndex: number): void {
+    if (fromIndex < 0 || fromIndex >= this.model.slides.length || toIndex < 0 || toIndex >= this.model.slides.length) {
+      return;
+    }
+
+    const prev = JSON.parse(JSON.stringify(this.model));
+    const next = JSON.parse(JSON.stringify(this.model));
+
+    const [moved] = next.slides.splice(fromIndex, 1);
+    next.slides.splice(toIndex, 0, moved);
+    next.metadata.updatedAt = Date.now();
+
+    const cmd: HistoryCommand<GlimpseDeckModel> = {
+      id: generateId('cmd'),
+      name: 'Reorder Slides',
+      execute: () => next,
+      undo: () => prev,
+      timestamp: Date.now(),
+    };
+    this.model = this.history.execute(this.model, cmd);
+  }
+
   public addNode(node: SlideNode): void {
     const slide = this.getActiveSlide();
     const prev = JSON.parse(JSON.stringify(this.model));
