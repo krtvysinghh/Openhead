@@ -1,0 +1,28 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "useDefineForClassFields": true,
+    "module": "ESNext",
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "skipLibCheck": true,
+    "moduleResolution": "bundler",
+    "allowImportingTsExtensions": false,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "noEmit": true,
+    "jsx": "react-jsx",
+    "strict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noFallthroughCasesInSwitch": true,
+    "esModuleInterop": true,
+    "paths": {
+      "@openhead/core": ["./packages/core/src/index.ts"],
+      "@openhead/formula": ["./packages/formula/src/index.ts"],
+      "@openhead/pen": ["./packages/pen/src/index.ts"],
+      "@openhead/sum": ["./packages/sum/src/index.ts"],
+      "@openhead/glimpse": ["./packages/glimpse/src/index.ts"],
+      "@openhead/ui": ["./packages/ui/src/index.ts"]
+    }
+  }
+}
