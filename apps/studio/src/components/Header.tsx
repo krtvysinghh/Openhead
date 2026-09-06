@@ -9,7 +9,6 @@ import {
   Sparkles,
   Undo,
   Redo,
-  ShieldCheck,
   FolderOpen,
   Settings,
   Save,
@@ -66,8 +65,8 @@ export const Header: React.FC<HeaderProps> = ({
             className="flex items-center gap-2.5 p-1 rounded-xl hover:bg-white/5 transition-all"
             title="Go to Openhead Home"
           >
-            <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-indigo-600 via-indigo-500 to-purple-500 flex items-center justify-center shadow-lg shadow-indigo-500/30 border border-white/20">
-              <ShieldCheck className="w-4 h-4 text-white" />
+            <div className="w-8 h-8 rounded-xl overflow-hidden shadow-lg shadow-indigo-500/20 border border-white/20 bg-white flex items-center justify-center">
+              <img src="/logo.png" alt="Openhead" className="w-7 h-7 object-contain" />
             </div>
             <div className="text-left hidden sm:block">
               <span className="font-bold text-sm tracking-tight text-white flex items-center gap-1">

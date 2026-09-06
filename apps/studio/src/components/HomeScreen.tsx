@@ -56,15 +56,24 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
       <div className="w-full max-w-5xl space-y-10">
         {/* Welcome Header */}
         <div className="flex flex-col gap-2 pt-4">
-          <div className="flex items-center gap-3">
-            <h1 className="text-3xl font-bold text-white tracking-tight">Openhead Office</h1>
-            <span className="flex items-center gap-1 text-[11px] px-2.5 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 font-medium">
-              <Shield className="w-3 h-3" /> 100% Local & Sovereign
-            </span>
+          <div className="flex items-center gap-4">
+            <img
+              src="/logo.png"
+              alt="Openhead"
+              className="w-12 h-12 object-contain rounded-2xl border border-white/10 bg-white/5 p-1"
+            />
+            <div className="flex flex-col">
+              <div className="flex items-center gap-3">
+                <h1 className="text-3xl font-bold text-white tracking-tight">Openhead Office</h1>
+                <span className="flex items-center gap-1 text-[11px] px-2.5 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 font-medium">
+                  <Shield className="w-3 h-3" /> 100% Local & Sovereign
+                </span>
+              </div>
+              <p className="text-sm text-slate-400">
+                Free, open-source, privacy-first office productivity. Word-class documents, Excel-class spreadsheets, and PowerPoint-class presentations.
+              </p>
+            </div>
           </div>
-          <p className="text-sm text-slate-400">
-            Free, open-source, privacy-first office productivity. Word-class documents, Excel-class spreadsheets, and PowerPoint-class presentations.
-          </p>
         </div>
 
         {/* Crash Recovery Banner if any */}
