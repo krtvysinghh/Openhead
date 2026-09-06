@@ -20,9 +20,42 @@ export class SecuritySanitizer {
     if (targetPath.includes('..') || targetPath.startsWith('/') || targetPath.includes('\\')) {
       return false;
     }
-    // Disallow absolute drive letters (e.g. C:)
     if (/^[a-zA-Z]:/.test(targetPath)) return false;
     return true;
+  }
+
+  /**
+   * Validates XML input against XXE (XML External Entity) and entity expansion attacks (CWE-611 / CWE-776).
+   */
+  public static validateXmlSafety(xml: string): boolean {
+    if (!xml || typeof xml !== 'string') return false;
+    // Reject DTD DOCTYPE entity expansions
+    if (/<!DOCTYPE[^>]*\[[^\]]*<!ENTITY/i.test(xml) || /<!ENTITY/i.test(xml)) {
+      return false;
+    }
+    // Reject external SYSTEM entities
+    if (/SYSTEM\s+["'][^"']+["']/i.test(xml)) {
+      return false;
+    }
+    return true;
+  }
+
+  /**
+   * Protects against Zip Bomb decompression ratio attacks (CWE-409). Max ratio: 100:1.
+   */
+  public static validateCompressionRatio(uncompressedBytes: number, compressedBytes: number, maxRatio: number = 100): boolean {
+    if (compressedBytes <= 0) return false;
+    const ratio = uncompressedBytes / compressedBytes;
+    return ratio <= maxRatio;
+  }
+
+  /**
+   * Validates hyperlinks to ensure only safe schemes are allowed.
+   */
+  public static isSafeUrl(url: string): boolean {
+    if (!url || typeof url !== 'string') return false;
+    const trimmed = url.trim().toLowerCase();
+    return trimmed.startsWith('https://') || trimmed.startsWith('http://') || trimmed.startsWith('mailto:');
   }
 
   /**
