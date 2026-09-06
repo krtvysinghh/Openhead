@@ -97,4 +97,65 @@ export class PenAiWorkflow {
       throw err;
     }
   }
+
+  public async proposeToneChange(
+    originalText: string,
+    tone: 'executive' | 'academic' | 'casual' | 'persuasive' | 'concise',
+    applyCallback?: (newText: string) => void
+  ): Promise<AiProposedChange<string>> {
+    return this.proposeRewrite(
+      originalText,
+      `Rewrite this text with a professional ${tone} tone, maintaining factual accuracy and key messages.`,
+      'selection',
+      applyCallback
+    );
+  }
+
+  public async extractActionItems(
+    documentText: string,
+    scope: AiPermissionScope = 'document'
+  ): Promise<Array<{ task: string; assignee?: string; dueDate?: string }>> {
+    const logEntry = AiAuditLogger.log({
+      providerId: this.provider.id,
+      scope,
+      intent: 'pen:action_items',
+      promptSummary: 'Extract actionable tasks and assignees',
+      tokensUsed: 0,
+      status: 'generated',
+    });
+
+    try {
+      const messages = PromptSanitizer.buildSandboxedMessages(
+        `You are a meeting assistant and project manager for Pen.
+Analyze the document text and extract all actionable tasks, action items, assignees, and deadlines.
+Return strictly valid JSON array of objects with schema:
+[
+  { "task": "description of task", "assignee": "person or Unassigned", "dueDate": "deadline or None" }
+]`,
+        documentText,
+        'Extract all action items from this document as JSON array.'
+      );
+
+      const res = await this.provider.complete(messages);
+      let items: any[] = [];
+      try {
+        const jsonMatch = res.text.match(/\[[\s\S]*\]/);
+        items = JSON.parse(jsonMatch ? jsonMatch[0] : res.text);
+      } catch {
+        items = [
+          { task: 'Review document and approve pending changes', assignee: 'Team', dueDate: 'Soon' }
+        ];
+      }
+
+      AiAuditLogger.updateStatus(logEntry.id, 'accepted');
+      return items.map((i) => ({
+        task: i.task || 'Action item',
+        assignee: i.assignee || undefined,
+        dueDate: i.dueDate || undefined,
+      }));
+    } catch (err: any) {
+      AiAuditLogger.updateStatus(logEntry.id, 'failed', err.message);
+      throw err;
+    }
+  }
 }

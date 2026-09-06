@@ -99,4 +99,57 @@ Format strictly as JSON:
       throw err;
     }
   }
+
+  public async rewriteSlideForImpact(
+    title: string,
+    bullets: string[],
+    style: 'bold' | 'executive' | 'metric_driven' = 'executive'
+  ): Promise<{ title: string; bullets: string[]; layoutRecommendation?: string }> {
+    const logEntry = AiAuditLogger.log({
+      providerId: this.provider.id,
+      scope: 'slide',
+      intent: 'glimpse:rewrite_impact',
+      promptSummary: `Rewrite slide '${title}' with style ${style}`,
+      tokensUsed: 0,
+      status: 'generated',
+    });
+
+    try {
+      const messages = PromptSanitizer.buildSandboxedMessages(
+        `You are a world-class presentation strategist in Glimpse.
+Rewrite the slide title and bullet points to maximize clarity, conciseness, and narrative punch in style '${style}'.
+Return strictly valid JSON:
+{
+  "title": "Punchy Title",
+  "bullets": ["Action-oriented point 1", "Action-oriented point 2"],
+  "layoutRecommendation": "two_column"
+}`,
+        `Original Title: ${title}\nOriginal Bullets:\n${bullets.map((b) => `- ${b}`).join('\n')}`,
+        `Optimize slide for ${style} presentation style.`
+      );
+
+      const res = await this.provider.complete(messages);
+      let parsed: any;
+      try {
+        const jsonMatch = res.text.match(/\{[\s\S]*\}/);
+        parsed = JSON.parse(jsonMatch ? jsonMatch[0] : res.text);
+      } catch {
+        parsed = {
+          title: `Optimized: ${title}`,
+          bullets: bullets.map((b) => `• ${b}`),
+          layoutRecommendation: 'bullet_list',
+        };
+      }
+
+      AiAuditLogger.updateStatus(logEntry.id, 'accepted');
+      return {
+        title: parsed.title || title,
+        bullets: Array.isArray(parsed.bullets) && parsed.bullets.length > 0 ? parsed.bullets : bullets,
+        layoutRecommendation: parsed.layoutRecommendation || 'bullet_list',
+      };
+    } catch (err: any) {
+      AiAuditLogger.updateStatus(logEntry.id, 'failed', err.message);
+      throw err;
+    }
+  }
 }

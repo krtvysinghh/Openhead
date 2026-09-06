@@ -72,4 +72,42 @@ describe('AI Application Workflows & Audit Logger', () => {
     const notes = await glimpseAi.generateSpeakerNotes('Executive Summary', ['Point A', 'Point B']);
     expect(notes.length).toBeGreaterThan(10);
   });
+
+  it('should support Pen tone changes and action items extraction', async () => {
+    const penAi = AiManager.getInstance().getPenAi();
+
+    const toneProposal = await penAi.proposeToneChange('Hey team, we gotta finish this ASAP.', 'executive');
+    expect(toneProposal.proposedContent.length).toBeGreaterThan(0);
+    expect(toneProposal.diff.length).toBeGreaterThan(0);
+
+    const actionItems = await penAi.extractActionItems('Alice needs to finish report by Friday. Bob will review slides.');
+    expect(actionItems.length).toBeGreaterThan(0);
+    expect(actionItems[0].task).toBeDefined();
+  });
+
+  it('should support Sum error diagnostics and chart suggestion', async () => {
+    const sumAi = AiManager.getInstance().getSumAi();
+
+    const diag = await sumAi.diagnoseFormulaError('=VLOOKUP(A1, B:C, 5, FALSE)', '#REF!');
+    expect(diag.diagnosis).toBeDefined();
+    expect(diag.suggestedFix.startsWith('=')).toBe(true);
+
+    const chart = await sumAi.suggestOptimalChart(
+      ['Month', 'Revenue', 'Expenses'],
+      [
+        ['Jan', 100, 80],
+        ['Feb', 120, 85],
+      ]
+    );
+    expect(['bar', 'line', 'pie', 'scatter']).toContain(chart.chartType);
+    expect(chart.categoryColumn).toBe('Month');
+  });
+
+  it('should support Glimpse slide rewriting for impact', async () => {
+    const glimpseAi = AiManager.getInstance().getGlimpseAi();
+
+    const impact = await glimpseAi.rewriteSlideForImpact('Sales update', ['sales went up', 'expenses stayed flat'], 'bold');
+    expect(impact.title).toBeDefined();
+    expect(impact.bullets.length).toBeGreaterThan(0);
+  });
 });

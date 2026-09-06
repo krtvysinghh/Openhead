@@ -13,3 +13,5 @@ export * from './telemetry';
 export * from './ecosystem';
 export * from './templates';
 export * from './pdf';
+export * from './plugins';
+export * from './automation';
