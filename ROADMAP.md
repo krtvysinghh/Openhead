@@ -40,7 +40,18 @@
 - [x] Pen multi-page pagination calculation engine
 - [x] 57 passing automated test suites across 20 test files
 
-## Phase 5: Desktop Packaging & Multi-Platform Distribution (Upcoming)
+## Phase 5: Office Engine Expansion (Completed)
+- [x] Phase 5 reality audit (`docs/PHASE5_AUDIT.md`)
+- [x] Dynamic array spill ranges with collision detection & automatic recovery (`#SPILL!`)
+- [x] Full dynamic array functions (`FILTER`, `SORT`, `SORTBY`, `TRANSPOSE`, `UNIQUE`, `SEQUENCE`)
+- [x] Lookup & information functions (`XLOOKUP`, `ISBLANK`, `ISNUMBER`, `ISTEXT`, `ISERROR`, `ISNA`, `TYPE`, `N`, `NA`)
+- [x] Advanced math & datetime additions (`SUMPRODUCT`, `MOD`, `ROUNDUP`, `ROUNDDOWN`, `EOMONTH`, `WORKDAY`, `NETWORKDAYS`)
+- [x] Complete Sum workbook management (sheet duplication, deletion, renaming, reordering, hiding, row/col hiding, freeze panes, borders, `fillRange`)
+- [x] Glimpse presentation layer engine (z-ordering, bring to front, send to back, grouping, ungrouping)
+- [x] WordprocessingML DOCX export fidelity (footnotes, section properties, margins, orientation)
+- [x] 69 passing automated test suites across 24 test files
+
+## Phase 6: Desktop Packaging & Multi-Platform Distribution (Upcoming)
 - [ ] Tauri 2.0 native packaging for macOS (.dmg / .app), Windows (.msi / .exe), and Linux (.AppImage / .deb)
 - [ ] Direct binary ZIP compressor for zero-dependency local `.docx`, `.xlsx`, `.pptx` writing
 - [ ] Offline WebLLM / ONNX runtime for zero-configuration in-browser local AI inference

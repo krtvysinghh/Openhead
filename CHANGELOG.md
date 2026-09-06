@@ -2,6 +2,18 @@
 
 All notable changes to Openhead are documented in this file.
 
+## [0.5.0] - 2026-09-06 (Phase 5: Office Engine Expansion)
+
+### Added
+- **Sum Dynamic Array Engine & Spill Ranges**: Full support for spill footprints, target cell population, and `#SPILL!` conflict detection with automatic recovery when obstructions are removed.
+- **Dynamic Array Functions**: Added `FILTER`, `SORT`, `SORTBY`, `TRANSPOSE`, and updated `UNIQUE` & `SEQUENCE` with multi-dimensional parameter support.
+- **Lookup & Info Functions**: Added `XLOOKUP`, `ISBLANK`, `ISNUMBER`, `ISTEXT`, `ISNONTEXT`, `ISLOGICAL`, `ISERROR`, `ISERR`, `ISNA`, `TYPE`, `N`, `NA`.
+- **Math & Date Expansion**: Added `SUMPRODUCT`, `MOD`, `ROUNDUP`, `ROUNDDOWN`, `EOMONTH`, `WORKDAY`, `NETWORKDAYS`.
+- **Workbook & Worksheet Controls**: Added sheet duplication, renaming, deletion, reordering, sheet hiding, row/col hiding, freeze panes, cell borders, and range auto-fill (`fillRange`).
+- **Glimpse Z-Ordering & Grouping**: Added `bringToFront`, `sendToBack`, `bringForward`, `sendBackward`, `groupNodes`, and `ungroupNode`.
+- **WordprocessingML DOCX Fidelity**: Added footnote references (`w:footnoteRef`), section margins (`w:pgMar`), page orientation (`w:pgSz`), and underline formatting.
+- **Expanded Test Suite**: **69 passing automated test suites across 24 test files**.
+
 ## [0.4.0] - 2026-09-06 (Phase 4: Real-World Compatibility & Productization)
 
 ### Added
