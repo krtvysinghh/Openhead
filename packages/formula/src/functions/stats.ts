@@ -84,4 +84,54 @@ export const statsFunctions: FunctionImplementation[] = [
       return sum;
     },
   },
+  {
+    name: 'MEDIAN',
+    minArgs: 1,
+    maxArgs: 255,
+    execute: (args) => {
+      const nums: number[] = [];
+      for (const arg of args) {
+        if (Array.isArray(arg)) {
+          for (const row of arg) {
+            for (const val of row) {
+              if (typeof val === 'number') nums.push(val);
+              else if (typeof val === 'string' && val.trim() !== '' && !isNaN(Number(val))) {
+                nums.push(Number(val));
+              }
+            }
+          }
+        } else if (typeof arg === 'number') {
+          nums.push(arg);
+        }
+      }
+      if (nums.length === 0) return 0;
+      nums.sort((a, b) => a - b);
+      const mid = Math.floor(nums.length / 2);
+      return nums.length % 2 !== 0 ? nums[mid] : (nums[mid - 1] + nums[mid]) / 2;
+    },
+  },
+  {
+    name: 'SUMPRODUCT',
+    minArgs: 1,
+    maxArgs: 255,
+    execute: (args) => {
+      const arrays = args as FormulaValue[][][];
+      if (arrays.length === 0 || !Array.isArray(arrays[0])) return 0;
+      const rCount = arrays[0].length;
+      const cCount = arrays[0][0]?.length || 0;
+
+      let total = 0;
+      for (let r = 0; r < rCount; r++) {
+        for (let c = 0; c < cCount; c++) {
+          let prod = 1;
+          for (const arr of arrays) {
+            const num = Number(arr[r]?.[c] ?? 0);
+            prod *= isNaN(num) ? 0 : num;
+          }
+          total += prod;
+        }
+      }
+      return total;
+    },
+  },
 ];

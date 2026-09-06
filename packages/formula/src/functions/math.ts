@@ -84,6 +84,52 @@ export const mathFunctions: FunctionImplementation[] = [
     },
   },
   {
+    name: 'TRUNC',
+    minArgs: 1,
+    maxArgs: 2,
+    execute: (args) => {
+      const num = Number(args[0]);
+      const digits = args.length > 1 ? Number(args[1]) : 0;
+      if (isNaN(num) || isNaN(digits)) return FormulaErrorCode.VALUE;
+      const factor = Math.pow(10, digits);
+      return Math.trunc(num * factor) / factor;
+    },
+  },
+  {
+    name: 'INT',
+    minArgs: 1,
+    maxArgs: 1,
+    execute: (args) => {
+      const num = Number(args[0]);
+      if (isNaN(num)) return FormulaErrorCode.VALUE;
+      return Math.floor(num);
+    },
+  },
+  {
+    name: 'EVEN',
+    minArgs: 1,
+    maxArgs: 1,
+    execute: (args) => {
+      const num = Number(args[0]);
+      if (isNaN(num)) return FormulaErrorCode.VALUE;
+      const ceil = Math.ceil(Math.abs(num));
+      const res = ceil % 2 === 0 ? ceil : ceil + 1;
+      return num < 0 ? -res : res;
+    },
+  },
+  {
+    name: 'ODD',
+    minArgs: 1,
+    maxArgs: 1,
+    execute: (args) => {
+      const num = Number(args[0]);
+      if (isNaN(num)) return FormulaErrorCode.VALUE;
+      const ceil = Math.ceil(Math.abs(num));
+      const res = ceil % 2 !== 0 ? ceil : ceil + 1;
+      return num < 0 ? -res : res;
+    },
+  },
+  {
     name: 'ABS',
     minArgs: 1,
     maxArgs: 1,

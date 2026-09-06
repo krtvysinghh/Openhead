@@ -62,6 +62,24 @@ export const logicalFunctions: FunctionImplementation[] = [
     },
   },
   {
+    name: 'ISNUMBER',
+    minArgs: 1,
+    maxArgs: 1,
+    execute: (args) => typeof args[0] === 'number' && !isNaN(args[0]),
+  },
+  {
+    name: 'ISTEXT',
+    minArgs: 1,
+    maxArgs: 1,
+    execute: (args) => typeof args[0] === 'string' && !args[0].startsWith('#'),
+  },
+  {
+    name: 'ISBLANK',
+    minArgs: 1,
+    maxArgs: 1,
+    execute: (args) => args[0] === null || args[0] === undefined || args[0] === '',
+  },
+  {
     name: 'IFS',
     minArgs: 2,
     maxArgs: 254,
@@ -90,7 +108,6 @@ export const logicalFunctions: FunctionImplementation[] = [
         }
         i += 2;
       }
-      // If there is an odd fallback value at the end
       if (i === args.length - 1) {
         return (args[i] as FormulaValue) ?? null;
       }
