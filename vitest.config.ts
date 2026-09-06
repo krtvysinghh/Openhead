@@ -18,6 +18,7 @@ export default defineConfig({
       '@openhead/pen': path.resolve(__dirname, './packages/pen/src'),
       '@openhead/sum': path.resolve(__dirname, './packages/sum/src'),
       '@openhead/glimpse': path.resolve(__dirname, './packages/glimpse/src'),
+      '@openhead/ai': path.resolve(__dirname, './packages/ai/src'),
       '@openhead/ui': path.resolve(__dirname, './packages/ui/src'),
     },
   },

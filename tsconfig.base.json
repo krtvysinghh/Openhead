@@ -22,6 +22,7 @@
       "@openhead/pen": ["./packages/pen/src/index.ts"],
       "@openhead/sum": ["./packages/sum/src/index.ts"],
       "@openhead/glimpse": ["./packages/glimpse/src/index.ts"],
+      "@openhead/ai": ["./packages/ai/src/index.ts"],
       "@openhead/ui": ["./packages/ui/src/index.ts"]
     }
   }

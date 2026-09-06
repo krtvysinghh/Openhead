@@ -24,4 +24,16 @@ export class ZeroTelemetryPolicy {
     }
     return true;
   }
+
+  /**
+   * Checks if an outbound destination is allowed under local-first zero-telemetry rules.
+   * Local endpoints (localhost, 127.0.0.1) are permitted for local LLMs, while external endpoints require explicit consent.
+   */
+  public static isNetworkAllowed(destinationUrl: string, explicitConsent: boolean = false): boolean {
+    const lower = destinationUrl.toLowerCase();
+    if (lower.includes('localhost') || lower.includes('127.0.0.1')) {
+      return true;
+    }
+    return explicitConsent;
+  }
 }
