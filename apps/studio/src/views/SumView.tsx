@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { SumWorkbook, exportWorksheetToCsv, importCsvToWorksheet } from '@openhead/sum';
-import { colIndexToName, parseCellAddress } from '@openhead/formula';
+import { SumWorkbook, exportWorksheetToCsv, importCsvToWorksheet, SortingFilteringEngine } from '@openhead/sum';
+import { colIndexToName, parseCellAddress, FormulaAutocomplete, AutocompleteSuggestion } from '@openhead/formula';
 import { glassStyles } from '@openhead/ui';
 import {
   FileDown,
@@ -13,7 +13,11 @@ import {
   Percent,
   PlusSquare,
   MinusSquare,
+  Bug,
+  ArrowDownAZ,
+  ArrowUpAZ,
 } from 'lucide-react';
+import { FormulaDebuggerDrawer } from '../components/FormulaDebuggerDrawer';
 
 interface SumViewProps {
   workbook: SumWorkbook;
@@ -26,17 +30,41 @@ export const SumView: React.FC<SumViewProps> = ({ workbook: wb, onUpdate, onAiPr
   const [selectedCell, setSelectedCell] = useState<string>('A1');
   const [formulaInput, setFormulaInput] = useState<string>('');
   const [isEditing, setIsEditing] = useState<boolean>(false);
+  const [suggestions, setSuggestions] = useState<AutocompleteSuggestion[]>([]);
+  const [isDebuggerOpen, setIsDebuggerOpen] = useState(false);
 
   const handleCellSelect = (cellKey: string) => {
     setSelectedCell(cellKey);
     const cell = activeSheet.cells[cellKey];
-    setFormulaInput(cell ? String(cell.raw ?? '') : '');
+    const rawVal = cell ? String(cell.raw ?? '') : '';
+    setFormulaInput(rawVal);
+    setSuggestions([]);
+  };
+
+  const handleFormulaInputChange = (val: string) => {
+    setFormulaInput(val);
+    if (val.startsWith('=')) {
+      const match = val.match(/^=([A-Za-z]+)$/);
+      if (match) {
+        setSuggestions(FormulaAutocomplete.getSuggestions(match[1]));
+      } else {
+        setSuggestions([]);
+      }
+    } else {
+      setSuggestions([]);
+    }
   };
 
   const handleCellCommit = () => {
     wb.setCellValue(selectedCell, formulaInput);
     setIsEditing(false);
+    setSuggestions([]);
     onUpdate();
+  };
+
+  const handleApplySuggestion = (sug: AutocompleteSuggestion) => {
+    setFormulaInput(`=${sug.name}(`);
+    setSuggestions([]);
   };
 
   const handleKeyDownGrid = (e: React.KeyboardEvent) => {
@@ -62,6 +90,16 @@ export const SumView: React.FC<SumViewProps> = ({ workbook: wb, onUpdate, onAiPr
     } else if (e.key === 'Enter') {
       e.preventDefault();
       setIsEditing(true);
+    }
+  };
+
+  const handleSortColumn = (ascending: boolean) => {
+    const addr = parseCellAddress(selectedCell);
+    if (addr) {
+      const sorted = SortingFilteringEngine.sortColumn(activeSheet, addr.col, ascending);
+      const targetSheet = wb.getModel().sheets.find((s) => s.id === activeSheet.id)!;
+      targetSheet.cells = sorted.cells;
+      onUpdate();
     }
   };
 
@@ -115,7 +153,7 @@ export const SumView: React.FC<SumViewProps> = ({ workbook: wb, onUpdate, onAiPr
     <div className="flex-1 flex flex-col h-full overflow-hidden bg-slate-950/40" onKeyDown={handleKeyDownGrid} tabIndex={0}>
       {/* Ribbon Toolbar */}
       <div className={`flex items-center justify-between px-6 py-2 border-b border-white/10 ${glassStyles.panelSubtle}`}>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1.5 flex-wrap">
           <button
             onClick={() => {
               wb.setCellFormat(selectedCell, { type: 'currency', currencySymbol: '$', decimals: 2 });
@@ -150,21 +188,45 @@ export const SumView: React.FC<SumViewProps> = ({ workbook: wb, onUpdate, onAiPr
           <div className="w-[1px] h-4 bg-white/10 mx-1" />
 
           <button
+            onClick={() => handleSortColumn(true)}
+            className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-medium text-slate-300 hover:bg-white/10 hover:text-white"
+            title="Sort Column A-Z (Ascending)"
+          >
+            <ArrowDownAZ className="w-4 h-4 text-indigo-400" /> Sort Asc
+          </button>
+          <button
+            onClick={() => handleSortColumn(false)}
+            className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-medium text-slate-300 hover:bg-white/10 hover:text-white"
+            title="Sort Column Z-A (Descending)"
+          >
+            <ArrowUpAZ className="w-4 h-4 text-indigo-400" /> Sort Desc
+          </button>
+
+          <div className="w-[1px] h-4 bg-white/10 mx-1" />
+
+          <button
             onClick={handleInsertRow}
             className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-medium text-slate-300 hover:bg-white/10 hover:text-white"
             title="Insert Row Above Selection"
           >
-            <PlusSquare className="w-4 h-4 text-emerald-400" /> Insert Row
+            <PlusSquare className="w-4 h-4 text-emerald-400" /> Row+
           </button>
           <button
             onClick={handleDeleteRow}
             className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-medium text-slate-300 hover:bg-white/10 hover:text-white"
             title="Delete Current Row"
           >
-            <MinusSquare className="w-4 h-4 text-red-400" /> Delete Row
+            <MinusSquare className="w-4 h-4 text-red-400" /> Row-
           </button>
 
           <div className="w-[1px] h-4 bg-white/10 mx-1" />
+
+          <button
+            onClick={() => setIsDebuggerOpen(true)}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-emerald-300 bg-emerald-500/10 border border-emerald-400/20 hover:bg-emerald-500/20 transition-all"
+          >
+            <Bug className="w-3.5 h-3.5 text-emerald-400" /> Inspect Formula
+          </button>
 
           <button
             onClick={() =>
@@ -172,7 +234,7 @@ export const SumView: React.FC<SumViewProps> = ({ workbook: wb, onUpdate, onAiPr
             }
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-indigo-300 bg-indigo-500/10 border border-indigo-400/20 hover:bg-indigo-500/20 transition-all"
           >
-            <Sparkles className="w-3.5 h-3.5 text-indigo-400" /> Analyze with AI
+            <Sparkles className="w-3.5 h-3.5 text-indigo-400" /> AI Insights
           </button>
         </div>
 
@@ -190,8 +252,8 @@ export const SumView: React.FC<SumViewProps> = ({ workbook: wb, onUpdate, onAiPr
         </div>
       </div>
 
-      {/* Formula Bar */}
-      <div className="flex items-center px-4 py-2 bg-slate-900/40 border-b border-white/5 gap-3">
+      {/* Formula Bar with Autocomplete Dropdown */}
+      <div className="relative flex items-center px-4 py-2 bg-slate-900/40 border-b border-white/5 gap-3">
         <span className="text-xs font-mono font-bold text-indigo-400 bg-white/5 border border-white/10 px-2.5 py-1 rounded">
           {selectedCell}
         </span>
@@ -199,13 +261,29 @@ export const SumView: React.FC<SumViewProps> = ({ workbook: wb, onUpdate, onAiPr
         <input
           type="text"
           value={formulaInput}
-          onChange={(e) => setFormulaInput(e.target.value)}
+          onChange={(e) => handleFormulaInputChange(e.target.value)}
           onKeyDown={(e) => {
             if (e.key === 'Enter') handleCellCommit();
           }}
-          placeholder="Enter a value or formula (e.g. =SUM(A1:A5), =AVERAGE(B1:B10), =VLOOKUP(...))..."
+          placeholder="Enter a value or formula (e.g. =SUM(A1:A5), =PMT(0.05/12, 36, 10000), =VLOOKUP(...))..."
           className="flex-1 bg-transparent border-none outline-none text-slate-100 text-sm font-mono placeholder-slate-500"
         />
+
+        {/* Autocomplete Suggestions Box */}
+        {suggestions.length > 0 && (
+          <div className="absolute left-20 top-11 z-30 w-80 bg-slate-900/95 backdrop-blur-xl border border-white/15 rounded-xl shadow-2xl p-1.5 space-y-1 text-xs">
+            {suggestions.map((sug) => (
+              <div
+                key={sug.name}
+                onClick={() => handleApplySuggestion(sug)}
+                className="p-2 rounded-lg hover:bg-indigo-600/30 cursor-pointer transition-colors"
+              >
+                <div className="font-mono font-semibold text-white">{sug.signature}</div>
+                <div className="text-[10px] text-slate-400 mt-0.5">{sug.description}</div>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* Spreadsheet Matrix Grid */}
@@ -249,7 +327,7 @@ export const SumView: React.FC<SumViewProps> = ({ workbook: wb, onUpdate, onAiPr
                           <input
                             type="text"
                             value={formulaInput}
-                            onChange={(e) => setFormulaInput(e.target.value)}
+                            onChange={(e) => handleFormulaInputChange(e.target.value)}
                             onBlur={handleCellCommit}
                             onKeyDown={(e) => {
                               if (e.key === 'Enter') handleCellCommit();
@@ -303,6 +381,29 @@ export const SumView: React.FC<SumViewProps> = ({ workbook: wb, onUpdate, onAiPr
 
         <span className="text-xs text-slate-500 font-mono">Topological DAG Active</span>
       </div>
+
+      {/* Formula Debugger Drawer */}
+      <FormulaDebuggerDrawer
+        isOpen={isDebuggerOpen}
+        onClose={() => setIsDebuggerOpen(false)}
+        formula={activeSheet.cells[selectedCell]?.raw ? String(activeSheet.cells[selectedCell].raw) : selectedCell}
+        cellResolver={(addr) => {
+          const key = `${colIndexToName(addr.col)}${addr.row + 1}`;
+          return activeSheet.cells[key]?.value ?? null;
+        }}
+        rangeResolver={(rng) => {
+          const rows: any[][] = [];
+          for (let r = rng.start.row; r <= rng.end.row; r++) {
+            const row: any[] = [];
+            for (let c = rng.start.col; c <= rng.end.col; c++) {
+              const k = `${colIndexToName(c)}${r + 1}`;
+              row.push(activeSheet.cells[k]?.value ?? null);
+            }
+            rows.push(row);
+          }
+          return rows;
+        }}
+      />
     </div>
   );
 };
