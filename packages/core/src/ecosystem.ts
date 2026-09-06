@@ -101,15 +101,64 @@ export class OfficeEcosystemBridge {
   }
 
   /**
-   * Converts a Sum numeric table into a Glimpse multi-series ChartNode.
+   * Converts a Sum numeric table or 2D matrix into a Glimpse multi-series ChartNode.
    */
   public static sumRangeToGlimpseChart(
-    categories: string[],
-    seriesData: { name: string; values: number[] }[],
-    title: string = 'Spreadsheet Analytics',
-    chartType: 'bar' | 'column' | 'line' | 'pie' | 'area' = 'column'
+    categoriesOrMatrix: string[] | (string | number | boolean | null)[][],
+    seriesDataOrType?: { name: string; values: number[] }[] | string,
+    titleOrType?: string,
+    chartTypeArg?: 'bar' | 'column' | 'line' | 'pie' | 'area'
   ): ChartNode {
     const colors = ['#6366F1', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6'];
+
+    // Check if input is a 2D matrix
+    if (Array.isArray(categoriesOrMatrix) && Array.isArray(categoriesOrMatrix[0])) {
+      const matrix = categoriesOrMatrix as (string | number | boolean | null)[][];
+      const headerRow = matrix[0] || [];
+      const categories: string[] = [];
+      const seriesList: { name: string; values: number[] }[] = [];
+
+      for (let c = 1; c < headerRow.length; c++) {
+        seriesList.push({ name: String(headerRow[c] || `Series ${c}`), values: [] });
+      }
+
+      for (let r = 1; r < matrix.length; r++) {
+        const row = matrix[r];
+        categories.push(String(row[0] || `Item ${r}`));
+        for (let c = 1; c < headerRow.length; c++) {
+          const val = Number(row[c]);
+          seriesList[c - 1].values.push(!isNaN(val) ? val : 0);
+        }
+      }
+
+      const chartType = (typeof seriesDataOrType === 'string' ? seriesDataOrType : chartTypeArg || 'column') as any;
+      const title = typeof titleOrType === 'string' ? titleOrType : 'Spreadsheet Analytics';
+
+      return {
+        id: generateId('node'),
+        type: 'chart',
+        chartType,
+        title,
+        categories,
+        series: seriesList.map((s, idx) => ({
+          name: s.name,
+          data: s.values,
+          color: colors[idx % colors.length],
+        })),
+        x: 100,
+        y: 180,
+        width: 1400,
+        height: 700,
+        showLegend: true,
+        showDataLabels: true,
+        zIndex: 1,
+      };
+    }
+
+    const categories = categoriesOrMatrix as string[];
+    const seriesData = (Array.isArray(seriesDataOrType) ? seriesDataOrType : []) as { name: string; values: number[] }[];
+    const title = typeof titleOrType === 'string' ? titleOrType : 'Spreadsheet Analytics';
+    const chartType = chartTypeArg || 'column';
 
     return {
       id: generateId('node'),
