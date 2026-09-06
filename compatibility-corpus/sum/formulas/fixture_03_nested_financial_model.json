@@ -1,0 +1,22 @@
+{
+  "metadata": { "id": "corpus_sum_01", "title": "30-Year Mortgage Amortization", "type": "sum", "createdAt": 1700000000, "updatedAt": 1700000000, "version": 1 },
+  "sheets": [
+    {
+      "id": "sheet_1",
+      "name": "Amortization",
+      "rowCount": 50,
+      "colCount": 10,
+      "cells": {
+        "A1": { "raw": "Loan Amount", "value": "Loan Amount" },
+        "B1": { "raw": 500000, "value": 500000, "format": { "type": "currency", "currencySymbol": "$" } },
+        "A2": { "raw": "Annual Rate", "value": "Annual Rate" },
+        "B2": { "raw": 0.065, "value": 0.065, "format": { "type": "percent", "decimals": 2 } },
+        "A3": { "raw": "Term (Months)", "value": "Term (Months)" },
+        "B3": { "raw": 360, "value": 360 },
+        "A4": { "raw": "Monthly Payment", "value": "Monthly Payment" },
+        "B4": { "raw": "=PMT(B2/12, B3, B1)", "value": -3160.34, "format": { "type": "currency", "currencySymbol": "$" } }
+      }
+    }
+  ],
+  "activeSheetId": "sheet_1"
+}

@@ -1,0 +1,17 @@
+{
+  "metadata": { "id": "corpus_pen_01", "title": "Corporate Brand Guidelines", "type": "pen", "createdAt": 1700000000, "updatedAt": 1700000000, "version": 1 },
+  "sections": [
+    {
+      "id": "sec_1",
+      "pageSettings": { "orientation": "portrait", "pageSize": "A4", "margins": { "top": 25, "bottom": 25, "left": 25, "right": 25 }, "columns": 1 },
+      "blocks": [
+        { "id": "b1", "type": "heading", "level": 1, "inlines": [{ "id": "i1", "text": "Corporate Typography & Styling Manual", "styles": { "bold": true, "color": "#4f46e5" } }] },
+        { "id": "b2", "type": "paragraph", "inlines": [
+          { "id": "i2", "text": "Openhead maintains strict WCAG AAA contrast guidelines with " },
+          { "id": "i3", "text": "subtle optical kerning", "styles": { "italic": true, "underline": true } },
+          { "id": "i4", "text": " and embedded LaTeX math formulas." }
+        ] }
+      ]
+    }
+  ]
+}

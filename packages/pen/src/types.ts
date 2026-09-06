@@ -20,6 +20,8 @@ export interface InlineStyle {
   code?: boolean;
   color?: string;
   highlight?: string;
+  fontFamily?: string;
+  fontSize?: number; // pt
   link?: string;
   math?: boolean;
 }
@@ -39,6 +41,7 @@ export interface ParagraphBlock extends BaseBlock {
   type: 'paragraph';
   inlines: InlineText[];
   align?: 'left' | 'center' | 'right' | 'justify';
+  lineHeight?: number;
 }
 
 export interface HeadingBlock extends BaseBlock {
@@ -110,6 +113,14 @@ export interface PageSettings {
   pageSize: 'A4' | 'Letter' | 'Legal';
   margins: { top: number; bottom: number; left: number; right: number };
   columns: number;
+  headerText?: string;
+  footerText?: string;
+}
+
+export interface Footnote {
+  id: string;
+  index: number;
+  text: string;
 }
 
 export interface DocumentSection {
@@ -117,6 +128,7 @@ export interface DocumentSection {
   title?: string;
   pageSettings: PageSettings;
   blocks: Block[];
+  footnotes?: Footnote[];
 }
 
 export interface PenDocumentModel {
@@ -129,6 +141,7 @@ export interface DocStats {
   characters: number;
   charactersWithoutSpaces: number;
   paragraphs: number;
+  estimatedPages: number;
   readingTimeMinutes: number;
 }
 

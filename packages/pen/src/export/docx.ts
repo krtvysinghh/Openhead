@@ -34,6 +34,44 @@ export class DocxAdapter {
             xml += `<w:t>${escapeXml(inl.text)}</w:t></w:r>`;
           }
           xml += `</w:p>\n`;
+        } else if (block.type === 'table') {
+          xml += `    <w:tbl>\n`;
+          xml += `      <w:tblPr><w:tblW w:w="0" w:type="auto"/></w:tblPr>\n`;
+          if (block.headers && block.headers.length > 0) {
+            xml += `      <w:tr>\n`;
+            for (const header of block.headers) {
+              xml += `        <w:tc><w:p><w:r><w:rPr><w:b/></w:rPr><w:t>${escapeXml(header)}</w:t></w:r></w:p></w:tc>\n`;
+            }
+            xml += `      </w:tr>\n`;
+          }
+          for (const row of block.rows) {
+            xml += `      <w:tr>\n`;
+            for (const cell of row) {
+              xml += `        <w:tc><w:p>`;
+              for (const inl of cell.inlines) {
+                xml += `<w:r><w:t>${escapeXml(inl.text)}</w:t></w:r>`;
+              }
+              xml += `</w:p></w:tc>\n`;
+            }
+            xml += `      </w:tr>\n`;
+          }
+          xml += `    </w:tbl>\n`;
+        } else if (block.type === 'bullet-list-item' || block.type === 'numbered-list-item') {
+          xml += `    <w:p><w:pPr><w:numPr><w:ilvl w:val="${block.level || 0}"/></w:numPr></w:pPr>`;
+          for (const inl of block.inlines) {
+            xml += `<w:r><w:t>${escapeXml(inl.text)}</w:t></w:r>`;
+          }
+          xml += `</w:p>\n`;
+        } else if (block.type === 'callout') {
+          xml += `    <w:p><w:pPr><w:pStyle w:val="Quote"/></w:pPr>`;
+          for (const inl of block.inlines) {
+            xml += `<w:r><w:t>${escapeXml(inl.text)}</w:t></w:r>`;
+          }
+          xml += `</w:p>\n`;
+        } else if (block.type === 'code-block') {
+          xml += `    <w:p><w:pPr><w:pStyle w:val="Code"/></w:pPr>`;
+          xml += `<w:r><w:t>${escapeXml(block.code)}</w:t></w:r>`;
+          xml += `</w:p>\n`;
         }
       }
     }

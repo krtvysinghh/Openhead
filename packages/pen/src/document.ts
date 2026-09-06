@@ -7,6 +7,7 @@ import {
   DocStats,
   OutlineItem,
   TableCell,
+  Footnote,
 } from './types';
 
 export class PenDocument {
@@ -40,6 +41,8 @@ export class PenDocument {
             pageSize: 'A4',
             margins: { top: 25, bottom: 25, left: 25, right: 25 },
             columns: 1,
+            headerText: 'Openhead Document',
+            footerText: 'Page 1',
           },
           blocks: [
             {
@@ -166,6 +169,31 @@ export class PenDocument {
     }
   }
 
+  public addFootnote(sectionIndex: number, text: string): Footnote {
+    const prev = JSON.parse(JSON.stringify(this.model));
+    const next = JSON.parse(JSON.stringify(this.model));
+    const sec = next.sections[sectionIndex];
+    if (!sec.footnotes) sec.footnotes = [];
+
+    const footnote: Footnote = {
+      id: generateId('fn'),
+      index: sec.footnotes.length + 1,
+      text,
+    };
+    sec.footnotes.push(footnote);
+    next.metadata.updatedAt = Date.now();
+
+    const cmd: HistoryCommand<PenDocumentModel> = {
+      id: generateId('cmd'),
+      name: `Add Footnote #${footnote.index}`,
+      execute: () => next,
+      undo: () => prev,
+      timestamp: Date.now(),
+    };
+    this.model = this.history.execute(this.model, cmd);
+    return footnote;
+  }
+
   public searchAndReplace(searchQuery: string, replaceWith: string): number {
     if (!searchQuery) return 0;
     let replacements = 0;
@@ -220,9 +248,11 @@ export class PenDocument {
   public getStats(): DocStats {
     let text = '';
     let paragraphCount = 0;
+    let pageBreaks = 1;
 
     for (const section of this.model.sections) {
       for (const block of section.blocks) {
+        if (block.type === 'page-break') pageBreaks++;
         if ('inlines' in block && Array.isArray(block.inlines)) {
           paragraphCount++;
           for (const inl of block.inlines) {
@@ -237,12 +267,14 @@ export class PenDocument {
     const characters = text.length;
     const charactersWithoutSpaces = text.replace(/\s+/g, '').length;
     const readingTimeMinutes = Math.ceil(words / 200);
+    const estimatedPages = Math.max(pageBreaks, Math.ceil(words / 450));
 
     return {
       words,
       characters,
       charactersWithoutSpaces,
       paragraphs: paragraphCount,
+      estimatedPages,
       readingTimeMinutes,
     };
   }
