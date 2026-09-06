@@ -10,3 +10,6 @@ export * from './settings';
 export * from './search';
 export * from './themes';
 export * from './telemetry';
+export * from './ecosystem';
+export * from './templates';
+export * from './pdf';
