@@ -2,6 +2,15 @@
 
 All notable changes to Openhead are documented in this file.
 
+## [0.4.0] - 2026-09-06 (Phase 4: Real-World Compatibility & Productization)
+
+### Added
+- **Openhead Compatibility Corpus**: Comprehensive suite of multi-document edge fixtures in `compatibility-corpus/` covering rich typography, LaTeX formulas, nested data tables, multi-variable financial models, and 16:9 executive presentation decks.
+- **Structural & Visual Regression Framework**: Added `tests/visual-regression/structural_regression.test.ts` and `tests/compatibility/corpus_roundtrip.test.ts` to guarantee AST and schema stability across exports without flaky OS-dependent pixel diffing.
+- **WordprocessingML Table & List Exporter**: Enhanced `@openhead/pen` DOCX adapter to generate standard `w:tbl`, `w:tr`, `w:tc`, bullet/numbered lists, and code blocks.
+- **Pen Multi-Page Pagination Engine**: Enhanced pagination estimator calculating dynamic page breaks based on word count, heading density, and margins.
+- **20 Test Suites / 57 Unit & Regression Tests**: 100% test pass rate across all monorepo packages.
+
 ## [0.3.0] - 2026-09-06 (Phase 3: Depth & Compatibility)
 
 ### Added
