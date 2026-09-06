@@ -1,15 +1,20 @@
-# Openhead Office Suite
-
 <div align="center">
+
+# 🌌 Openhead Office Suite
 
 **The Sovereign, Local-First, High-Performance Office Suite.**
 
-*Open Source · Zero Telemetry · Office OpenXML Interoperable · Local-First AI · Cross-Platform Desktop & Mobile · Blazing Fast*
+*Completely Open Source · Zero Telemetry · Office OpenXML Interoperable · Local-First AI · Cross-Platform Desktop & Mobile · Blazing Fast*
+
+---
 
 [![CI](https://github.com/krtvysinghh/Openhead/actions/workflows/ci.yml/badge.svg)](https://github.com/krtvysinghh/Openhead/actions)
 [![Release](https://github.com/krtvysinghh/Openhead/actions/workflows/release.yml/badge.svg)](https://github.com/krtvysinghh/Openhead/actions)
 [![License: Apache-2.0](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](LICENSE)
-[![Tests](https://img.shields.io/badge/Tests-324%20passing-brightgreen.svg)](https://github.com/krtvysinghh/Openhead)
+[![Tests](https://img.shields.io/badge/Tests-325%20passing-brightgreen.svg)](https://github.com/krtvysinghh/Openhead)
+[![Release](https://img.shields.io/badge/Release-v1.0.0-indigo.svg)](https://github.com/krtvysinghh/Openhead/releases/tag/v1.0.0)
+
+[**Download v1.0.0**](https://github.com/krtvysinghh/Openhead/releases/tag/v1.0.0) • [**Documentation**](docs/) • [**Self-Hosting**](docs/SELF_HOSTING.md) • [**Security & Threat Model**](docs/SECURITY.md)
 
 </div>
 
@@ -17,55 +22,81 @@
 
 ## 🌟 Overview
 
-Openhead is a modern, privacy-first office productivity suite designed as a serious Microsoft Office alternative. Built from first principles, Openhead delivers uncompromising performance, rich visual fidelity, and local-first AI without corporate lock-in or background telemetry.
+**Openhead** is a modern, privacy-first office productivity suite engineered from first principles as an uncompromising, open-source alternative to Microsoft Office and Google Workspace. Openhead runs completely offline, enforces an invariant **Zero-Telemetry Policy**, delivers bi-directional Office OpenXML fidelity, and integrates local-first AI without cloud lock-in.
 
-Openhead contains three flagship applications unified in a cohesive office shell:
+The suite unifies three core applications in a seamless desktop and web workspace:
 
-| Product | Role | Key Capabilities |
+```
+                  ┌─────────────────────────────────────────────────────────┐
+                  │                 OPENHEAD STUDIO SHELL                   │
+                  │  (Unified Switcher · Command Palette · Safe Automation) │
+                  └───────┬───────────────────┬───────────────────┬─────────┘
+                          │                   │                   │
+                          ▼                   ▼                   ▼
+                  ┌──────────────┐    ┌──────────────┐    ┌──────────────┐
+                  │   🖋️ PEN     │    │   📊 SUM     │    │  📽️ GLIMPSE  │
+                  │  (Documents) │    │(Spreadsheets)│    │(Presentations│
+                  │  .docx / .odt│    │ .xlsx / .ods │    │ .pptx / .odp │
+                  └──────────────┘    └──────────────┘    └──────────────┘
+                          │                   │                   │
+                          └───────────────────┴───────────────────┘
+                                              │
+                                              ▼
+                                 ┌─────────────────────────┐
+                                 │   SHARED CORE ENGINES   │
+                                 │  • Formula Pratt Parser │
+                                 │  • Dependency DAG Graph │
+                                 │  • Local AI Provider    │
+                                 │  • Atomic Checksums     │
+                                 │  • Zero-Telemetry Guard │
+                                 └─────────────────────────┘
+```
+
+---
+
+## 🚀 The Three Flagship Engines
+
+| Product | Focus | Key Capabilities |
 |---|---|---|
-| **Pen** | Document Processor | Rich-text typesetting, AST-driven styling, sections, multi-level lists, tables, footnotes/endnotes, headers/footers, threaded comments, tracked changes, search/replace, and bi-directional DOCX import/export. |
-| **Sum** | Spreadsheet Engine | DAG-based topological recalculation, 90+ Excel-compatible functions, dynamic arrays, spill ranges, AutoFilter, defined names, merged cells, cell comments, auto-fill series, styles, and high-fidelity XLSX import/export. |
-| **Glimpse** | Presentation Engine | Scene-graph slide canvas, vector shapes, master layouts, keyframe animations, connectors, theme palettes, DrawingML charts, tables, slide transitions, presenter notes, and PPTX round-trip fidelity. |
+| **🖋️ Pen** | Document Processor | Rich-text typesetting, AST-driven styling, multi-section page layouts, multi-level lists, nested tables, footnotes/endnotes, threaded comments, tracked revisions, offline spellchecker, search/replace, and bi-directional **DOCX** import/export. |
+| **📊 Sum** | Spreadsheet Engine | Topological DAG recalculation, 90+ Excel-compatible formula functions, dynamic array spill engine (`FILTER`, `SORT`, `UNIQUE`, `SEQUENCE`), AutoFilter, defined names, merged cells, cell comments, auto-fill series, and high-fidelity **XLSX** import/export. |
+| **📽️ Glimpse** | Presentation Engine | Vector scene-graph canvas, slide masters, keyframe animations, connectors with auto-routing, theme palettes, DrawingML charts (`bar`, `column`, `line`, `pie`, `area`), slide tables, Presenter Mode with notes, and **PPTX** round-trip fidelity. |
 
 ---
 
-## 📥 Download & Distribution (v1.0.0)
+## 📥 Official Download & Distribution (v1.0.0)
 
-Every official release artifact is accompanied by cryptographic SHA-256 checksums in [`Openhead-1.0.0-checksums.txt`](https://github.com/krtvysinghh/Openhead/releases) and machine-readable metadata in [`Openhead-1.0.0-manifest.json`](https://github.com/krtvysinghh/Openhead/releases).
+All releases are cryptographically hashed. Verify integrity using [`Openhead-1.0.0-checksums.txt`](https://github.com/krtvysinghh/Openhead/releases/download/v1.0.0/Openhead-1.0.0-checksums.txt) and [`Openhead-1.0.0-manifest.json`](https://github.com/krtvysinghh/Openhead/releases/download/v1.0.0/Openhead-1.0.0-manifest.json).
 
-| Platform | Format / Target | Distribution Channel | Status / Signing |
+| Platform / Target | Download Link | Format | Details |
 |---|---|---|---|
-| **Windows (x64)** | `.msi` / `.exe` | [GitHub Releases](https://github.com/krtvysinghh/Openhead/releases) | Standalone Installer (Code-signing pipeline ready) |
-| **macOS (Universal)** | `.dmg` (Apple Silicon & Intel) | [GitHub Releases](https://github.com/krtvysinghh/Openhead/releases) | Drag-and-drop DMG (Notarization pipeline ready) |
-| **Linux (x86_64)** | `.AppImage` / `.deb` / `.rpm` | [GitHub Releases](https://github.com/krtvysinghh/Openhead/releases) | Direct execution / APT & RPM package |
-| **Android** | `.apk` (Direct) / `.aab` (Store) | [GitHub Releases](https://github.com/krtvysinghh/Openhead/releases) / Play Store | Direct APK download (Keystore signing pipeline ready) |
-| **iOS / iPadOS** | `.ipa` / TestFlight | Apple TestFlight / App Store | Archive build pipeline (Apple Provisioning ready) |
-| **Docker (Self-Hosted)** | Multi-arch OCI Image | `ghcr.io/krtvysinghh/openhead:1.0.0` | Minimal, non-root hardened container |
-| **Source** | Full Monorepo | `git clone https://github.com/krtvysinghh/Openhead.git` | Build from source (`pnpm install && pnpm build`) |
-
-> *Note on Credentials*: Where vendor-specific signing secrets (Apple Notarization, Windows Authenticode, Google Play Keystore) are required for store publishing, Openhead includes fully configured CI/CD pipeline definitions consuming environment secrets.
+| **macOS (Apple Silicon)** | [**Openhead-1.0.0-macOS-arm64.dmg**](https://github.com/krtvysinghh/Openhead/releases/download/v1.0.0/Openhead-1.0.0-macOS-arm64.dmg) | `.dmg` | Native Apple Silicon (M1/M2/M3/M4) drag-and-drop installer. |
+| **macOS App Bundle** | [**Openhead-1.0.0-macOS-arm64.app.tar.gz**](https://github.com/krtvysinghh/Openhead/releases/download/v1.0.0/Openhead-1.0.0-macOS-arm64.app.tar.gz) | `.tar.gz` | Direct standalone `.app` archive. |
+| **Web Studio (Offline)** | [**Openhead-1.0.0-WebStudio-Standalone.zip**](https://github.com/krtvysinghh/Openhead/releases/download/v1.0.0/Openhead-1.0.0-WebStudio-Standalone.zip) | `.zip` | Pure static SPA for offline browser use or static web hosting. |
+| **Docker Self-Hosted** | [**Openhead-1.0.0-Docker-SelfHosted.tar.gz**](https://github.com/krtvysinghh/Openhead/releases/download/v1.0.0/Openhead-1.0.0-Docker-SelfHosted.tar.gz) | `.tar.gz` | Dockerfile + docker-compose + hardened Nginx configuration. |
+| **Windows / Linux** | [**Automated CI Releases**](https://github.com/krtvysinghh/Openhead/actions) | `.msi` / `.AppImage` / `.deb` | Automated cross-platform release builds via GitHub Actions. |
+| **Source Code** | [**v1.0.0.zip**](https://github.com/krtvysinghh/Openhead/archive/refs/tags/v1.0.0.zip) | `.zip` | Full reproducible source tree. |
 
 ---
 
-## 🚀 Unified Office Architecture & Capabilities
+## 🛡️ Security, Privacy & Zero-Telemetry Guarantee
 
-- **Unified Studio Shell**: Seamless document switcher, recent files browser, editable template picker, and crash-recovery document restoration.
-- **Office Command Palette (`Ctrl+K` / `Cmd+K`)**: Instant keyboard-driven navigation and command execution.
-- **Global Help & Shortcuts (`F1` / `?`)**: Interactive shortcut and help reference across all office engines.
-- **Cross-App Ecosystem Bridge (`OfficeEcosystemBridge`)**: Copy and convert tabular data between Sum, Pen, and Glimpse with smart structural translation and 2D matrix-to-chart generation.
-- **Office Template Library (`OfficeTemplateLibrary`)**: Production-grade templates for business letters, executive reports, financial budgets, milestone trackers, and pitch decks.
-- **Sandboxed Extensibility (`PluginManager`)**: Default-deny plugin host with granular permission scopes (`document:read`, `commands:register`, `formulas:register`).
-- **Safe Automation Engine (`AutomationEngine`)**: Batch document AST transformations and spreadsheet batch scripting without native code execution vulnerabilities.
-- **Local-First AI (`@openhead/ai`)**: Connects to local Ollama (`localhost:11434`) and LM Studio (`localhost:1234`) with structured word-level Diff Previews, explicit permission scopes, and local audit logging.
-- **Zero-Telemetry Invariant**: Strict policy blocking background tracking, analytics beacons, or unauthorized outbound network calls.
-- **Hostile Document Defenses**: Strict denial of VBA/VBScript macros, DDE/formula injection sanitization, Zip Slip protection, and XML expansion limits.
-- **Cross-Platform Desktop (Tauri 2.0)**: Native desktop shell for macOS, Windows, and Linux (<15 MB footprint, ~40 MB RAM).
+Openhead is built on a strict **zero-telemetry, offline-first security model**:
+
+1. **No External Telemetry**: Zero background beacons, Google Analytics, Sentry, or third-party phone-home scripts. Outbound requests are blocked at runtime.
+2. **Local-First AI Sandboxing**: AI capabilities connect strictly to local inference engines (Ollama on `127.0.0.1:11434`, LM Studio on `127.0.0.1:1234`). All edits provide word-level diff previews and require explicit user acceptance.
+3. **Hostile Document Hardening**:
+   - **VBA Macro Quarantine**: Macros are stripped upon import; binary macro execution is permanently disabled.
+   - **Formula Injection Defense**: CSV and formula imports neutralize command execution triggers (`=`, `+`, `-`, `@`).
+   - **XML Expansion Defense**: Hardened parsers reject Billion Laughs and XXE payloads.
+   - **Zip Slip Mitigation**: Archive extractors sanitize all entry paths and enforce decompression size boundaries.
+4. **Atomic Storage & Checksum Verification**: Every document write is verified with a CRC checksum journal to prevent silent file corruption.
 
 ---
 
 ## 🐳 Self-Hosting with Docker
 
-Deploy your private, isolated Openhead Office instance in seconds:
+Deploy your private Openhead Office instance in a single command:
 
 ```bash
 docker run -d \
@@ -75,7 +106,10 @@ docker run -d \
   ghcr.io/krtvysinghh/openhead:1.0.0
 ```
 
-Or using Docker Compose:
+Access the suite in your browser at `http://localhost:8080`.
+
+Or with Docker Compose:
+
 ```yaml
 version: "3.8"
 services:
@@ -94,73 +128,66 @@ services:
       - /var/run
 ```
 
-See [`docs/SELF_HOSTING.md`](docs/SELF_HOSTING.md) for full self-hosting instructions and reverse proxy configurations.
+See [`docs/SELF_HOSTING.md`](docs/SELF_HOSTING.md) for reverse proxy and TLS setup.
 
 ---
 
-## 🛠️ Monorepo Architecture
+## ⌨️ Global Keyboard Shortcuts
 
-```
-openhead/
-├── apps/
-│   └── studio/             # Unified Openhead Studio Application (React 18 + Vite + Tailwind)
-├── packages/
-│   ├── core/               # Shared document types, clipboard, commands, templates, plugins, storage, telemetry
-│   ├── formula/            # Pratt parser, lexer, AST evaluation, 90+ built-in spreadsheet functions
-│   ├── pen/                # Word processing AST engine, comments, tracked changes, DOCX serializer
-│   ├── sum/                # Spreadsheet workbook engine, dependency DAG, comments, autofill, XLSX serializer
-│   ├── glimpse/            # Presentation scene graph engine, masters, animations, connectors, PPTX serializer
-│   ├── ai/                 # Local-first AI providers, diff engine, sandboxing & audit logger
-│   └── ui/                 # Glassmorphic UI components, design tokens & icons
-├── src-tauri/              # Native Tauri 2.0 desktop shell configuration
-├── tests/                  # Monorepo integration, fidelity, real-world office interop, and hostile security test suites
-└── docs/                   # Architectural Decision Records (ADRs), audits, and performance reports
-```
+| Shortcut | Action | Scope |
+|---|---|---|
+| `Ctrl+K` / `Cmd+K` | Open Universal Command Palette | Global |
+| `Ctrl+T` / `Cmd+T` | Open Office Template Picker | Global |
+| `Ctrl+Shift+F` | Unified Full-Text Document Search | Global |
+| `F1` or `?` | Help & Keyboard Shortcuts Reference | Global |
+| `Ctrl+S` / `Cmd+S` | Save Document to Local Storage / Disk | Global |
+| `Ctrl+Z` / `Ctrl+Y` | Undo / Redo Transaction | Pen, Sum, Glimpse |
+| `F2` | Enter Cell Edit Mode | Sum (Sheets) |
+| `F5` | Launch Fullscreen Presenter Mode | Glimpse (Slides) |
 
 ---
 
-## 🏁 Getting Started from Source
+## 🛠️ Building from Source
 
 ### Prerequisites
-
 - **Node.js**: `>= 20.0.0`
 - **pnpm**: `>= 9.0.0`
-- **Rust**: `>= 1.75` (Optional, for building native desktop binaries)
-
-### Installation & Development
+- **Rust**: `>= 1.75` (Required for native desktop binaries)
 
 ```bash
-# Clone the repository
+# 1. Clone the repository
 git clone https://github.com/krtvysinghh/Openhead.git
 cd Openhead
 
-# Install monorepo dependencies
+# 2. Install workspace dependencies
 pnpm install --frozen-lockfile
 
-# Run the complete test suite (324 passing tests)
+# 3. Run the comprehensive test suite (325 passing tests)
 pnpm test
 
-# Build all workspace packages
+# 4. Build all packages and the web application
 pnpm run build
 
-# Start Openhead Studio in development mode
+# 5. Launch Openhead Studio in development mode
 pnpm dev
+
+# 6. Build native desktop installer (macOS / Windows / Linux)
+pnpm tauri build
 ```
 
 ---
 
-## 📊 Verification & Test Suite
+## 📊 Verification & Automated Testing
 
-The Openhead repository maintains a rigorous automated testing corpus:
+Openhead enforces rigorous automated quality gates:
 
-- **324 Automated Tests** passing across 86 test suites.
-- **Real-World Office Interop Tests**: DOCX, XLSX, and PPTX round-trip compatibility suites.
-- **Structural Regression Tests**: AST snapshot comparisons verifying deterministic output.
-- **Hostile Security Corpus**: 12 attack vectors tested including Zip Slip, Billion Laughs, formula injection, and macro quarantine.
-- **Release Verification**: Checksum calculations and manifest schema validation.
+- **325 Automated Tests** passing across 86 test suites (`pnpm test`).
+- **Real-World Office Interoperability**: Validated against comprehensive DOCX, XLSX, and PPTX compatibility corpora.
+- **Structural Regression Testing**: AST snapshot comparisons verifying deterministic, loss-free roundtrip serialization.
+- **Security Corpus**: 12 attack vectors tested including Zip Slip, Billion Laughs, formula injection, and macro quarantine.
 
 ---
 
 ## 📄 License
 
-Openhead is open-source software licensed under the [Apache-2.0 License](LICENSE).
+Openhead is open-source software licensed under the **[Apache-2.0 License](LICENSE)**.
