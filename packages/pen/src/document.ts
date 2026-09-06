@@ -3,8 +3,10 @@ import {
   PenDocumentModel,
   Block,
   HeadingBlock,
+  TableBlock,
   DocStats,
   OutlineItem,
+  TableCell,
 } from './types';
 
 export class PenDocument {
@@ -112,6 +114,93 @@ export class PenDocument {
       timestamp: Date.now(),
     };
     this.model = this.history.execute(this.model, cmd);
+  }
+
+  public insertTableRow(sectionIndex: number, blockIndex: number, rowIndex: number): void {
+    const block = this.model.sections[sectionIndex].blocks[blockIndex];
+    if (block.type !== 'table') return;
+
+    const prev = JSON.parse(JSON.stringify(this.model));
+    const next = JSON.parse(JSON.stringify(this.model));
+    const targetTable = next.sections[sectionIndex].blocks[blockIndex] as TableBlock;
+
+    const colCount = targetTable.headers.length || (targetTable.rows[0]?.length ?? 2);
+    const newRow: TableCell[] = Array.from({ length: colCount }).map(() => ({
+      id: generateId('cell'),
+      inlines: [{ id: generateId('inl'), text: '' }],
+    }));
+
+    targetTable.rows.splice(rowIndex, 0, newRow);
+    next.metadata.updatedAt = Date.now();
+
+    const cmd: HistoryCommand<PenDocumentModel> = {
+      id: generateId('cmd'),
+      name: 'Insert Table Row',
+      execute: () => next,
+      undo: () => prev,
+      timestamp: Date.now(),
+    };
+    this.model = this.history.execute(this.model, cmd);
+  }
+
+  public deleteTableRow(sectionIndex: number, blockIndex: number, rowIndex: number): void {
+    const block = this.model.sections[sectionIndex].blocks[blockIndex];
+    if (block.type !== 'table') return;
+
+    const prev = JSON.parse(JSON.stringify(this.model));
+    const next = JSON.parse(JSON.stringify(this.model));
+    const targetTable = next.sections[sectionIndex].blocks[blockIndex] as TableBlock;
+
+    if (targetTable.rows.length > 1) {
+      targetTable.rows.splice(rowIndex, 1);
+      next.metadata.updatedAt = Date.now();
+
+      const cmd: HistoryCommand<PenDocumentModel> = {
+        id: generateId('cmd'),
+        name: 'Delete Table Row',
+        execute: () => next,
+        undo: () => prev,
+        timestamp: Date.now(),
+      };
+      this.model = this.history.execute(this.model, cmd);
+    }
+  }
+
+  public searchAndReplace(searchQuery: string, replaceWith: string): number {
+    if (!searchQuery) return 0;
+    let replacements = 0;
+
+    const prev = JSON.parse(JSON.stringify(this.model));
+    const next = JSON.parse(JSON.stringify(this.model));
+
+    for (const section of next.sections) {
+      for (const block of section.blocks) {
+        if ('inlines' in block && Array.isArray(block.inlines)) {
+          for (const inl of block.inlines) {
+            if (inl.text.includes(searchQuery)) {
+              const regex = new RegExp(searchQuery.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g');
+              const count = (inl.text.match(regex) || []).length;
+              replacements += count;
+              inl.text = inl.text.replace(regex, replaceWith);
+            }
+          }
+        }
+      }
+    }
+
+    if (replacements > 0) {
+      next.metadata.updatedAt = Date.now();
+      const cmd: HistoryCommand<PenDocumentModel> = {
+        id: generateId('cmd'),
+        name: `Replace "${searchQuery}" with "${replaceWith}"`,
+        execute: () => next,
+        undo: () => prev,
+        timestamp: Date.now(),
+      };
+      this.model = this.history.execute(this.model, cmd);
+    }
+
+    return replacements;
   }
 
   public undo(): boolean {
